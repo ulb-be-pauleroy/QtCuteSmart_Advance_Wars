@@ -45,3 +45,6 @@ HEADERS  += mainwindow.h \
     infantry.h
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    resources.qrc
