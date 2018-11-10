@@ -16,8 +16,8 @@ class Network;
 class Game{
 
     std::vector<std::vector<int> > intMap;
-    std::vector<std::vector<GameObject*>> terrainMap;
-	std::vector<GameObject*> map[XDIM][YDIM];
+    std::vector<std::vector<std::vector<GameObject *> > > map;
+    //std::vector<GameObject*> map[XDIM][YDIM];
 	std::vector<Unit*> units_orange;
 	int money_orange;
 	std::vector<Unit*> units_blue;

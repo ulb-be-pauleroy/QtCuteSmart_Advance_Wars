@@ -46,7 +46,7 @@ Unit::Unit(int x, int y, int type, char team) : GameObject(x,y){
 }
 
 void Unit::attack(Unit & un, bool counter){
-  // TODO verify the formula
+    // TODO verify the formula
 	//Damage = B * A_HP / 10 * (100 - D_TR * D_HP) / 100
 	//rounding: 1/3 -> 0	1/2, 3/4, 5/4 -> 1		7/4, 9/4 -> 2
 	if(this->moves_left > 0){
@@ -148,22 +148,22 @@ void Unit::newTurn()
 
 
 vector<vector<int> > Unit::selected(){ //int[] (int* should do)
-  //cout << "A unit is selected, returning possible moves." << endl;
-  //cout<<this->posX<<" "<<this->posY<<endl;
-  //vector<int> input = this->bfs();
-  vector<int> input = this->dijkstra();
-  vector<vector<int> > res;
-  vector<int>::iterator it;
-  for(it = input.begin(); it!=input.end();it++) {
-      int& i = *it;
-      int tb[2];
-      int* p = this->getCoordFromPos(i, tb);
-      vector<int> v;
-      v.push_back(*p);
-      v.push_back(*(p+1));
-      res.push_back(v);
-  }
-  return res;
+    //cout << "A unit is selected, returning possible moves." << endl;
+    //cout<<this->posX<<" "<<this->posY<<endl;
+    //vector<int> input = this->bfs();
+    vector<int> input = this->dijkstra();
+    vector<vector<int> > res;
+    vector<int>::iterator it;
+    for(it = input.begin(); it!=input.end();it++) {
+        int& i = *it;
+        int tb[2];
+        int* p = this->getCoordFromPos(i, tb);
+        vector<int> v;
+        v.push_back(*p);
+        v.push_back(*(p+1));
+        res.push_back(v);
+    }
+    return res;
 }
 
 string Unit::getType() const

@@ -19,9 +19,16 @@ Game *Game::getInstance(bool isHost){
     return Game::instance;
 }
 
+void Game::setPath(QString path)
+{
+    this->makeIntMap(path);
+    this->buildTerrainMap();
+}
+
 Game::Game(bool isHost)
 {
 
+    this->setPath(":/Map/Images/Maps/Map.txt");
     this->network = nullptr;
     this->attacking = false;
     this->selected_factory = nullptr;
@@ -74,12 +81,11 @@ void Game::makeIntMap(QString path)
     QTextStream s1(&file);
     s=s1.readAll();
     QStringList list1 = s.split(QRegExp("\n|\r\n|\r"));
-    QStringList::iterator it1;
     std::vector<QStringList> list2;
-    for (it1=list1.begin() ; it1 != list1.end(); it1++){
-        list2.push_back(it1->split(","));
+    for (QString x : list1){
+        list2.push_back(x.split(","));
     }
-    list2.pop_back();
+    //list2.pop_back();
    /* std::vector<QStringList>::iterator it2;
     for(it2 = list2.begin(); it2 != list2.end(); it2++){
         for(it1 = it2->begin(); it1 != it2->end(); it1++){
@@ -92,7 +98,6 @@ void Game::makeIntMap(QString path)
     qDebug() << x; qDebug() << y ;
     vector<vector<int>> list3(y, vector<int>(x,0));         // watch out here, risk to swap x and y axis
     for (unsigned int i = 0; i < y; i++){ // in order to avoid that, list2[i][j] must become list3[j][i]
-
         for (unsigned int j = 0; j < x; j++){
 
             list3[i][j] = list2[j][i].toInt();
@@ -322,7 +327,7 @@ void Game::move(int dir, bool net)
 	}else{
 		int x = this->selected_unit->getPosX();
 		int y = this->selected_unit->getPosY();
-		int newX;
+        int newX;
 		int newY;
 		switch(dir){
 			case 0: newX = x; newY = y-1; break; //up
@@ -735,6 +740,8 @@ void Game::endTurn(bool net)
     }
 }
 
+
+
 void Game::testCaptureAndHealing(Unit* un)
 {
 	int x = un->getPosX();
@@ -793,4 +800,53 @@ bool Game::testEndOfGame()
 		}
 	}
 	return false;
+}
+
+
+
+
+void Game::buildTerrainMap()
+{
+ unsigned int x = this->intMap.size();
+ unsigned int y = this->intMap[0].size();
+ this->map = *new vector<vector<vector<GameObject*> > >(x, vector<vector<GameObject*>>(y,vector<GameObject*>()));
+ for(unsigned int i = 0; i != x; i++ ){
+     for (unsigned int j = 0; j != y; j++){
+         switch(intMap[i][j]){
+         case 1 : this->addGameObject(new Terrain(i,j,0), i, j) ; break;
+         case 2 : this->addGameObject(new Terrain(i,j,1), i, j) ; break;
+         case 3 : this->addGameObject(new Terrain(i,j,2), i, j) ; break;
+         case 4 ... 14 :  this->addGameObject(new Terrain(i,j,3), i, j) ; break;
+         case 15 ... 25:  this->addGameObject(new Terrain(i,j,4), i, j) ; break;
+         case 26 ... 27:  this->addGameObject(new Terrain(i,j,5), i, j) ; break;
+         case 28:  this->addGameObject(new Terrain(i,j,6), i, j) ; break;
+         case 29 ... 32 :  this->addGameObject(new Terrain(i,j,7), i, j) ; break;
+         case 33 : this->addGameObject(new Terrain(i,j,8), i, j) ; break;
+         case 34 : this->addGameObject(new City(i,j,'\0'), i, j , '\0') ; break;
+         case 35 : this->addGameObject(new Factory(i,j,'\0'), i, j , '\0') ; break;
+         case 36 : this->addGameObject(new Airport(i,j,'\0'), i, j , '\0') ; break;
+         case 37 : this->addGameObject(new City(i,j,'\0'), i, j , '\0') ; break;
+         case 38 : this->addGameObject(new City(i,j,'o'), i, j , 'o' ) ; break;
+         case 39 : this->addGameObject(new Factory(i,j,'o'), i, j , 'o') ; break;
+         case 40 : this->addGameObject(new Airport(i,j,'o'), i, j , 'o') ; break;
+         case 41 ... 42 :this->addGameObject(new City(i,j,'o'), i, j , 'o') ; break;
+         case 43 : this->addGameObject(new City(i,j,'o'), i, j , 'b') ; break;
+         case 44 : this->addGameObject(new Factory(i,j,'o'), i, j , 'b') ; break;
+         case 45 : this->addGameObject(new Airport(i,j,'o'), i, j , 'b') ; break;
+         case 46 ... 47 : this->addGameObject(new City(i,j,'o'), i, j , 'b') ; break;
+         case 101 ... 110 :  this->addGameObject(new Terrain(i,j,14), i, j) ; break;
+         case 111 ... 112 : this->addGameObject(new Terrain(i,j,0), i, j) ; break;
+         case 113 ... 114 : this->addGameObject(new Terrain(i,j,14), i, j) ; break;
+         case 115 ... 116 : this->addGameObject(new Terrain(i,j,0), i, j) ; break;
+         case 129 : this->addGameObject(new City(i,j,'o'), i, j , 'b') ; break;
+         case 133 : this->addGameObject(new City(i,j,'\0'), i, j , '\0') ; break;
+         case 134 : this->addGameObject(new City(i,j,'o'), i, j , 'o') ; break;
+         case 140 : this->addGameObject(new City(i,j,'o'), i, j , 'b') ; break;
+         case 145 : this->addGameObject(new City(i,j,'\0'), i, j , '\0') ; break;
+         case 146 : this->addGameObject(new City(i,j,'o'), i, j , 'o') ; break;
+
+         }
+         qDebug() << "j'ai fait un objet!";
+     }
+ }
 }
