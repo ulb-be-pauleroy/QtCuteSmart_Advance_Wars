@@ -79,7 +79,7 @@ void Game::makeIntMap(QString path)
     for (it1=list1.begin() ; it1 != list1.end(); it1++){
         list2.push_back(it1->split(","));
     }
-    list2.pop_back();
+    //list2.pop_back();
    /* std::vector<QStringList>::iterator it2;
     for(it2 = list2.begin(); it2 != list2.end(); it2++){
         for(it1 = it2->begin(); it1 != it2->end(); it1++){
