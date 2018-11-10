@@ -13,17 +13,18 @@ using namespace std;
 
 Game *Game::getInstance(bool isHost){
 
-	if(!Game::instance){ // doesnt work yet
-		Game::instance = new Game(isHost);
+    if(!Game::instance){ // doesnt work yet
+        Game::instance = new Game(isHost);
     }
-	return Game::instance;
+    return Game::instance;
 }
 
 Game::Game(bool isHost)
 {
-	this->network = NULL;
-	this->attacking = false;
-	this->selected_factory = NULL;
+
+    this->network = nullptr;
+    this->attacking = false;
+    this->selected_factory = nullptr;
 	this->money_orange = 1000;
 	this->money_blue = 1000;
 	this->orange_on_turn = true;
@@ -62,6 +63,92 @@ Game::Game(bool isHost)
 	}
 
 	//cout << this->selected_unit << " " << &this->units_orange[0]  << " ok" << endl;
+}
+
+void Game::makeIntMap(QString path)
+{
+    QFile file(path);
+    file.open(QIODevice::ReadOnly);
+
+    QString s;
+    QTextStream s1(&file);
+    s=s1.readAll();
+    QStringList list1 = s.split(QRegExp("\n|\r\n|\r"));
+    QStringList::iterator it1;
+    std::vector<QStringList> list2;
+    for (it1=list1.begin() ; it1 != list1.end(); it1++){
+        list2.push_back(it1->split(","));
+    }
+    list2.pop_back();
+   /* std::vector<QStringList>::iterator it2;
+    for(it2 = list2.begin(); it2 != list2.end(); it2++){
+        for(it1 = it2->begin(); it1 != it2->end(); it1++){
+            qDebug() << *it1;
+        }
+       qDebug() << "fin de ligne";
+    }*/
+    auto x = list2.size();
+    unsigned int y = list2[0].size();
+    qDebug() << x; qDebug() << y ;
+    vector<vector<int>> list3(y, vector<int>(x,0));         // watch out here, risk to swap x and y axis
+    for (unsigned int i = 0; i < y; i++){ // in order to avoid that, list2[i][j] must become list3[j][i]
+
+        for (unsigned int j = 0; j < x; j++){
+
+            list3[i][j] = list2[j][i].toInt();
+            verifyNumber(list3[i][j]);
+        }
+
+    }
+    file.close();
+    this->intMap = list3;
+
+}
+
+void Game::verifyNumber(int& index)
+{
+    if (index >= 48 && index <= 52){ //green to orange
+        index -= 10;
+    }
+    else if (index >= 81 && index <= 85){ //red to orange
+        index -= 43;
+    }
+    else if (index >= 91 && index <= 95){ //black to orange
+        index -= 53;
+    }
+    else if (index >= 117 && index <= 121){ //amber to orange
+        index -= 79;
+    }
+    else if (index >= 53 && index <= 57){ //yellow to blue
+        index -= 10;
+    }
+    else if (index >= 86 && index <= 90){ //brown to blue
+        index -= 43;
+    }
+    else if (index >= 96 && index <= 100){ //grey to blue
+        index -= 53;
+    }
+    else if (index >= 122 && index <= 126){ //jade to blue
+        index -= 79;
+    }
+    else if (index  == 37 || index ==  133 || index == 145){ // no port, HQ, Comtower or lab
+        index = 34;
+    }
+    else if (index  == 41 || index == 42 || index == 134 || index == 146){// no port, HQ, Comtower or lab
+        index = 38;
+    }
+    else if (index  == 46 || index == 47 || index == 129 || index == 140){// no port, HQ, Comtower or lab
+        index = 43;
+    }
+    else if (index  == 111 || index == 112 || index == 115 || index == 116){// no missile silo and rubbles
+        index = 0;
+    }
+
+}
+
+std::vector<std::vector<int> > & Game::getIntMap()
+{
+    return this->intMap;
 }
 
 void Game::recieveNetwork(Network *net)

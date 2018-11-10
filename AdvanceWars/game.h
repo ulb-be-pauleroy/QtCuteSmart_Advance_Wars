@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <QString>
 //#include "network.h"
 #include "gameobject.h"
 #include "validmove.h"
@@ -30,11 +31,15 @@ class Game{
 	bool attacking;
 	Network* network;
 	static Game* instance;
-	Game(bool isHost);
+    Game(bool isHost);
 
 public:
 
-	static Game* getInstance(bool isHost=true);
+    static Game* getInstance(bool isHost=true);
+    void setPath(QString path);
+    void makeIntMap(QString path);
+    void verifyNumber(int& index);
+    std::vector<std::vector<int> > & getIntMap();
 	void recieveNetwork(Network* net);
 	void networkAction(std::string type, int x, int y, int data, int data2);
 	std::vector<GameObject*>* getMapContent(); //network only
@@ -58,6 +63,7 @@ public:
     int getSelectedY();
 	char getTeamOnTurn() const;
 	void endTurn(bool net=false);
+    void buildTerrainMap();
 
 private:
 	bool testObstacle(int x, int y);

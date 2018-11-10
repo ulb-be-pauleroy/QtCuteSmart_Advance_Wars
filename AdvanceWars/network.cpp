@@ -31,7 +31,7 @@ Network::Network(MainWindow *wn, QObject *parent) : QObject(parent)
 		//emit this->other->connected();
 	} else {
 		std::cout << "I am the server" << std::endl;
-		this->other = NULL;
+        this->other = nullptr;
 	}
 
 	QObject::connect(this->server, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
