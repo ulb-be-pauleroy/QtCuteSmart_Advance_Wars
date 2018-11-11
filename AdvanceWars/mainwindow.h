@@ -20,6 +20,7 @@ class MainWindow : public QMainWindow
 	Network* network;
     std::vector<std::vector<int> > intMap;
     std::vector<std::vector<QImage*> > imageMap;
+    std::map<int, QImage*> UnitImages ;
 
 public:
 	explicit MainWindow(QWidget *parent = 0);
@@ -34,7 +35,7 @@ public:
     void loadImages();
     QImage* loadImage(int a);
     void paintMap(QPainter &painter);
-    void paintUnits();
+    void paintUnits(QPainter &painter);
 
 private:
 	Ui::MainWindow *ui;

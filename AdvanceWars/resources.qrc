@@ -71,5 +71,20 @@
     <qresource prefix="/Map">
         <file>Images/Maps/Map.txt</file>
     </qresource>
-    <qresource prefix="/Units"/>
+    <qresource prefix="/Units">
+        <file>Images/Units/geanti-air.gif</file>
+        <file>Images/Units/geapc.gif</file>
+        <file>Images/Units/geartillery.gif</file>
+        <file>Images/Units/geb-copter.gif</file>
+        <file>Images/Units/gefighter.gif</file>
+        <file>Images/Units/geinfantry.gif</file>
+        <file>Images/Units/gemech.gif</file>
+        <file>Images/Units/gemegatank.gif</file>
+        <file>Images/Units/getank.gif</file>
+        <file>Images/Units/get-copter.gif</file>
+        <file>Images/Units/gebomber.gif</file>
+        <file>Images/Units/gemd.tank.gif</file>
+        <file>Images/Units/geneotank.gif</file>
+        <file>Images/Units/gerecon.gif</file>
+    </qresource>
 </RCC>

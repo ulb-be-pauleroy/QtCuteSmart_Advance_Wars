@@ -53,7 +53,7 @@ Game::Game(bool isHost)
 		this->selected_x = 1;
 		this->selected_y = 1;
 
-		Terrain* t = new Terrain(5,2,1);
+        /*Terrain* t = new Terrain(5,2,1);
 		this->map[5][2].push_back(t);
 
 		Factory* f = new Factory(0,1,'o');
@@ -66,7 +66,7 @@ Game::Game(bool isHost)
 		this->addGameObject(f,0,4,'o');
 
 		City* ct = new City(0,2);
-		this->addGameObject(ct,0,2);
+        this->addGameObject(ct,0,2);*/
 	}
 
 	//cout << this->selected_unit << " " << &this->units_orange[0]  << " ok" << endl;
@@ -261,7 +261,17 @@ int Game::getBalance(char pl) const
 		return this->money_blue;
 	}else{
 		return -1; //error
-	}
+    }
+}
+
+std::vector<Unit *>& Game::getUnits_blue()
+{
+    return this->units_blue;
+}
+
+std::vector<Unit *>& Game::getUnits_orange()
+{
+    return this->units_orange;
 }
 
 void Game::pay(int qnt, char player)
@@ -846,7 +856,7 @@ void Game::buildTerrainMap()
          case 146 : this->addGameObject(new City(i,j,'o'), i, j , 'o') ; break;
 
          }
-         qDebug() << "j'ai fait un objet!";
      }
  }
+ qDebug() << "jai fini les objets!";
 }

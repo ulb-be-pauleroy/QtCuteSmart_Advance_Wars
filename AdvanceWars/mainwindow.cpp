@@ -25,7 +25,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::keyPressEvent(QKeyEvent * event)
 {
-    if(this->network->getTeam() == game->getTeamOnTurn()){
+    //if(this->network->getTeam() == game->getTeamOnTurn()){
 	switch(event->key()){
 		case Qt::Key_Up: game->move(0); break;
 		case Qt::Key_Down: game->move(1); break;
@@ -48,11 +48,11 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 	}
 
 	this->update();
-    }
+    //}
 }
 
 void MainWindow::mousePressEvent(QMouseEvent* event){
-    if(this->network->getTeam() == game->getTeamOnTurn()){
+    //if(this->network->getTeam() == game->getTeamOnTurn()){
 	int x = event->x();
 	int y = event->y();
 	//std::cout<<x<<" "<<y<<" "<< event->button() <<std::endl;
@@ -63,30 +63,31 @@ void MainWindow::mousePressEvent(QMouseEvent* event){
 		this->game->moveTo(x/this->blk_size,y/this->blk_size);
 	}
 	this->update();
-    }
+    //}
 }
 
 void MainWindow::wheelEvent(QWheelEvent * event){
 	//std::cout<<event->delta()<<std::endl;
 	// +-120 for scrolling up or down
-    //if(this->network->getTeam() == game->getTeamOnTurn()){
+    if(this->network->getTeam() == game->getTeamOnTurn()){
 	if(event->delta() > 0){
 		this->game->cycleUnits(-1);
 	}else{
 		this->game->cycleUnits(1);
 	}
 	this->update();
-    //}
+    }
 }
 
 void MainWindow::paintEvent(QPaintEvent *)
 {
 	QPainter painter(this);
     paintMap(painter);
+    paintUnits(painter);
 
-    /*if(this->game){
+    //if(this->game){
 	//int blk_size = 40;
-	for(int i=0;i<XDIM;i++){
+    /*for(int i=0;i<XDIM;i++){
 		for(int j=0;j<YDIM;j++){
 			//painter.setBrush(QBrush(Qt::black));
 			painter.drawRect(this->blk_size*i,this->blk_size*j,this->blk_size,this->blk_size);
@@ -141,14 +142,27 @@ void MainWindow::loadImages()
 {
     std::vector<std::vector<QImage*> > imageMap(this->intMap.size());
     auto x = this->intMap.size();
+    this->imageMap = imageMap;
     //std::vector<std::vector<int> >::iterator it1;
     std::vector<int>::iterator it2;
     for (unsigned int i = 0 ; i != x; i++){
         for (it2 = intMap[i].begin(); it2 != intMap[i].end(); it2++){
-            imageMap[i].push_back(loadImage(*it2));
+            this->imageMap[i].push_back(loadImage(*it2));
         }
     }
-    this->imageMap = imageMap;
+    std::map<int,QImage*> unitImages;
+    unitImages.insert(std::pair<int, QImage* >(0, new QImage(":/Units/Images/Units/geinfantry.gif")));
+    unitImages.insert(std::pair<int, QImage* >(1, new QImage(":/Units/Images/Units/gemech.gif")));
+    unitImages.insert(std::pair<int, QImage* >(2, new QImage(":/Units/Images/Units/gerecon.gif")));
+    unitImages.insert(std::pair<int, QImage* >(3, new QImage(":/Units/Images/Units/geanti-air.gif")));
+    unitImages.insert(std::pair<int, QImage* >(4, new QImage(":/Units/Images/Units/getank.gif")));
+    unitImages.insert(std::pair<int, QImage* >(5, new QImage(":/Units/Images/Units/gemd.tank.gif")));
+    unitImages.insert(std::pair<int, QImage* >(6, new QImage(":/Units/Images/Units/gemegatank.gif")));
+    unitImages.insert(std::pair<int, QImage* >(7, new QImage(":/Units/Images/Units/geneotank.gif")));
+    unitImages.insert(std::pair<int, QImage* >(8, new QImage(":/Units/Images/Units/geb-copter.gif")));
+    unitImages.insert(std::pair<int, QImage* >(9, new QImage(":/Units/Images/Units/gefighter.gif")));
+    unitImages.insert(std::pair<int, QImage* >(10, new QImage(":/Units/Images/Units/gebomber.gif")));
+    this->UnitImages = unitImages;
 }
 
 QImage *MainWindow::loadImage(int a)
@@ -243,5 +257,24 @@ void MainWindow::paintMap(QPainter &painter)
         }
     }
 }
+
+void MainWindow::paintUnits(QPainter &painter)
+{
+    if (this->game->getUnits_blue().size()!=0){
+        for (Unit* i : this->game->getUnits_blue() ){
+            QImage im = UnitImages[i->getUnitType()]->scaledToWidth(blk_size);
+            painter.drawImage(QPoint(i->getPosX()*blk_size, i->getPosY()*blk_size), im);
+        }
+        qDebug() << "j'ai quitté la boucle 1";
+    }
+    if (this->game->getUnits_blue().size()!=0){
+        for (Unit* i : this->game->getUnits_orange() ){
+            QImage im = UnitImages[i->getUnitType()]->scaledToWidth(blk_size);
+            painter.drawImage(QPoint(i->getPosX()*blk_size, i->getPosY()*blk_size), im);
+        }
+        qDebug() << "j'ai quitté la boucle 2";
+    }
+}
+
 
 

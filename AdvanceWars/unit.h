@@ -53,7 +53,7 @@ private:
     std::vector<int> dijkstra();
 
     // dmg_chart[attacker][target]
-    // 0 = infantry, 1 = bazooka, 2 = recon, 3 = anti-air
+    // 0 = infantry, 1 = mech, 2 = recon, 3 = anti-air
     // 4 = tank, 5 = md. tank, 6 = mega tank, 7 = neotank
     // 8 = b-copter, 9 = fighter, 10 = bomber
     const static int dmg_chart[11][11];

@@ -47,6 +47,8 @@ public:
 	int getTerrainMovementModifier(Unit* un, int x, int y);// const;
 	int getTerrainDefenseModifier(Unit& un, int x, int y);// const;
 	int getBalance(char pl) const;
+    std::vector<Unit *>& getUnits_blue();
+    std::vector<Unit *> &getUnits_orange();
 	void pay(int qnt, char player);
 	GameObject* addGameObject(GameObject* go, int x, int y, const char team='\0');
 	Unit* addUnit(Unit* un, int x, int y, const char team, bool net=false);
