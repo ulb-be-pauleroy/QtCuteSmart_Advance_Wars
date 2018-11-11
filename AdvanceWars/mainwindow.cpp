@@ -10,7 +10,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->setupUi(this);
 
 	this->blk_size = 40;
-	this->setGeometry(100,100,this->blk_size*XDIM +5,this->blk_size*YDIM +25);//800,800);
 	this->game = NULL;
 	this->network = NULL;
 }
@@ -81,9 +80,10 @@ void MainWindow::wheelEvent(QWheelEvent * event){
 
 void MainWindow::paintEvent(QPaintEvent *)
 {
-	QPainter painter(this);
+    QPainter painter(this);
     paintMap(painter);
     paintUnits(painter);
+    painter.fillRect(this->blk_size*intMap.size(),0,(this->blk_size*intMap[1].size(), "white");
 
     //if(this->game){
 	//int blk_size = 40;
@@ -127,10 +127,11 @@ void MainWindow::paintEvent(QPaintEvent *)
 
 void MainWindow::receiveGame(Game* gm)
 {
-	this->game = gm;
+    this->game = gm;
     this->intMap = game->getIntMap();
     this->loadImages();
-	this->update();
+    this->update();
+    setFixedSize((this->blk_size*intMap.size())*4/3,this->blk_size*intMap[1].size());
 }
 
 void MainWindow::receiveNetwork(Network *net)
