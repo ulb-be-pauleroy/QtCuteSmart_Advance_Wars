@@ -32,7 +32,7 @@ Game::Game(bool isHost)
     this->network = nullptr;
     this->attacking = false;
     this->selected_factory = nullptr;
-	this->money_orange = 1000;
+	this->money_orange = 1000; //TODO
 	this->money_blue = 1000;
 	this->orange_on_turn = true;
 
@@ -52,6 +52,8 @@ Game::Game(bool isHost)
 
 		this->selected_x = 1;
 		this->selected_y = 1;
+
+		this->setIncome(1000); //TODO
 
         /*Terrain* t = new Terrain(5,2,1);
 		this->map[5][2].push_back(t);
@@ -161,6 +163,14 @@ void Game::recieveNetwork(Network *net)
 	this->network = net;
 }
 
+void Game::setIncome(int inc){
+	this->income = inc;
+}
+
+int Game::getIncome(){
+	return this->income;
+}
+
 void Game::networkAction(string type, int x, int y, int data, int data2)
 {
 	//cout<<"hello network"<<endl;
@@ -171,7 +181,17 @@ void Game::networkAction(string type, int x, int y, int data, int data2)
 			if(tile[i]->getType().find("Unit") != string::npos){
 				Unit* temp = this->selected_unit;
 				this->selected_unit = dynamic_cast<Unit*>(tile[i]);
-				this->move(data,true);
+				int delX = data - x;
+				int delY = data2 - y;
+				if(delX > 0 && delY == 0){ // right
+					this->move(3,true);
+				}else if(delX < 0 && delY == 0){ // left
+					this->move(2,true);
+				}else if(delX == 0 && delY > 0){ //down
+					this->move(1,true);
+				}else if(delX == 0 && delY < 0){ //up
+					this->move(0,true);
+				}
 				this->selected_unit = temp;
 				this->clearValidMoves();
 			}
@@ -356,7 +376,7 @@ void Game::move(int dir, bool net)
 						this->map[x][y].erase(it);
 						//cout<<"Mov erase"<<endl;
 						if(this->network && !net){
-							this->network->sendData("move",x,y, dir);
+							this->network->sendData("move",x,y, newX, newY);
 						}
 						break;
 					}
@@ -723,7 +743,7 @@ void Game::endTurn(bool net)
 			if(!this->units_blue.empty()) this->selected_unit = this->units_blue[0];
 			for(unsigned int i=0;i<this->buildings.size();i++){
 				if(this->buildings[i]->getType() != "Airport" && this->buildings[i]->getOwner() =='b'){
-					this->money_blue += 1000;
+					this->money_blue += this->income;
 				}
 			}
 			cout<<"Blue money: "<<this->money_blue<<endl;
@@ -740,7 +760,7 @@ void Game::endTurn(bool net)
 			if(!this->units_orange.empty()) this->selected_unit = this->units_orange[0];
 			for(unsigned int i=0;i<this->buildings.size();i++){
 				if(this->buildings[i]->getType() != "Airport" && this->buildings[i]->getOwner() =='o'){
-					this->money_orange += 1000;
+					this->money_orange += this->income;
 				}
 			}
 			cout<<"Orange money: "<<this->money_orange<<endl;

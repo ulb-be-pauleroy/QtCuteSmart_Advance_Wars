@@ -31,7 +31,7 @@ Network::Network(MainWindow *wn, QObject *parent) : QObject(parent)
 		//emit this->other->connected();
 	} else {
 		std::cout << "I am the server" << std::endl;
-        this->other = nullptr;
+		this->other = NULL;
 	}
 
 	QObject::connect(this->server, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
@@ -99,34 +99,18 @@ void Network::onNewConnection() {
 		map[key+"3"] = owner;
 	}
 	delete objects;
-	/*
 
+	QJsonArray units;
 
-	map["size"] = 5; //TODO number of added buildings -> see game, hardcoded
-	//int arr[] = {1,5,2,1};
-	//QJsonArray ar = QJsonArray::fromVariantList(arr);
-	map["00"] = 1; //go type (1=terrain, 2=city, 3=factory, 4=airport),x,y,type/ownership
-	map["01"] = 5;
-	map["02"] = 2;
-	map["03"] = 1;
-	map["10"] = 3;
-	map["11"] = 0;
-	map["12"] = 1;
-	map["13"] = 1;
-	map["20"] = 4;
-	map["21"] = 0;
-	map["22"] = 4;
-	map["23"] = 1;
-	map["30"] = 2;
-	map["31"] = 0;
-	map["32"] = 2;
-	map["33"] = 0;
-	map["40"] = 3;
-	map["41"] = 0;
-	map["42"] = 6;
-	map["43"] = 2;
-*/
-	this->sendJson(map);
+	QJsonObject config;
+	config["income"] = game->getIncome();
+	config["map"] = map;		//TODO
+	config["firstplayer"] = 5;
+	config["secondplayer"] = 10;
+	config["youplay"] = "firstplayer";
+	config["units"] = units;
+
+	this->sendJson(config);
 }
 
 void Network::onConnected() {
@@ -158,12 +142,15 @@ void Network::onData() {
 	QJsonDocument doc = QJsonDocument::fromJson(data);
 	QJsonObject json = doc.object();
 
+	QStringList keys = json.keys();
+
 	if(! this->isConfigured) { //first transmission
 		// recieves the map
+		QJsonObject map = json["map"].toObject();
 
 		Game* game = Game::getInstance(false);
 		game->recieveNetwork(this);
-		int size = json["size"].toInt();
+		int size = map["size"].toInt();
 		for(int i=0;i<size;i++){
 			int dat[4];
 			for(int j=0;j<4;j++){
@@ -177,7 +164,7 @@ void Network::onData() {
 				str[2] = '\0';
 				QString key = str;//ss.str();//std::to_string(i) + std::to_string(j);
 				//std::cout<<str<<std::endl;
-				dat[j] = json[key].toInt();
+				dat[j] = map[key].toInt();
 			}
 			//int dat[] = json[i].toArray();
 			int x = dat[1];
@@ -198,20 +185,46 @@ void Network::onData() {
 			}
 		}
 
+		QJsonArray units = json["units"].toArray();
+		for(int i=0;i<units.size();i++){
+			QJsonObject unit = units[i].toObject();
+			game->networkAction("newunit",unit["x"].toInt(),unit["y"].toInt(),
+						this->getUnitType(unit["type"].toString()),unit["country"].toInt()); //TODO country
+		}
+
+		game->setIncome(json["income"].toInt());
+
 		this->win->receiveGame(game); //enables the gameplay as well
 		this->team = 'b';
 		this->isConfigured = true;
 	} else {
 		//normal gameplay
 
-
-		//if(json["type"] == "move"){
+/*
 		Game::getInstance()->networkAction(json["type"].toString().toStdString(),
 										json["x"].toInt(),json["y"].toInt(),
 										json["data"].toInt(),json["data2"].toInt());
-		//}else if(json["type"] == "endTurn"){
-		//	Game::getInstance()->endTurn();
-		//}
+*/
+		if(keys[0] == "move"){
+			QJsonArray arr = json[keys[0]].toArray();
+			Game::getInstance()->networkAction("move",arr[0].toInt(),arr[1].toInt(),arr[2].toInt(),arr[3].toInt());
+			if(keys.size() >1 && keys[1] == "attack"){
+				QJsonArray vic = json[keys[1]].toArray();
+				Game::getInstance()->networkAction("attack",arr[0].toInt(),arr[1].toInt(),vic[0].toInt(),vic[1].toInt());
+			}
+		}else if(keys[0] == "build"){
+			QJsonArray arr = json[keys[0]].toArray(); // TODO in game.cpp
+			int tm;
+			if(this->team == 'o'){
+				tm = 2;
+			}else if(this->team == 'b'){
+				tm = 1;
+			}
+			Game::getInstance()->networkAction("newunit",
+							arr[0].toInt(),arr[1].toInt(),this->getUnitType(json[keys[1]].toString()),tm);
+		}else if(keys[0] == "endofturn"){
+			Game::getInstance()->networkAction("endTurn",0,0,0,0);
+		}
 
 		//idk what is this, probably error checking
 		/*
@@ -227,11 +240,35 @@ void Network::onData() {
 
 void Network::sendData(QString type, int x, int y, int data, int data2){
 	QJsonObject action;
+	if(type == "move"){
+		QJsonArray arr;
+		arr.append(x); arr.append(y);
+		arr.append(data); arr.append(data2);  //data is newX and newY
+		//arr[0] = x; arr[1] = y; arr[2] = data; arr[3] = data2;
+		action["move"] = arr;
+	}else if(type == "attack"){
+		QJsonArray arr;
+		arr.append(x); arr.append(y);
+		arr.append(x); arr.append(y);
+		action["move"] = arr;
+		QJsonArray pos;
+		pos.append(data); pos.append(data2);
+		action["attack"] = pos;
+	}else if(type == "newunit"){
+		QJsonArray pos;
+		pos.append(x); pos.append(y);
+		//pos[0] = x; pos[1] = y;
+		action["build"] = pos;
+		action["type"] = this->getUnitName(data);
+	}else if(type == "endTurn"){
+		action["endofturn"] =true;
+	}
+	/*
 	action["type"] = type;
 	action["x"] = x;
 	action["y"] = y;
 	action["data"] = data;
-	action["data2"] = data2;
+	action["data2"] = data2;*/
 	this->sendJson(action);
 }
 
@@ -242,6 +279,53 @@ void Network::sendJson(const QJsonObject& obj) { //updated to reference
 	this->other->write(data);
 
 	std::cout << "Sending " << data.toStdString() << std::endl;
+}
+
+int Network::getUnitType(const QString & name)
+{
+	if(name == "infantry"){
+		return 0;
+	}else if(name == "bazzoka"){
+		return 1;
+	}else if(name == "recon"){
+		return 2;
+	}else if(name == "antiair"){
+		return 3;
+	}else if(name == "tank"){
+		return 4;
+	}else if(name == "mdtank"){
+		return 5;
+	}else if(name == "megatank"){
+		return 6;
+	}else if(name == "neotank"){
+		return 7;
+	}else if(name == "bcopter"){
+		return 8;
+	}else if(name == "fighter"){
+		return 9;
+	}else if(name == "bomber"){
+		return 10;
+	}else{
+		return -1; //error
+	}
+}
+
+QString Network::getUnitName(const int type)
+{
+	switch(type){
+		case 0: return "infantry";
+		case 1: return "bazooka";
+		case 2: return "recon";
+		case 3: return "antiair";
+		case 4: return "tank";
+		case 5: return "mdtank";
+		case 6: return "megatank";
+		case 7: return "neotank";
+		case 8: return "bcopter";
+		case 9: return "fighter";
+		case 10: return "bomber";
+	default: return "";
+	}
 }
 
 char Network::getTeam() const

@@ -34,6 +34,8 @@ public slots:
 
 private:
 	void sendJson(const QJsonObject&);
+	int getUnitType(const QString&);
+	QString getUnitName(const int);
 };
 
 #endif // NETWORK_H

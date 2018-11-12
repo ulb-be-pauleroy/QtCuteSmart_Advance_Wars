@@ -18,6 +18,7 @@ class Game{
     std::vector<std::vector<int> > intMap;
     std::vector<std::vector<std::vector<GameObject *> > > map;
     //std::vector<GameObject*> map[XDIM][YDIM];
+	int income;
 	std::vector<Unit*> units_orange;
 	int money_orange;
 	std::vector<Unit*> units_blue;
@@ -41,6 +42,8 @@ public:
     void verifyNumber(int& index);
     std::vector<std::vector<int> > & getIntMap();
 	void recieveNetwork(Network* net);
+	void setIncome(int inc);
+	int getIncome();
 	void networkAction(std::string type, int x, int y, int data, int data2);
 	std::vector<GameObject*>* getMapContent(); //network only
 	std::vector<GameObject*> & getObjectsOnPos(int x, int y);// const;
