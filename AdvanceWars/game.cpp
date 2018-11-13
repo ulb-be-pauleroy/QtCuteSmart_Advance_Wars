@@ -397,7 +397,13 @@ void Game::move(int dir, bool net)
 void Game::moveTo(int x, int y)
 {
 	bool ok = false;
-	vector<vector<int> > moves = this->selected_unit->selected();
+	vector<ValidMove*> moves = this->selected_unit->selected();
+	for(unsigned int i=0;i<moves.size();i++){
+		if(moves[i]->getPosX()==x && moves[i]->getPosY()==y){
+			ok=true;
+			break;
+		}
+	}/*
 	vector<vector<int> >::iterator it_mv;
 	for(it_mv = moves.begin(); it_mv!=moves.end();it_mv++){
 		vector<int> coord = *it_mv;
@@ -405,10 +411,7 @@ void Game::moveTo(int x, int y)
 			ok=true;
 			break;
 		}
-	}
-	if(ok){
-		ok = !this->testObstacle(x,y);
-	}
+	}*/
 
 	if(ok){
 		//cout<< "moving"<<endl;
@@ -700,14 +703,19 @@ void Game::drawPossibleMoves(){
 	//cout<<"Here"<<endl;
 	this->clearValidMoves();
 	//cout<<"Here2"<<endl;
-    vector<vector<int> > moves = this->selected_unit->selected();
+	vector<ValidMove*> moves = this->selected_unit->selected();
 	//cout<<"Here3"<<endl;
-    vector<vector<int> >::iterator it_mv;
-    for(it_mv = moves.begin(); it_mv!=moves.end();it_mv++){
-        vector<int> coord = *it_mv;
-		this->map[coord[0]][coord[1]].push_back(new ValidMove(coord[0],coord[1]));
+	/*
+	vector<vector<int> >::iterator it_mv;
+	for(it_mv = moves.begin(); it_mv!=moves.end();it_mv++){
+		vector<int> coord = *it_mv;
+		this->map[coord[0]][coord[1]].push_back(new ValidMove(coord[0],coord[1],false));
 		//possible memory leak here
-    }
+	}*/
+	for(unsigned int i=0;i<moves.size();i++){
+		ValidMove* vm = moves[i];
+		this->map[vm->getPosX()][vm->getPosY()].push_back(vm);
+	}
 	//cout<<"Here4"<<endl;
 }
 

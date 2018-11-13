@@ -6,6 +6,7 @@
 #include<vector>
 //#include<list>
 #include "edge.h"
+#include "validmove.h"
 #include "gameobject.h"
 
 #include "mapsize.h"
@@ -23,6 +24,7 @@ class Unit : public GameObject{
 	int price;
 
     std::vector<Edge> ee[XDIM * YDIM]; //static + still hardcoded
+	std::vector<int> last;
 
 public:
     Unit(int x=0, int y=0, int type =0, char team='\0');
@@ -42,7 +44,7 @@ public:
     void endTurn();
     void newTurn();
 
-    std::vector<std::vector<int> > selected();
+	std::vector<ValidMove*> selected();
     virtual std::string getType() const;
     void interactWith();
 private:

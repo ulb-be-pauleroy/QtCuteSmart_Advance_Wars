@@ -147,21 +147,33 @@ void Unit::newTurn()
 }
 
 
-vector<vector<int> > Unit::selected(){ //int[] (int* should do)
+std::vector<ValidMove *> Unit::selected(){ //int[] (int* should do)
     //cout << "A unit is selected, returning possible moves." << endl;
     //cout<<this->posX<<" "<<this->posY<<endl;
     //vector<int> input = this->bfs();
     vector<int> input = this->dijkstra();
-    vector<vector<int> > res;
+	vector<ValidMove*> res;
     vector<int>::iterator it;
     for(it = input.begin(); it!=input.end();it++) {
         int& i = *it;
         int tb[2];
         int* p = this->getCoordFromPos(i, tb);
-        vector<int> v;
+		bool lst = false;
+		for(unsigned int j=0;j<this->last.size();j++){
+			if(this->last[j] == i){
+				lst =true;
+				break;
+			}
+		}
+		if(lst){
+			res.push_back(new ValidMove(*p,*(p+1),true));
+		}else{
+			res.push_back(new ValidMove(*p,*(p+1),false));
+		}
+		/*
         v.push_back(*p);
         v.push_back(*(p+1));
-        res.push_back(v);
+		res.push_back(v);*/
     }
     return res;
 }
@@ -263,6 +275,10 @@ vector<int> Unit::dijkstra(){
 					pq.push(e.getTo());
 					//cout<< "hello4" <<endl;
 					ok.push_back(e.getTo()); // we collect this
+					if(dist[e.getTo()] - this->moves_left >= 0){
+						//cout << "This is a last move."<<endl;
+						this->last.push_back(e.getTo());
+					}
 				}
 			}
 			//cout<< "loop end" <<endl;
