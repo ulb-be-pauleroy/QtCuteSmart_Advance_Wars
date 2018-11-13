@@ -25,7 +25,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::keyPressEvent(QKeyEvent * event)
 {
-    //if(this->network->getTeam() == game->getTeamOnTurn()){
+	if(!this->network || (this->network->getTeam() == game->getTeamOnTurn())){
 	switch(event->key()){
 		case Qt::Key_Up: game->move(0); break;
 		case Qt::Key_Down: game->move(1); break;
@@ -48,11 +48,11 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 	}
 
 	this->update();
-    //}
+	}
 }
 
 void MainWindow::mousePressEvent(QMouseEvent* event){
-    //if(this->network->getTeam() == game->getTeamOnTurn()){
+	if(!this->network || (this->network->getTeam() == game->getTeamOnTurn())){
 	int x = event->x();
 	int y = event->y();
 	//std::cout<<x<<" "<<y<<" "<< event->button() <<std::endl;
@@ -63,13 +63,13 @@ void MainWindow::mousePressEvent(QMouseEvent* event){
 		this->game->moveTo(x/this->blk_size,y/this->blk_size);
 	}
 	this->update();
-    //}
+	}
 }
 
 void MainWindow::wheelEvent(QWheelEvent * event){
 	//std::cout<<event->delta()<<std::endl;
 	// +-120 for scrolling up or down
-    if(this->network->getTeam() == game->getTeamOnTurn()){
+	if(!this->network || (this->network->getTeam() == game->getTeamOnTurn())){
 	if(event->delta() > 0){
 		this->game->cycleUnits(-1);
 	}else{
