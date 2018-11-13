@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     factory.cpp \
     game.cpp \
     gameobject.cpp \
-    infantry.cpp
+    infantry.cpp \
+    imageloader.cpp
 
 HEADERS  += mainwindow.h \
     mapsize.h \
@@ -42,7 +43,8 @@ HEADERS  += mainwindow.h \
     factory.h \
     game.h \
     gameobject.h \
-    infantry.h
+    infantry.h \
+    imageloader.h
 
 FORMS    += mainwindow.ui
 

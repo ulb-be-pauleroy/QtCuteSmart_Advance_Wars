@@ -6,6 +6,7 @@
 #include "network.h"
 #include "game.h"
 #include "mapsize.h"
+#include "imageloader.h"
 
 namespace Ui {
 class MainWindow;
@@ -21,6 +22,7 @@ class MainWindow : public QMainWindow
     std::vector<std::vector<int> > intMap;
     std::vector<std::vector<QImage*> > imageMap;
     std::map<int, QImage*> UnitImages ;
+    ImageLoader* loader;
 
 public:
 	explicit MainWindow(QWidget *parent = 0);
@@ -33,7 +35,6 @@ public:
 	void receiveGame(Game* gm);
 	void receiveNetwork(Network* net);
     void loadImages();
-    QImage* loadImage(int a);
     void paintMap(QPainter &painter);
     void paintUnits(QPainter &painter);
 

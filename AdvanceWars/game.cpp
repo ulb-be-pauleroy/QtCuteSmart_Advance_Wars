@@ -95,8 +95,8 @@ void Game::makeIntMap(QString path)
         }
        qDebug() << "fin de ligne";
     }*/
-    auto x = list2.size();
-    unsigned int y = list2[0].size();
+    unsigned int x = list2.size();
+    int y = list2[0].size();
     qDebug() << x; qDebug() << y ;
     vector<vector<int>> list3(y, vector<int>(x,0));         // watch out here, risk to swap x and y axis
     for (unsigned int i = 0; i < y; i++){ // in order to avoid that, list2[i][j] must become list3[j][i]
@@ -840,8 +840,8 @@ void Game::buildTerrainMap()
  unsigned int x = this->intMap.size();
  unsigned int y = this->intMap[0].size();
  this->map = *new vector<vector<vector<GameObject*> > >(x, vector<vector<GameObject*>>(y,vector<GameObject*>()));
- for(unsigned int i = 0; i != x; i++ ){
-     for (unsigned int j = 0; j != y; j++){
+ for(int i = 0; i != x; i++ ){
+     for (int j = 0; j != y; j++){
          switch(intMap[i][j]){
          case 1 : this->addGameObject(new Terrain(i,j,0), i, j) ; break;
          case 2 : this->addGameObject(new Terrain(i,j,1), i, j) ; break;
