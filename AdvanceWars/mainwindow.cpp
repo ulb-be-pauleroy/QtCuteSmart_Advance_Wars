@@ -100,30 +100,33 @@ void MainWindow::paintEvent(QPaintEvent *)
 	painter.setBrush(QBrush(Qt::green));
 	painter.drawRect(this->blk_size*game->getSelectedX(),this->blk_size*game->getSelectedY(),this->blk_size,this->blk_size);
    // painter.fillRect(50,10,50,50,QBrush(Qt::red));
+   */
 
 	for(int i=0;i<XDIM;i++){
 		for(int j=0;j<YDIM;j++){
 
 			std::vector<GameObject*> obj_onPos = this->game->getObjectsOnPos(i,j);
 			std::vector<GameObject*>::iterator it;
+            QColor col(Qt::cyan);
+            col.setAlpha(100);
 			for(it=obj_onPos.begin();it!=obj_onPos.end();it++){
 				GameObject* go = *it;
 
 				int color = go->getColor();
-				if(color == 1){
-					painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,QBrush(Qt::yellow));
-				}else if(color == 2){
+                if(color == 1){
+                    //painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,QBrush(Qt::yellow));
+                }/*else if(color == 2){
 					painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,QBrush(Qt::blue));
-				}else if(color == 3){
-					painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,QBrush(Qt::cyan));
-				}else if(color == 4){
+                }*/else if(color == 3){
+                    painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size,this->blk_size, col);
+                }/*else if(color == 4){
 					painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,QBrush(Qt::darkGreen));
-				}
+                }*/
 			}
 
 		}
     }
-    }//std::cout<<"Here5"<<std::endl;*/
+    //std::cout<<"Here5"<<std::endl;
 }
 
 void MainWindow::receiveGame(Game* gm)

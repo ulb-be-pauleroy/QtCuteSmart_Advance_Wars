@@ -83,12 +83,12 @@ void Game::makeIntMap(QString path)
     QTextStream s1(&file);
     s=s1.readAll();
     QStringList list1 = s.split(QRegExp("\n|\r\n|\r"));
-    std::vector<QStringList> list2;
+    vector<QStringList> list2;
     for (QString x : list1){
         list2.push_back(x.split(","));
     }
     //list2.pop_back();
-   /* std::vector<QStringList>::iterator it2;
+   /* vector<QStringList>::iterator it2;
     for(it2 = list2.begin(); it2 != list2.end(); it2++){
         for(it1 = it2->begin(); it1 != it2->end(); it1++){
             qDebug() << *it1;
@@ -153,7 +153,7 @@ void Game::verifyNumber(int& index)
 
 }
 
-std::vector<std::vector<int> > & Game::getIntMap()
+vector<vector<int> > & Game::getIntMap()
 {
     return this->intMap;
 }
@@ -226,7 +226,7 @@ void Game::networkAction(string type, int x, int y, int data, int data2)
 	}
 }
 
-std::vector<GameObject*>* Game::getMapContent(){
+vector<GameObject*>* Game::getMapContent(){
 	vector<GameObject*>* vec = new vector<GameObject*>;
 	for(int i=0;i<XDIM;i++){
 		for(int j=0;j<YDIM;j++){
@@ -242,7 +242,7 @@ std::vector<GameObject*>* Game::getMapContent(){
 	return vec;
 }
 
-std::vector<GameObject*>& Game::getObjectsOnPos(int x, int y)// const
+vector<GameObject*>& Game::getObjectsOnPos(int x, int y)// const
 {
 	return this->map[x][y];
 }
@@ -284,12 +284,12 @@ int Game::getBalance(char pl) const
     }
 }
 
-std::vector<Unit *>& Game::getUnits_blue()
+vector<Unit *>& Game::getUnits_blue()
 {
     return this->units_blue;
 }
 
-std::vector<Unit *>& Game::getUnits_orange()
+vector<Unit *>& Game::getUnits_orange()
 {
     return this->units_orange;
 }
@@ -781,7 +781,7 @@ void Game::testCaptureAndHealing(Unit* un)
 	for(itr = tl.begin();itr!=tl.end();itr++){
 		GameObject* go = *itr;
 		City* city = dynamic_cast<City*>(go);
-		//std::cout << city << std::endl;
+        //cout << city << endl;
 		if(city != NULL) { // go->getType() == "City")
 			city->capture(un);
 		}
