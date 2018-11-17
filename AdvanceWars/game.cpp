@@ -249,13 +249,18 @@ vector<GameObject*>& Game::getObjectsOnPos(int x, int y)// const
 
 int Game::getTerrainMovementModifier(Unit* un, int x, int y)// const doesnt work?
 {
+	int mov =1;
 	vector<GameObject*>& tile = this->map[x][y];
 	for(unsigned int i=0;i<tile.size();i++){
 		if(tile[i]->getType() == "Terrain"){
-			return dynamic_cast<Terrain*>(tile[i])->getMovement(un);
+			mov = dynamic_cast<Terrain*>(tile[i])->getMovement(un);
+		}
+		Unit* unit = dynamic_cast<Unit*>(tile[i]); // tests if tile isnt blocked by enemy unit
+		if(unit && unit->getTeam() != un->getTeam()){
+			return 10000; //sth huge
 		}
 	}
-	return 1;
+	return mov;
 }
 
 int Game::getTerrainDefenseModifier(Unit& un, int x, int y)// const doesnt work?
