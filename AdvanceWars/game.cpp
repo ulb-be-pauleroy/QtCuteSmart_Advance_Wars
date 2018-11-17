@@ -29,9 +29,9 @@ Game::Game(bool isHost)
 {
 
     this->setPath(":/Map/Images/Maps/Map.txt");
-    this->network = nullptr;
+	this->network = nullptr;
     this->attacking = false;
-    this->selected_factory = nullptr;
+	this->selected_factory = nullptr;
 	this->money_orange = 1000; //TODO
 	this->money_blue = 1000;
 	this->orange_on_turn = true;
@@ -98,7 +98,7 @@ void Game::makeIntMap(QString path)
     unsigned int x = list2.size();
     int y = list2[0].size();
     qDebug() << x; qDebug() << y ;
-    vector<vector<int>> list3(y, vector<int>(x,0));         // watch out here, risk to swap x and y axis
+	vector<vector<int> > list3(y, vector<int>(x,0));         // watch out here, risk to swap x and y axis
     for (unsigned int i = 0; i < y; i++){ // in order to avoid that, list2[i][j] must become list3[j][i]
         for (unsigned int j = 0; j < x; j++){
 
@@ -852,9 +852,9 @@ void Game::buildTerrainMap()
 {
  unsigned int x = this->intMap.size();
  unsigned int y = this->intMap[0].size();
- this->map = *new vector<vector<vector<GameObject*> > >(x, vector<vector<GameObject*>>(y,vector<GameObject*>()));
- for(int i = 0; i != x; i++ ){
-     for (int j = 0; j != y; j++){
+ this->map = *new vector<vector<vector<GameObject*> > >(x, vector<vector<GameObject*> >(y,vector<GameObject*>()));
+ for(unsigned int i = 0; i != x; i++ ){
+	 for (unsigned int j = 0; j != y; j++){
          switch(intMap[i][j]){
          case 1 : this->addGameObject(new Terrain(i,j,0), i, j) ; break;
          case 2 : this->addGameObject(new Terrain(i,j,1), i, j) ; break;

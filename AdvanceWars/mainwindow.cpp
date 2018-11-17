@@ -146,7 +146,7 @@ void MainWindow::receiveNetwork(Network *net)
 void MainWindow::loadImages()
 {
     std::vector<std::vector<QImage*> > imageMap(this->intMap.size());
-    auto x = this->intMap.size();
+	unsigned int x = this->intMap.size();
     this->imageMap = imageMap;
     //std::vector<std::vector<int> >::iterator it1;
     std::vector<int>::iterator it2;
@@ -175,15 +175,15 @@ void MainWindow::loadImages()
 
 void MainWindow::paintMap(QPainter &painter)
 {
-    auto x = imageMap.size();
+	unsigned int x = imageMap.size();
 
     for (unsigned int i = 0; i!= x;  i++){
-        auto y = imageMap[i].size();
+		unsigned int y = imageMap[i].size();
 
         for (unsigned int j = 0; j != y; j++){
             QImage img = imageMap[i][j]->scaledToWidth(blk_size);
             int x = int(i) * blk_size;
-            auto r = img.height()-img.width();
+			int r = img.height()-img.width();
             int y = int(j) * blk_size - r;
 
             painter.drawImage(*new QPoint(x, y), img );
