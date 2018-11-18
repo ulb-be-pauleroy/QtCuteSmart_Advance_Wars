@@ -852,9 +852,10 @@ void Game::buildTerrainMap()
 {
  unsigned int x = this->intMap.size();
  unsigned int y = this->intMap[0].size();
- this->map = *new vector<vector<vector<GameObject*> > >(x, vector<vector<GameObject*> >(y,vector<GameObject*>()));
- for(unsigned int i = 0; i != x; i++ ){
-	 for (unsigned int j = 0; j != y; j++){
+ vector<vector<vector<GameObject*> > > mapPro(x, vector<vector<GameObject*> >(y,vector<GameObject*>()));
+ this->map = mapPro;
+ for(int i = 0; i != x; i++ ){
+     for (int j = 0; j != y; j++){
          switch(intMap[i][j]){
          case 1 : this->addGameObject(new Terrain(i,j,0), i, j) ; break;
          case 2 : this->addGameObject(new Terrain(i,j,1), i, j) ; break;
