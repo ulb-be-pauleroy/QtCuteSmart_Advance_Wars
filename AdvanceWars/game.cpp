@@ -11,8 +11,6 @@ Game* Game::instance = 0; //needed for singleton
 #include "terrain.h"
 using namespace std;
 
-
-
 Game *Game::getInstance(bool isHost){
 
     if(!Game::instance){ // doesnt work yet
@@ -31,11 +29,9 @@ Game::Game(bool isHost)
 {
 
     this->setPath(":/Map/Images/Maps/Map.txt");
-    //XDIM = int(this->intMap.size());              //TODO make implementation of global extern variable possible
-    //YDIM = int(this->intMap[0].size());
-    this->network = nullptr;
+	this->network = nullptr;
     this->attacking = false;
-    this->selected_factory = nullptr;
+	this->selected_factory = nullptr;
 	this->money_orange = 1000; //TODO
 	this->money_blue = 1000;
 	this->orange_on_turn = true;
@@ -102,7 +98,7 @@ void Game::makeIntMap(QString path)
     unsigned int x = list2.size();
     int y = list2[0].size();
     qDebug() << x; qDebug() << y ;
-    vector<vector<int>> list3(y, vector<int>(x,0));         // watch out here, risk to swap x and y axis
+	vector<vector<int> > list3(y, vector<int>(x,0));         // watch out here, risk to swap x and y axis
     for (unsigned int i = 0; i < y; i++){ // in order to avoid that, list2[i][j] must become list3[j][i]
         for (unsigned int j = 0; j < x; j++){
 
@@ -202,7 +198,7 @@ void Game::networkAction(string type, int x, int y, int data, int data2)
 		}
 	}else if(type == "newunit"){ //sometimes causes a segfault, idk why
 		switch(data2){
-            case 1: this->addUnit(new Unit(x,y,data,'o'),x,y,'o',true); //TODO differentiate
+			case 1: this->addUnit(new Unit(x,y,data,'o'),x,y,'o',true);
 			case 2: this->addUnit(new Unit(x,y,data,'b'),x,y,'b',true);
 		}
 	}else if(type == "attack"){
@@ -253,13 +249,18 @@ vector<GameObject*>& Game::getObjectsOnPos(int x, int y)// const
 
 int Game::getTerrainMovementModifier(Unit* un, int x, int y)// const doesnt work?
 {
+	int mov =1;
 	vector<GameObject*>& tile = this->map[x][y];
 	for(unsigned int i=0;i<tile.size();i++){
 		if(tile[i]->getType() == "Terrain"){
-			return dynamic_cast<Terrain*>(tile[i])->getMovement(un);
+			mov = dynamic_cast<Terrain*>(tile[i])->getMovement(un);
+		}
+		Unit* unit = dynamic_cast<Unit*>(tile[i]); // tests if tile isnt blocked by enemy unit
+		if(unit && unit->getTeam() != un->getTeam()){
+			return 10000; //sth huge
 		}
 	}
-	return 1;
+	return mov;
 }
 
 int Game::getTerrainDefenseModifier(Unit& un, int x, int y)// const doesnt work?
@@ -851,10 +852,9 @@ void Game::buildTerrainMap()
 {
  unsigned int x = this->intMap.size();
  unsigned int y = this->intMap[0].size();
- vector<vector<vector<GameObject*> > > mapPro(x, vector<vector<GameObject*>>(y,vector<GameObject*>()));
- this->map = mapPro;
- for(int i = 0; i != x; i++ ){
-     for (int j = 0; j != y; j++){
+ this->map = *new vector<vector<vector<GameObject*> > >(x, vector<vector<GameObject*> >(y,vector<GameObject*>()));
+ for(unsigned int i = 0; i != x; i++ ){
+	 for (unsigned int j = 0; j != y; j++){
          switch(intMap[i][j]){
          case 1 : this->addGameObject(new Terrain(i,j,0), i, j) ; break;
          case 2 : this->addGameObject(new Terrain(i,j,1), i, j) ; break;
