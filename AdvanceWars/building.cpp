@@ -3,7 +3,6 @@
 
 Building::Building(int x, int y, char c) : GameObject(x,y)
 {
-    this->color = 4;
 	this->owner = c;
 }
 /*

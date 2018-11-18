@@ -16,10 +16,6 @@ int GameObject::getPosY()
 	return this->posY;
 }
 
-int GameObject::getColor()
-{
-	return this->color;
-}
 
 bool GameObject::operator==(GameObject const&) const
 { //this is a test, should go abstract

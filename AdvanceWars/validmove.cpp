@@ -4,7 +4,6 @@
 ValidMove::ValidMove(int x, int y, bool last) : GameObject(x,y)
 {
 	this->is_last_move = last;
-	this->color = 3;
 }
 
 bool ValidMove::isLast()

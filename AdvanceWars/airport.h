@@ -6,7 +6,7 @@
 class Airport : public Factory
 {
 public:
-	Airport(int x, int y, char c);
+    Airport(int x, int y, char c);
 	void interactWith();
 	std::string getType() const;
 	void buy(int type);

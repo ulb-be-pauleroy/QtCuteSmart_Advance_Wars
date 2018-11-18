@@ -35,12 +35,7 @@ Unit::Unit(int x, int y, int type, char team) : GameObject(x,y){
 	this->speed = Unit::speed_chart[type];
     this->moves_left = this->speed;
 	this->team = team;
-    if(team == 'o'){
-		this->color = 1;
-    }else if(team == 'b'){
-		this->color = 2;
-	}else{
-		this->color = 0;
+    if(team != 'o' && team != 'b'){
 		cout<< "Error: Team does not exist! "<<team<<endl;
 	}
 }

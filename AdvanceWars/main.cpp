@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 	//bool online = true;
 
 	//if(online){ // network creation in if statement doesnt connect
-    Network net(&w);
+    //Network net(&w);
 	//}
 
     Game* gm = Game::getInstance();

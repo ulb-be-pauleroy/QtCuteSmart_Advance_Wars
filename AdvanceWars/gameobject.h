@@ -8,13 +8,11 @@ class GameObject
 protected:
 	int posX;
 	int posY;
-	int color;
 
 public:
 	GameObject(int x, int y);
 	int getPosX();
 	int getPosY();
-	int getColor();
 	virtual bool operator== (GameObject const& obj) const;// =0; // causes invalid abstract parameter
 	virtual std::string getType() const =0; //same error
 	//virtual void select();

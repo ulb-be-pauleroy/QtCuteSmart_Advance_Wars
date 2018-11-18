@@ -84,44 +84,25 @@ void MainWindow::paintEvent(QPaintEvent *)
     QPainter painter(this);
     paintMap(painter);
     paintUnits(painter);
-    //painter.fillRect(this->blk_size*intMap.size(),0,(this->blk_size*intMap[1].size(), "white"));
+    QColor col1(Qt::cyan);
+    QColor col2(Qt::red);
+    col1.setAlpha(100);
+    col2.setAlpha(100);
 
-    //if(this->game){
-	//int blk_size = 40;
-    /*for(int i=0;i<XDIM;i++){
-		for(int j=0;j<YDIM;j++){
-			//painter.setBrush(QBrush(Qt::black));
-			painter.drawRect(this->blk_size*i,this->blk_size*j,this->blk_size,this->blk_size);
-			painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,QBrush(Qt::gray));
-		}
-	}
-	//map refreshing
-
-	painter.setBrush(QBrush(Qt::green));
-	painter.drawRect(this->blk_size*game->getSelectedX(),this->blk_size*game->getSelectedY(),this->blk_size,this->blk_size);
-   // painter.fillRect(50,10,50,50,QBrush(Qt::red));
-   */
-
-	for(int i=0;i<XDIM;i++){
-		for(int j=0;j<YDIM;j++){
+    for(int i = 0; i < this->intMap.size() ; i++){
+        for(int j = 0; j < this->intMap[i].size() ; j++){
 
 			std::vector<GameObject*> obj_onPos = this->game->getObjectsOnPos(i,j);
 			std::vector<GameObject*>::iterator it;
-            QColor col(Qt::cyan);
-            col.setAlpha(100);
+
 			for(it=obj_onPos.begin();it!=obj_onPos.end();it++){
 				GameObject* go = *it;
-
-				int color = go->getColor();
-                if(color == 1){
-                    //painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,QBrush(Qt::yellow));
-                }/*else if(color == 2){
-					painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,QBrush(Qt::blue));
-                }*/else if(color == 3){
-                    painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size,this->blk_size, col);
-                }/*else if(color == 4){
-					painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,QBrush(Qt::darkGreen));
-                }*/
+                if(dynamic_cast<ValidMove*>(go) && dynamic_cast<ValidMove*>(go)->isLast()){
+                    painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,col2);
+                }
+                else if(dynamic_cast<ValidMove*>(go)){
+                    painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,col1);
+                }
 			}
 
 		}

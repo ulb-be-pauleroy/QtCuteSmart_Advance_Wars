@@ -1,6 +1,6 @@
 #include "airunit.h"
 
-AirUnit::AirUnit(int x, int y, int type, int tm) : Unit(x,y,type, tm)
+AirUnit::AirUnit(int x, int y, int type, char tm) : Unit(x,y,type, tm)
 {
 
 }

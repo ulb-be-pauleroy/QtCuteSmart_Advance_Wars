@@ -24,9 +24,9 @@ void City::capture(Unit *un)
         dynamic_cast<Infantry*>(un)->setCapture(this);
         std::cout<<"capturing "<<this->health<<" health left"<<std::endl;
         if(this->health <=0){
-            switch(un->getColor()){
-                case 1: this->owner ='o'; break;
-                case 2: this->owner ='b'; break;
+            switch(un->getTeam()){
+                case 'o': this->owner ='o'; break;
+                case 'b': this->owner ='b'; break;
                 // 'o' is char "o" is string
             }
         }

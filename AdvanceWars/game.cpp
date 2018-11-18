@@ -11,6 +11,8 @@ Game* Game::instance = 0; //needed for singleton
 #include "terrain.h"
 using namespace std;
 
+
+
 Game *Game::getInstance(bool isHost){
 
     if(!Game::instance){ // doesnt work yet
@@ -29,6 +31,8 @@ Game::Game(bool isHost)
 {
 
     this->setPath(":/Map/Images/Maps/Map.txt");
+    //XDIM = int(this->intMap.size());              //TODO make implementation of global extern variable possible
+    //YDIM = int(this->intMap[0].size());
     this->network = nullptr;
     this->attacking = false;
     this->selected_factory = nullptr;
@@ -198,7 +202,7 @@ void Game::networkAction(string type, int x, int y, int data, int data2)
 		}
 	}else if(type == "newunit"){ //sometimes causes a segfault, idk why
 		switch(data2){
-			case 1: this->addUnit(new Unit(x,y,data,'o'),x,y,'o',true);
+            case 1: this->addUnit(new Unit(x,y,data,'o'),x,y,'o',true); //TODO differentiate
 			case 2: this->addUnit(new Unit(x,y,data,'b'),x,y,'b',true);
 		}
 	}else if(type == "attack"){
@@ -847,7 +851,8 @@ void Game::buildTerrainMap()
 {
  unsigned int x = this->intMap.size();
  unsigned int y = this->intMap[0].size();
- this->map = *new vector<vector<vector<GameObject*> > >(x, vector<vector<GameObject*>>(y,vector<GameObject*>()));
+ vector<vector<vector<GameObject*> > > mapPro(x, vector<vector<GameObject*>>(y,vector<GameObject*>()));
+ this->map = mapPro;
  for(int i = 0; i != x; i++ ){
      for (int j = 0; j != y; j++){
          switch(intMap[i][j]){

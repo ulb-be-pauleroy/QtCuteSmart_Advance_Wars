@@ -28,7 +28,6 @@ const int Terrain::def_mod[17] = {1,4,2,0,0,0,0,0,1,3,3,3,3,4,3,3,3};
 Terrain::Terrain(int x, int y, int type) : GameObject(x,y)
 {
 	this->type = type;
-	this->color = 4;
 }
 
 std::string Terrain::getType() const
