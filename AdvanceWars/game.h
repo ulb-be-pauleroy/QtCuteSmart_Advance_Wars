@@ -39,8 +39,8 @@ public:
 
     static Game* getInstance(bool isHost=true);
     void setPath(QString path);
-    void makeIntMap(QString path);
-    void verifyNumber(int& index);
+	//void makeIntMap(QString path);
+	//void verifyNumber(int& index);
     vector<vector<int> > & getIntMap();
 	void recieveNetwork(Network* net);
 	void setIncome(int inc);
@@ -52,7 +52,7 @@ public:
 	int getTerrainDefenseModifier(Unit& un, int x, int y);// const;
 	int getBalance(char pl) const;
     vector<Unit *>& getUnits_blue();
-    vector<Unit *> &getUnits_orange();
+	vector<Unit *>& getUnits_orange();
 	void pay(int qnt, char player);
 	GameObject* addGameObject(GameObject* go, int x, int y, const char team='\0');
 	Unit* addUnit(Unit* un, int x, int y, const char team, bool net=false);
@@ -69,7 +69,7 @@ public:
     int getSelectedY();
 	char getTeamOnTurn() const;
 	void endTurn(bool net=false);
-    void buildTerrainMap();
+	//void buildTerrainMap();
 
 private:
 	bool testObstacle(int x, int y);

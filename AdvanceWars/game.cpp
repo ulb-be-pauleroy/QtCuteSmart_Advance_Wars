@@ -9,6 +9,8 @@ Game* Game::instance = 0; //needed for singleton
 #include "network.h"
 #include "infantry.h"
 #include "terrain.h"
+
+#include "mapbuilder.h"
 using namespace std;
 
 Game *Game::getInstance(bool isHost){
@@ -21,17 +23,21 @@ Game *Game::getInstance(bool isHost){
 
 void Game::setPath(QString path)
 {
-    this->makeIntMap(path);
-    this->buildTerrainMap();
+	this->intMap = MapBuilder::makeIntMap(path);
+	unsigned int x = intMap.size();
+	unsigned int y = intMap[0].size();
+	vector<vector<vector<GameObject*> > > mapPro(x, vector<vector<GameObject*> >(y,vector<GameObject*>()));
+	this->map = mapPro;
+	MapBuilder::buildTerrainMap(this);
 }
 
 Game::Game(bool isHost)
 {
 
     this->setPath(":/Map/Images/Maps/Map.txt");
-	this->network = nullptr;
+	this->network = NULL;
     this->attacking = false;
-	this->selected_factory = nullptr;
+	this->selected_factory = NULL;
 	this->money_orange = 1000; //TODO
 	this->money_blue = 1000;
 	this->orange_on_turn = true;
@@ -73,7 +79,7 @@ Game::Game(bool isHost)
 
 	//cout << this->selected_unit << " " << &this->units_orange[0]  << " ok" << endl;
 }
-
+/*
 void Game::makeIntMap(QString path)
 {
     QFile file(path);
@@ -84,7 +90,9 @@ void Game::makeIntMap(QString path)
     s=s1.readAll();
     QStringList list1 = s.split(QRegExp("\n|\r\n|\r"));
     vector<QStringList> list2;
-    for (QString x : list1){
+	//for (QString x : list1){
+	for(unsigned int i=0;i<list1.size();i++){
+		QString x = list1[i];
         list2.push_back(x.split(","));
     }
     //list2.pop_back();
@@ -94,7 +102,7 @@ void Game::makeIntMap(QString path)
             qDebug() << *it1;
         }
        qDebug() << "fin de ligne";
-    }*/
+	}
     unsigned int x = list2.size();
     int y = list2[0].size();
     qDebug() << x; qDebug() << y ;
@@ -152,7 +160,7 @@ void Game::verifyNumber(int& index)
     }
 
 }
-
+*/
 vector<vector<int> > & Game::getIntMap()
 {
     return this->intMap;
@@ -846,7 +854,7 @@ bool Game::testEndOfGame()
 }
 
 
-
+/*
 
 void Game::buildTerrainMap()
 {
@@ -893,4 +901,4 @@ void Game::buildTerrainMap()
      }
  }
  qDebug() << "jai fini les objets!";
-}
+}*/
