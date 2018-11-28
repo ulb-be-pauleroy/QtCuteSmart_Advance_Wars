@@ -1,0 +1,1 @@
+bug lors de la mort, PV négatifs

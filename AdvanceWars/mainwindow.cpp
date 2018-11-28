@@ -180,7 +180,7 @@ void MainWindow::paintUnits(QPainter &painter)
             painter.drawImage(QPoint(i->getPosX()*blk_size, i->getPosY()*blk_size), im);
         }
     }
-    if (this->game->getUnits_blue().size()!=0){
+    if (this->game->getUnits_orange().size()!=0){
         for (Unit* i : this->game->getUnits_orange() ){
             QImage im = UnitImages[i->getUnitType()]->scaledToWidth(blk_size);
             painter.drawImage(QPoint(i->getPosX()*blk_size, i->getPosY()*blk_size), im);
