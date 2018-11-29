@@ -296,17 +296,22 @@ int Game::getBalance(char pl) const
 		return -1; //error
     }
 }
-
-vector<Unit *>& Game::getUnits_blue()
+/*
+vector<Unit *>& Game::getUnits(char pl)
 {
-    return this->units_blue;
+	if(pl == 'o'){
+		return this->units_orange;
+	}else{
+		return this->units_blue;
+	}
 }
-
+*/
+/*
 vector<Unit *>& Game::getUnits_orange()
 {
     return this->units_orange;
 }
-
+*/
 void Game::pay(int qnt, char player)
 {
 	if(player == 'o'){

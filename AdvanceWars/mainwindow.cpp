@@ -82,8 +82,8 @@ void MainWindow::wheelEvent(QWheelEvent * event){
 void MainWindow::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    paintMap(painter);
-    paintUnits(painter);
+	//paintMap(painter);
+	//paintUnits(painter);
     QColor col1(Qt::cyan);
     QColor col2(Qt::red);
     col1.setAlpha(100);
@@ -91,22 +91,34 @@ void MainWindow::paintEvent(QPaintEvent *)
 
     for(int i = 0; i < this->intMap.size() ; i++){
         for(int j = 0; j < this->intMap[i].size() ; j++){
+			QImage img = imageMap[i][j]->scaledToWidth(blk_size);
+			int x = int(i) * blk_size;
+			int r = img.height()-img.width();
+			int y = int(j) * blk_size - r;
+
+			painter.drawImage(QPoint(x, y), img );
 
 			std::vector<GameObject*> obj_onPos = this->game->getObjectsOnPos(i,j);
 			std::vector<GameObject*>::iterator it;
 
 			for(it=obj_onPos.begin();it!=obj_onPos.end();it++){
 				GameObject* go = *it;
-                if(dynamic_cast<ValidMove*>(go) && dynamic_cast<ValidMove*>(go)->isLast()){
-                    painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,col2);
-                }
-                else if(dynamic_cast<ValidMove*>(go)){
-                    painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,col1);
-                }
+				if(dynamic_cast<ValidMove*>(go)){
+					if(dynamic_cast<ValidMove*>(go)->isLast()){
+						painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,col2);
+					}else{
+						painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,col1);
+					}
+				}
+				else if(Unit* un = dynamic_cast<Unit*>(go)){
+					QImage im = UnitImages[un->getUnitType()]->scaledToWidth(blk_size);
+					painter.drawImage(QPoint(i*blk_size, j*blk_size), im);
+				}
 			}
 
 		}
     }
+	//paintUnits(painter);
     //std::cout<<"Here5"<<std::endl;
 }
 
@@ -153,7 +165,7 @@ void MainWindow::loadImages()
 }
 
 
-
+/*
 void MainWindow::paintMap(QPainter &painter)
 {
 	unsigned int x = imageMap.size();
@@ -167,26 +179,33 @@ void MainWindow::paintMap(QPainter &painter)
 			int r = img.height()-img.width();
             int y = int(j) * blk_size - r;
 
-            painter.drawImage(*new QPoint(x, y), img );
+			painter.drawImage(QPoint(x, y), img );
         }
     }
 }
-
+*/
+/*
 void MainWindow::paintUnits(QPainter &painter)
 {
-    if (this->game->getUnits_blue().size()!=0){
-        for (Unit* i : this->game->getUnits_blue() ){
+	vector<Unit*> units = this->game->getUnits('b');
+	if (units.size()!=0){
+		//for (Unit* i : units ){
+		for(unsigned int j = 0;j<units.size();j++){
+			Unit* i = units[j];
             QImage im = UnitImages[i->getUnitType()]->scaledToWidth(blk_size);
             painter.drawImage(QPoint(i->getPosX()*blk_size, i->getPosY()*blk_size), im);
         }
     }
-    if (this->game->getUnits_orange().size()!=0){
-        for (Unit* i : this->game->getUnits_orange() ){
+	units = this->game->getUnits('o');
+	if (units.size()!=0){
+		//for (Unit* i : units ){
+		for(unsigned int j = 0;j<units.size();j++){
+			Unit* i = units[j];
             QImage im = UnitImages[i->getUnitType()]->scaledToWidth(blk_size);
             painter.drawImage(QPoint(i->getPosX()*blk_size, i->getPosY()*blk_size), im);
         }
     }
 }
-
+*/
 
 

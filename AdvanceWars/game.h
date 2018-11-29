@@ -11,20 +11,20 @@
 #include "factory.h"
 #include "building.h"
 #include "mapsize.h" // map size preprocessor value defined here
-using namespace std;
+//using namespace std; //this is dangerous
 class Network;
 
 class Game{
 
-    vector<vector<int> > intMap;
-    vector<vector<vector<GameObject *> > > map;
+	std::vector<std::vector<int> > intMap;
+	std::vector<std::vector<std::vector<GameObject *> > > map;
     //vector<GameObject*> map[XDIM][YDIM];
 	int income;
-    vector<Unit*> units_orange;
+	std::vector<Unit*> units_orange;
 	int money_orange;
-    vector<Unit*> units_blue;
+	std::vector<Unit*> units_blue;
 	int money_blue;
-    vector<Building*> buildings;
+	std::vector<Building*> buildings;
     bool orange_on_turn;
     int selected_x;
     int selected_y;
@@ -41,18 +41,18 @@ public:
     void setPath(QString path);
 	//void makeIntMap(QString path);
 	//void verifyNumber(int& index);
-    vector<vector<int> > & getIntMap();
+	std::vector<std::vector<int> > & getIntMap();
 	void recieveNetwork(Network* net);
 	void setIncome(int inc);
 	int getIncome();
-    void networkAction(string type, int x, int y, int data, int data2);
-    vector<GameObject*>* getMapContent(); //network only
-    vector<GameObject*> & getObjectsOnPos(int x, int y);// const;
+	void networkAction(std::string type, int x, int y, int data, int data2);
+	std::vector<GameObject*>* getMapContent(); //network only
+	std::vector<GameObject*> & getObjectsOnPos(int x, int y);// const;
 	int getTerrainMovementModifier(Unit* un, int x, int y);// const;
 	int getTerrainDefenseModifier(Unit& un, int x, int y);// const;
 	int getBalance(char pl) const;
-    vector<Unit *>& getUnits_blue();
-	vector<Unit *>& getUnits_orange();
+	//vector<Unit *>& getUnits(char);
+	//vector<Unit *>& getUnits_orange();
 	void pay(int qnt, char player);
 	GameObject* addGameObject(GameObject* go, int x, int y, const char team='\0');
 	Unit* addUnit(Unit* un, int x, int y, const char team, bool net=false);
