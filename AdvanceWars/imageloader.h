@@ -3,13 +3,13 @@
 
 #include <QImage>
 
-
+class Game;
 
 class ImageLoader  //Load images for map
 {
 public:
     ImageLoader();
-    QImage* loadImage(int a);
+    static QImage* loadImage(int a);
 };
 
 #endif // IMAGELOADER_H

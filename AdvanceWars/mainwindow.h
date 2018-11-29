@@ -22,7 +22,6 @@ class MainWindow : public QMainWindow
     std::vector<std::vector<int> > intMap;
     std::vector<std::vector<QImage*> > imageMap;
     std::map<int, QImage*> UnitImages ;
-    ImageLoader* loader;
 
 public:
 	explicit MainWindow(QWidget *parent = 0);

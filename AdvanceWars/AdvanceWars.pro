@@ -27,7 +27,9 @@ SOURCES += main.cpp\
     game.cpp \
     gameobject.cpp \
     infantry.cpp \
-    imageloader.cpp
+    imageloader.cpp \
+    mapbuilder.cpp \
+    startingwindow.cpp
 
 HEADERS  += mainwindow.h \
     mapsize.h \
@@ -44,9 +46,12 @@ HEADERS  += mainwindow.h \
     game.h \
     gameobject.h \
     infantry.h \
-    imageloader.h
+    imageloader.h \
+    mapbuilder.h \
+    startingwindow.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    startingwindow.ui
 
 RESOURCES += \
     resources.qrc

@@ -1,1 +1,2 @@
 bug lors de la mort, PV négatifs
+Segmentation fault lors de la mort, liée à la ligne 277 de network

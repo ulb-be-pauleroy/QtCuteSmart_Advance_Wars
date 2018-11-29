@@ -7,6 +7,7 @@ ImageLoader::ImageLoader()
 
 QImage *ImageLoader::loadImage(int a)
 {
+
     switch (a){
     case 1 : return new QImage(":/Terrains/Images/Terrains/plain.gif");
     case 2 : return new QImage(":/Terrains/Images/Terrains/mountain.gif");

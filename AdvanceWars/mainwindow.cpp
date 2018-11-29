@@ -12,7 +12,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->blk_size = 40;
 	this->game = NULL;
 	this->network = NULL;
-    this->loader = new ImageLoader();
 }
 
 
@@ -145,7 +144,7 @@ void MainWindow::loadImages()
     std::vector<int>::iterator it2;
     for (unsigned int i = 0 ; i != x; i++){
         for (it2 = intMap[i].begin(); it2 != intMap[i].end(); it2++){
-            this->imageMap[i].push_back(this->loader->loadImage(*it2));
+            this->imageMap[i].push_back(ImageLoader::loadImage(*it2));
             //this->imageMap[i].push_back(loadImage(*it2));
         }
     }
