@@ -255,7 +255,13 @@ vector<GameObject*>* Game::getMapContent(){
 
 vector<GameObject*>& Game::getObjectsOnPos(int x, int y)// const
 {
-	return this->map[x][y];
+	if(x>=0 && y>=0 && x<XDIM && y<YDIM){
+			return this->map[x][y];
+		}else{
+			//vector<GameObject*> tl;// = vector<GameObject*>(); //TODO setup empty vector
+			this->test.clear();
+			return this->test;
+		}
 }
 
 int Game::getTerrainMovementModifier(Unit* un, int x, int y)// const doesnt work?
@@ -520,7 +526,7 @@ void Game::attack(int dir)
             //yes, it works only on one orientation yet
 			if((*it)->getPosX() == attX && (*it)->getPosY() == attY){
 				this->selected_unit->attack(**it);
-				this->network->sendData("attack",this->selected_unit->getPosX(),this->selected_unit->getPosY(),
+				if(this->network) this->network->sendData("attack",this->selected_unit->getPosX(),this->selected_unit->getPosY(),
 										(*it)->getPosX(),(*it)->getPosY());
 				break;
             }
@@ -529,7 +535,7 @@ void Game::attack(int dir)
         for(it = this->units_orange.begin(); it!=this->units_orange.end();it++){
 			if((*it)->getPosX() == attX && (*it)->getPosY() == attY){
 				this->selected_unit->attack(**it);
-				this->network->sendData("attack",this->selected_unit->getPosX(),this->selected_unit->getPosY(),
+				if(this->network) this->network->sendData("attack",this->selected_unit->getPosX(),this->selected_unit->getPosY(),
 										(*it)->getPosX(),(*it)->getPosY());
 				break;
             }
@@ -794,6 +800,7 @@ void Game::endTurn(bool net)
 				}
 			}*/
 			cout<<"Blue money: "<<this->money_blue<<endl;
+			this->ai->play();
 		}else{
 			cout<<"The game had ended: Orange wins!"<<endl;
 		}

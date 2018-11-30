@@ -12,7 +12,7 @@ class StartingWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit StartingWindow(QWidget *parent = nullptr);
+	explicit StartingWindow(QWidget *parent =0);
     ~StartingWindow();
 
 private:

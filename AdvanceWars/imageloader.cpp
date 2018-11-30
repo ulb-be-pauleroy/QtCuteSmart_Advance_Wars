@@ -78,5 +78,5 @@ QImage *ImageLoader::loadImage(int a)
 
 
     }
-    return nullptr;
+	return 0;
 }

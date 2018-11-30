@@ -299,6 +299,7 @@ vector<int> Unit::dijkstra(){
 			if(distOfEnd < dist[e.getTo()]) { //same huge thing
 				//cout<< "hello3.65" <<endl;
 				dist[e.getTo()] = distOfEnd;
+				this->parent[e.getTo()] = a; // we found a shorter path, the parent is now a
 				//cout<< "hello3.75" <<endl;
 				if(dist[e.getTo()] <= this->moves_left){ // = I can move there this turn <= ?
 					pq.push(e.getTo());

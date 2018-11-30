@@ -36,6 +36,7 @@ class Game{
 	AI* ai;
 	static Game* instance;
     Game(bool isHost);
+	std::vector<GameObject*> test;
 
 public:
 
