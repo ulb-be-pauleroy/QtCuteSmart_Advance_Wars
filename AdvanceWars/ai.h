@@ -5,7 +5,7 @@
 #include <QThread>
 #include "game.h"
 
-#define MAXDEPTH 3
+#define MAXDEPTH 2
 
 class AI : public QObject
 {
@@ -40,6 +40,7 @@ public slots:
 protected:
 	void make_sequence(int depth, std::vector<std::vector<std::pair<Unit *, int> > > &units, int money, std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > &builtUnits);
 	void playFutureTurn(int,std::vector<std::pair<Unit*, int> >&,int,std::vector<std::pair<std::vector<Unit*>, std::pair<int,int> > >&);
+	void choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >&);
 	std::vector<std::pair<std::vector<Unit*>, std::pair<int, int> > > makePurchases(int,std::pair<std::vector<Unit*>, int>&);
 	void generatePurchasePossibilities(int,int,int,std::vector<int>&);
 	std::vector<std::vector<int> > moveUnit(Unit*);

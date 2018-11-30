@@ -1,6 +1,7 @@
 #include "ai.h"
 #include <iostream>
 #include <unistd.h>
+#include <stdlib.h> //for rand
 
 #include "aiworker.h"
 #include "airport.h"
@@ -25,6 +26,7 @@ AI::AI(char team, const std::vector<Unit *> * units, const std::vector<Building 
 
 void AI::play()
 {
+	cout<<"AI starting turn"<<endl;
 	this->meOnTurn = true;
 	this->myMoney = Game::getInstance()->getBalance(this->team);
 	this->enemyMoney = Game::getInstance()->getBalance('o'); //TODO setup
@@ -36,14 +38,19 @@ void AI::play()
 		pair<vector<Unit*>, int> p(v,0);
 		std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases = this->makePurchases(this->myMoney,p); //make_pair(v,0));
 		newUnits.insert(newUnits.end(),purchases.begin(),purchases.end());
+		/*
+		std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > >::iterator it;
+		for(it = newUnits.begin();it!=newUnits.end();it++){ //TODO very buggy !! also in recursion !!
+			if((*it).second.first > this->myMoney) newUnits.erase(it);
+		}*/
 	//}
 
+	vector<vector<pair<Unit*,int> > > futureTurn;
 	vector<vector<int> > attPos;
 	// no unit cooperation for now
 	for(unsigned int i=0;i<this->myUnits->size();i++){
 		Unit* un = this->myUnits->at(i); // [i] doesnt work, idk why
 		vector<vector<int> > poss = this->moveUnit(un);
-		//futureUnits.push_back(make_pair(new Unit(pos[0],pos[1],un->getUnitType(),this->team),pos[2])); //TODO differentiate
 		vector<pair<Unit*,int> > futureUnits;
 
 		//vector<QThread*> threads;
@@ -79,7 +86,8 @@ void AI::play()
 			//thread->start();
 		}
 		// TODO zero or one ?!
-		this->playFutureTurn(1,futureUnits,this->myMoney,newUnits); // TODO create thread (max cca 160 for recon)
+		/*
+		this->playFutureTurn(0,futureUnits,this->myMoney,newUnits); // TODO create thread (max cca 160 for recon)
 		int max = -1;
 		int maxI;
 		for(unsigned int j=0;j<futureUnits.size();j++){ //TODO use a data structure for max search
@@ -97,6 +105,23 @@ void AI::play()
 		while(this->th_cnt != this->th_done){
 			usleep(10 *1e3);
 		}*/
+		futureTurn.push_back(futureUnits);
+	}
+
+	this->make_sequence(0,futureTurn,this->myMoney +Game::getInstance()->computeIncome(this->team),newUnits);
+	for(unsigned int i=0;i<futureTurn.size();i++){
+		int max = -1;
+		int maxI;
+		for(unsigned int j=0;j<futureTurn[i].size();j++){ //TODO use a data structure for max search
+			if(futureTurn[i][j].second > max){
+				maxI = j;
+				max = futureTurn[i][j].second;
+			}
+		}
+		this->executeAction((*myUnits)[i],futureTurn[i][maxI].first->getPosX(),futureTurn[i][maxI].first->getPosY(),attPos);
+		for(unsigned int j=0;j<futureTurn[i].size();j++){
+			delete futureTurn[i][j].first; // no memory leak
+		}
 	}
 
 	// unit purchasing
@@ -123,17 +148,21 @@ void AI::make_sequence(int depth, std::vector<std::vector<std::pair<Unit *, int>
 	}
 	this->meOnTurn = !this->meOnTurn;
 	//launch enemy turn
-	if(this->meOnTurn && depth < MAXDEPTH){ // my depth is the same as enemy-s
-		for(unsigned int i=0;i<this->myCases[depth]->size();i++){
-			this->playFutureTurn(depth,(*this->myCases[depth])[i],money,builtUnits);
+	if(this->meOnTurn && depth < MAXDEPTH){ // my depth is the same as enemy-s TODO check
+		for(unsigned int i=0;i<this->myCases[depth-1]->size();i++){
+			this->playFutureTurn(depth,(*this->myCases[depth-1])[i],money,builtUnits);
 		}
 	}else if(depth < MAXDEPTH -1){
-		for(unsigned int i=0;i<this->enemyCases[depth+1]->size();i++){
-			this->playFutureTurn(depth+1,(*this->enemyCases[depth+1])[i],money,builtUnits);
+		if(depth == 0){ //first iteration
+			std::vector<std::pair<Unit *, int> > dummy;
+			this->playFutureTurn(depth+1,dummy,money,builtUnits);
+		}else{
+			for(unsigned int i=0;i<this->enemyCases[depth]->size();i++){
+				this->playFutureTurn(depth+1,(*this->enemyCases[depth])[i],money,builtUnits);
+			}
 		}
 	}
-	//TODO doesnt work, problem with empty vectors
-	//TODO set in play()
+	//TODO unit purchases, doesnt work (or is defensive)
 }
 
 void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units, int money, std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > &builtUnits)
@@ -142,10 +171,15 @@ void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units,
 	std::vector<std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > > newUnits;
 	std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > passUnits;
 	for(unsigned int i=0;i<builtUnits.size();i++){
-		pair<vector<Unit*>,int> p = make_pair(builtUnits[i].first,builtUnits[i].second.second); //int is rating
-		std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases = this->makePurchases(money - builtUnits[i].second.first,p);
-		passUnits.insert(passUnits.end(),purchases.begin(),purchases.end());
-		newUnits.push_back(purchases);
+		int balance = money - builtUnits[i].second.first + Game::getInstance()->computeIncome(this->team);
+		//if(balance > 0){
+			pair<vector<Unit*>,int> p = make_pair(builtUnits[i].first,builtUnits[i].second.second); //int is rating
+			std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases;
+			purchases = this->makePurchases(balance,p);
+			passUnits.insert(passUnits.end(),purchases.begin(),purchases.end());
+			newUnits.push_back(purchases);
+		//}
+
 	}
 	//TODO money math is probably wrong
 	//TODO unit building recursion is overkill
@@ -167,6 +201,7 @@ void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units,
 				}
 				futureUnits.push_back(make_pair(this->buildUnit(poss[j][0],poss[j][1],un->getUnitType()),rating));
 			}
+			this->choosePossibilitiesToExplore(futureUnits);
 			futureTurn.push_back(futureUnits);
 			//this->playFutureTurn(depth+1,futureUnits,money +Game::getInstance()->computeIncome(this->team),passUnits);
 /*
@@ -198,10 +233,10 @@ void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units,
 	}
 	//modify ratings of variable units
 
-	//this->make_sequence(depth,futureTurn,money +Game::getInstance()->computeIncome(this->team),passUnits);
+	this->make_sequence(depth,futureTurn,money +Game::getInstance()->computeIncome(this->team),passUnits);
 	for(unsigned int i=0;i<futureTurn.size();i++){
 		if(depth < MAXDEPTH){ // evaluates possibilities in future moves
-			this->playFutureTurn(depth+1,futureTurn[i],money +Game::getInstance()->computeIncome(this->team),passUnits);
+	//		this->playFutureTurn(depth+1,futureTurn[i],money +Game::getInstance()->computeIncome(this->team),passUnits);
 		}
 
 		// chooses the best possibility
@@ -229,8 +264,33 @@ void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units,
 				umaxI = j;
 				umax = newUnits[i][j].second.second;
 			}
+			// + cleanup work
+			vector<Unit*>& toClean = newUnits[i][j].first;
+			for(unsigned int k=0;k<toClean.size();k++){
+				delete toClean[k];
+			}
 		}
 		builtUnits[i].second.second += newUnits[i][umaxI].second.second;
+	}
+}
+
+void AI::choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >& poss){
+	// reduces the size of input
+	float reduction = (float)1/4;
+	if(poss.size() > 4){ //try different values
+		unsigned int newSize = poss.size() * reduction;
+		vector<pair<Unit*,int> >::iterator it;
+		it = poss.begin();
+		while(poss.size() != newSize){
+			if(0 == rand()%3){ //maybe try different values
+				//delete (*it).first; //TODO memory leak
+				poss.erase(it);
+			}
+			it++;
+			if(it == poss.end()){
+				it = poss.begin();
+			}
+		}
 	}
 }
 
@@ -257,6 +317,7 @@ std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > AI::makePurch
 	vector<int> cs;
 	this->buildCase.clear();
 	this->generatePurchasePossibilities(money,fac_cnt,air_cnt,cs);
+	//TODO misses no builts
 
 	/*
 	int newCase[this->factories.size()]; //TODO more cases
@@ -294,28 +355,30 @@ std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > AI::makePurch
 	result.push_back(make_pair(units,make_pair(cost,totalRating)));*/
 
 	for(unsigned int i=0;i<this->buildCase.size();i++){
-		int f_pos = 0;
-		int a_pos = 0;
-		int money_left = money;
-		int rating = 0;
-		vector<Unit*> v;
-		for(unsigned int j=0;j<this->buildCase[i].first.size();j++){
-			int type = this->buildCase[i].first[j];
-			rating += this->ratePurchase(type,money_left);
-			if(type<8){
-				int x = fac_lst[f_pos]->getPosX();		// no intelligence for factory choice
-				int y = fac_lst[f_pos]->getPosY();
-				v.push_back(this->buildUnit(x,y,type));
-				f_pos++;
-			}else{
-				int x = air_lst[a_pos]->getPosX();
-				int y = air_lst[a_pos]->getPosY();
-				v.push_back(this->buildUnit(x,y,type));
-				a_pos++;
+		if(this->buildCase[i].second <= money){ //TODO do better, directly in generator
+			int f_pos = 0;
+			int a_pos = 0;
+			int money_left = money;
+			int rating = 0;
+			vector<Unit*> v;
+			for(unsigned int j=0;j<this->buildCase[i].first.size();j++){
+				int type = this->buildCase[i].first[j];
+				rating += this->ratePurchase(type,money_left);
+				if(type<8 && f_pos < fac_cnt){ //idk if correct
+					int x = fac_lst[f_pos]->getPosX();		// no intelligence for factory choice
+					int y = fac_lst[f_pos]->getPosY();
+					v.push_back(this->buildUnit(x,y,type));
+					f_pos++;
+				}else if(a_pos < air_cnt){ //idk if correct
+					int x = air_lst[a_pos]->getPosX();
+					int y = air_lst[a_pos]->getPosY();
+					v.push_back(this->buildUnit(x,y,type));
+					a_pos++;
+				}
+				money_left -= this->unitCost[j];
 			}
-			money_left -= this->unitCost[j];
+			result.push_back(make_pair(v,make_pair(this->buildCase[i].second,rating)));
 		}
-		result.push_back(make_pair(v,make_pair(this->buildCase[i].second,rating)));
 	}
 
 	return result;

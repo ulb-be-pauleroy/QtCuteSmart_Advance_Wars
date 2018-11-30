@@ -52,11 +52,11 @@ Game::Game(bool isHost)
 		this->addUnit(un,5,8,'o');
 		un = new Unit(3,2,1,'o');
 		this->addUnit(un,3,2,'o');
-
+/*
 		Infantry* in = new Infantry(0,3,0,'b');
 		this->map[0][3].push_back(in);
 		this->units_blue.push_back(in);
-
+*/
 		this->selected_unit = this->units_orange[0];
 
 		this->selected_x = 1;
@@ -697,9 +697,10 @@ void Game::deleteUnit(Unit *un)
 				for(itr = this->map[x][y].begin(); itr != this->map[x][y].end();itr++){
 					if(un == *itr){
 						this->map[x][y].erase(itr);
+						break;
 					}
 				}
-
+				delete *it;
                 this->units_blue.erase(it);
 				break;
             }
@@ -713,8 +714,10 @@ void Game::deleteUnit(Unit *un)
 				for(itr = this->map[x][y].begin(); itr != this->map[x][y].end();itr++){
 					if(un == *itr){
 						this->map[x][y].erase(itr);
+						break;
 					}
 				}
+				delete *it;
                 this->units_orange.erase(it);
 				break;
             }
@@ -831,13 +834,13 @@ int Game::computeIncome(char pl){
 	if(pl =='o'){
 		for(unsigned int i=0;i<this->buildings.size();i++){
 			if(this->buildings[i]->getType() != "Airport" && this->buildings[i]->getOwner() =='o'){
-				income += 1000;
+				income += this->income;
 			}
 		}
 	}else if(pl =='b'){
 		for(unsigned int i=0;i<this->buildings.size();i++){ //TODO rewrite airport
 			if(this->buildings[i]->getType() != "Airport" && this->buildings[i]->getOwner() =='b'){
-				income += 1000;
+				income += this->income;
 			}
 		}
 	}

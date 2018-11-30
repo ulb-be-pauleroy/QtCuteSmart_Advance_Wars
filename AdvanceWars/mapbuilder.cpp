@@ -126,19 +126,19 @@ void MapBuilder::buildTerrainMap(Game* game)
 			 case 39 : game->addGameObject(new Factory(i,j,'o'), i, j , 'o') ; break;
 			 case 40 : game->addGameObject(new Airport(i,j,'o'), i, j , 'o') ; break;
 			 case 41: case 42 :game->addGameObject(new City(i,j,'o'), i, j , 'o') ; break;
-			 case 43 : game->addGameObject(new City(i,j,'o'), i, j , 'b') ; break;
-			 case 44 : game->addGameObject(new Factory(i,j,'o'), i, j , 'b') ; break;
-			 case 45 : game->addGameObject(new Airport(i,j,'o'), i, j , 'b') ; break;
-			 case 46: case 47 : game->addGameObject(new City(i,j,'o'), i, j , 'b') ; break;
+			 case 43 : game->addGameObject(new City(i,j,'b'), i, j , 'b') ; break;
+			 case 44 : game->addGameObject(new Factory(i,j,'b'), i, j , 'b') ; break;
+			 case 45 : game->addGameObject(new Airport(i,j,'b'), i, j , 'b') ; break;
+			 case 46: case 47 : game->addGameObject(new City(i,j,'b'), i, j , 'b') ; break;
 			 case 101: case 102: case 103: case 104: case 105:
 			 case 106: case 107: case 108: case 109: case 110 :  game->addGameObject(new Terrain(i,j,14), i, j) ; break;
 			 case 111: case 112 : game->addGameObject(new Terrain(i,j,0), i, j) ; break;
 			 case 113: case 114 : game->addGameObject(new Terrain(i,j,14), i, j) ; break;
 			 case 115: case 116 : game->addGameObject(new Terrain(i,j,0), i, j) ; break;
-			 case 129 : game->addGameObject(new City(i,j,'o'), i, j , 'b') ; break;
+			 case 129 : game->addGameObject(new City(i,j,'b'), i, j , 'b') ; break;
 			 case 133 : game->addGameObject(new City(i,j,'\0'), i, j , '\0') ; break;
 			 case 134 : game->addGameObject(new City(i,j,'o'), i, j , 'o') ; break;
-			 case 140 : game->addGameObject(new City(i,j,'o'), i, j , 'b') ; break;
+			 case 140 : game->addGameObject(new City(i,j,'b'), i, j , 'b') ; break;
 			 case 145 : game->addGameObject(new City(i,j,'\0'), i, j , '\0') ; break;
 			 case 146 : game->addGameObject(new City(i,j,'o'), i, j , 'o') ; break;
 
