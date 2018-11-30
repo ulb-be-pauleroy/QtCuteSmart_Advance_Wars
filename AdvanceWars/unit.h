@@ -25,6 +25,7 @@ class Unit : public GameObject{
 
     std::vector<Edge> ee[XDIM * YDIM]; //static + still hardcoded
 	std::vector<int> last;
+	int parent[XDIM*YDIM];
 
 public:
     Unit(int x=0, int y=0, int type =0, char team='\0');
@@ -45,13 +46,14 @@ public:
     void newTurn();
 
 	std::vector<ValidMove*> selected();
+	std::vector<int> getDirections(int,int);
     virtual std::string getType() const;
     void interactWith();
 private:
     int getPosFromCoord(int x, int y);
     int* getCoordFromPos(int pos, int (&cr)[2]);
     std::vector<Edge> findConnected(int pos);
-    std::vector<int> bfs();
+	//std::vector<int> bfs();
     std::vector<int> dijkstra();
 
     // dmg_chart[attacker][target]

@@ -173,6 +173,37 @@ std::vector<ValidMove *> Unit::selected(){ //int[] (int* should do)
     return res;
 }
 
+vector<int> Unit::getDirections(int x, int y){
+	this->dijkstra();
+	vector<int> directions;
+	int me = this->getPosFromCoord(this->posX,this->posY);
+	int target = this->getPosFromCoord(x,y);
+	while(target != me){
+		int prt = this->parent[target];
+		int tb[2];
+		int* nw = this->getCoordFromPos(target,tb);
+		int tb2[2];
+		int* old = this->getCoordFromPos(prt,tb2);
+		int delX = *nw - *old;
+		int delY = *(nw+1) - *(old+1);
+		if(delX == 0){
+			if(delY > 0){
+				directions.push_back(1); //up
+			}else{
+				directions.push_back(0); //down
+			}
+		}else{
+			if(delX > 0){
+				directions.push_back(3); //right
+			}else{
+				directions.push_back(2); //left
+			}
+		}
+		target = prt;
+	}
+	return directions;
+}
+
 string Unit::getType() const
 {
 	//cout<< "un"<<endl;
@@ -243,12 +274,15 @@ vector<int> Unit::dijkstra(){
 	int dist[sx*sy];// = new int[sx*sy];
 	for(int i=0;i<sx*sy;i++){ //Arrays.fill(dist, Integer.MAX_VALUE);
 		dist[i] = 10000; //=sth huge
+		this->parent[i] = -2; //default value, no meaning
 	}
 	priority_queue<int, vector<int>, greater<int> > pq;// = new LinkedList<Integer>();
 	vector<int> ok;
+	this->last.clear();
 	int me = this->getPosFromCoord(this->posX, this->posY);
 	pq.push(me);
 	dist[me] = 0;
+	this->parent[me] = -1; //root
 
 	while(!pq.empty()) {
 		int a = pq.top();
@@ -269,10 +303,23 @@ vector<int> Unit::dijkstra(){
 				if(dist[e.getTo()] <= this->moves_left){ // = I can move there this turn <= ?
 					pq.push(e.getTo());
 					//cout<< "hello4" <<endl;
-					ok.push_back(e.getTo()); // we collect this
+					vector<int>::iterator yet;
+					yet = find(ok.begin(),ok.end(),e.getTo());
+					if(yet == ok.end()){ // tests if we didnt add it already
+						ok.push_back(e.getTo()); // we collect this
+					}
+
+					//ok.push_back(e.getTo()); // we collect this
+
 					if(dist[e.getTo()] - this->moves_left >= 0){
 						//cout << "This is a last move."<<endl;
 						this->last.push_back(e.getTo());
+					}else{
+						vector<int>::iterator notLast;
+						notLast = find(this->last.begin(),this->last.end(),e.getTo());
+						if(notLast != this->last.end()){ // we found a shorter path, no longer a last valid move
+							this->last.erase(notLast);
+						}
 					}
 				}
 			}
@@ -281,7 +328,7 @@ vector<int> Unit::dijkstra(){
 	}
 	return ok;
 }
-
+/*
 vector<int> Unit::bfs(){
 	int sx = XDIM;
 	int sy = YDIM;
@@ -304,7 +351,7 @@ vector<int> Unit::bfs(){
         //cout<< "hello3 "<< this->ee[a].end() - this->ee[a].begin() <<" "
         //    << this->ee[a][0].getTo() <<endl;
         vector<Edge>::iterator it;
-        for(it = this->ee[a].begin(); it!=this->ee[a].end();it++/*Edge& e : this->ee[a]*/) {
+		for(it = this->ee[a].begin(); it!=this->ee[a].end();it++) {
             Edge& e = *it;
             //cout<< "hello3.5" <<endl;
             if(dist[e.getTo()] == 10000) { //same huge thing
@@ -323,3 +370,4 @@ vector<int> Unit::bfs(){
     //cout<< "hello5" <<endl;
 	return ok;
 }
+			*/

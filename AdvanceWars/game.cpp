@@ -433,6 +433,11 @@ void Game::moveTo(int x, int y)
 
 	if(ok){
 		//cout<< "moving"<<endl;
+		vector<int> directions = this->selected_unit->getDirections(x,y);
+		for(unsigned int i=directions.size();i>0;i--){ // parse in reverse
+			this->move(directions[i-1]);
+		}
+		/*
 		while(this->selected_unit->getPosX() != x){
 			if(this->selected_unit->getPosX() > x){
 				this->move(2);
@@ -446,7 +451,7 @@ void Game::moveTo(int x, int y)
 			}else{
 				this->move(1);
 			}
-		}
+		}*/
 	}
 }
 
@@ -708,8 +713,8 @@ void Game::clearValidMoves(){
 				if((*it)->getType() == "ValidMove"){
 						//(ValidMove*)(&(*it))){//dynamic_cast<ValidMove*>(&(*it))){//ValidMove(i,j) == *it){
 					//cout<< "ValidMove found "<<i<<" "<<j<<endl;
+					delete (*it);
 					this->map[i][j].erase(it); // memory leak?
-					//delete (*it);
 					break;
 				}
 			}
