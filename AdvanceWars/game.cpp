@@ -7,6 +7,7 @@ Game* Game::instance = 0; //needed for singleton
 #include "city.h"
 //#include "Unit.h"
 #include "network.h"
+#include "ai.h"
 #include "infantry.h"
 #include "terrain.h"
 
@@ -43,6 +44,8 @@ Game::Game(bool isHost)
 	this->orange_on_turn = true;
 
 	if(isHost){
+		if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
+
 		Unit* un = new Unit(5,5,1,'b');
 		this->addUnit(un,5,5,'b');
 		un = new Unit(5,8,0,'o');
@@ -283,6 +286,17 @@ int Game::getTerrainDefenseModifier(Unit& un, int x, int y)// const doesnt work?
 			}
 		}
 		return 1;
+	}
+}
+
+std::vector<Unit*>* Game::getUnits(char pl)// const
+{
+	if(pl == 'o'){
+		return &this->units_orange;
+	}else if(pl == 'b'){
+		return &this->units_blue;
+	}else{
+		return NULL; //error
 	}
 }
 
@@ -771,12 +785,14 @@ void Game::endTurn(bool net)
         }
 		if(!testEndOfGame()){
 			this->orange_on_turn = false;
+			this->money_blue += this->computeIncome('b');
+			/*
 			if(!this->units_blue.empty()) this->selected_unit = this->units_blue[0];
-			for(unsigned int i=0;i<this->buildings.size();i++){
+			for(unsigned int i=0;i<this->buildings.size();i++){ //TODO rewrite airport
 				if(this->buildings[i]->getType() != "Airport" && this->buildings[i]->getOwner() =='b'){
-					this->money_blue += this->income;
+					this->money_blue += 1000;
 				}
-			}
+			}*/
 			cout<<"Blue money: "<<this->money_blue<<endl;
 		}else{
 			cout<<"The game had ended: Orange wins!"<<endl;
@@ -788,12 +804,14 @@ void Game::endTurn(bool net)
         }
 		if(!testEndOfGame()){
 			this->orange_on_turn = true;
+			this->money_orange += this->computeIncome('o');
+			/*
 			if(!this->units_orange.empty()) this->selected_unit = this->units_orange[0];
 			for(unsigned int i=0;i<this->buildings.size();i++){
 				if(this->buildings[i]->getType() != "Airport" && this->buildings[i]->getOwner() =='o'){
-					this->money_orange += this->income;
+					this->money_orange += 1000;
 				}
-			}
+			}*/
 			cout<<"Orange money: "<<this->money_orange<<endl;
 		}else{
 			cout<<"The game had ended: Blue wins!"<<endl;
@@ -801,7 +819,23 @@ void Game::endTurn(bool net)
     }
 }
 
-
+int Game::computeIncome(char pl){
+	int income = 0;
+	if(pl =='o'){
+		for(unsigned int i=0;i<this->buildings.size();i++){
+			if(this->buildings[i]->getType() != "Airport" && this->buildings[i]->getOwner() =='o'){
+				income += 1000;
+			}
+		}
+	}else if(pl =='b'){
+		for(unsigned int i=0;i<this->buildings.size();i++){ //TODO rewrite airport
+			if(this->buildings[i]->getType() != "Airport" && this->buildings[i]->getOwner() =='b'){
+				income += 1000;
+			}
+		}
+	}
+	return income;
+}
 
 void Game::testCaptureAndHealing(Unit* un)
 {

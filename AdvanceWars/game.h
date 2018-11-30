@@ -13,6 +13,7 @@
 #include "mapsize.h" // map size preprocessor value defined here
 //using namespace std; //this is dangerous
 class Network;
+class AI;
 
 class Game{
 
@@ -32,6 +33,7 @@ class Game{
 	Factory* selected_factory;
 	bool attacking;
 	Network* network;
+	AI* ai;
 	static Game* instance;
     Game(bool isHost);
 
@@ -50,6 +52,7 @@ public:
 	std::vector<GameObject*> & getObjectsOnPos(int x, int y);// const;
 	int getTerrainMovementModifier(Unit* un, int x, int y);// const;
 	int getTerrainDefenseModifier(Unit& un, int x, int y);// const;
+	std::vector<Unit*>* getUnits(char pl);// const;
 	int getBalance(char pl) const;
 	//vector<Unit *>& getUnits(char);
 	//vector<Unit *>& getUnits_orange();
@@ -71,9 +74,11 @@ public:
 	void endTurn(bool net=false);
 	//void buildTerrainMap();
 
+	int computeIncome(char);
+	void clearValidMoves();
 private:
 	bool testObstacle(int x, int y);
-	void clearValidMoves();
+
     void drawPossibleMoves();
 	void testCaptureAndHealing(Unit*);
 	bool testEndOfGame();

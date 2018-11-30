@@ -29,7 +29,9 @@ SOURCES += main.cpp\
     infantry.cpp \
     imageloader.cpp \
     mapbuilder.cpp \
-    startingwindow.cpp
+    startingwindow.cpp \
+    ai.cpp \
+    aiworker.cpp
 
 HEADERS  += mainwindow.h \
     mapsize.h \
@@ -48,7 +50,9 @@ HEADERS  += mainwindow.h \
     infantry.h \
     imageloader.h \
     mapbuilder.h \
-    startingwindow.h
+    startingwindow.h \
+    ai.h \
+    aiworker.h
 
 FORMS    += mainwindow.ui \
     startingwindow.ui
