@@ -274,9 +274,9 @@ void Network::sendData(QString type, int x, int y, int data, int data2){
 
 void Network::sendJson(const QJsonObject& obj) { //updated to reference
 	QByteArray data = QJsonDocument(obj).toJson();
-	QDataStream out(this->other);
-	out << (quint32) data.length();
-	this->other->write(data);
+    QDataStream out(this->other);
+    out << (quint32) data.length();
+    this->other->write(data);
 
 	std::cout << "Sending " << data.toStdString() << std::endl;
 }
