@@ -8,6 +8,7 @@ class Building : public GameObject
 {
 protected:
     char owner;
+    int health;
 
 public:
 	Building(int x, int y, char c);
@@ -15,6 +16,8 @@ public:
 	//void assingOwner(const char);
     char getOwner();
 	virtual void healUnit(Unit*);
+    void capture(Unit*un);
+    void abandonCapture();
 };
 
 #endif // BUILDING_H

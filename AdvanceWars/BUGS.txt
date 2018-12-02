@@ -1,4 +1,5 @@
-bug lors de la mort, PV négatifs
-Segmentation fault lors de la mort, liée à la ligne 277 de network
+bug lors de la mort, PV négatifs - fixed
+Segmentation fault lors de la mort, liée à la ligne 277 de network - fixed
 Pour Infantry, usage de parent[] cause un pointeur fou - capturing
 bug après le tour de l'ia si on utilise tab pour cycler les units
+unité pas sélectionnable si adjacente à ia à la fin du tour de l'ia

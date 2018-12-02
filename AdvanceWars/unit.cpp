@@ -35,6 +35,7 @@ Unit::Unit(int x, int y, int type, char team) : GameObject(x,y){
 	this->speed = Unit::speed_chart[type];
     this->moves_left = this->speed;
 	this->team = team;
+    this->capturing = NULL;
     if(team != 'o' && team != 'b'){
 		cout<< "Error: Team does not exist! "<<team<<endl;
 	}
@@ -108,6 +109,10 @@ bool Unit::move(int dir, int terrainMod){
             case 2: this->posX--; break; //left
             case 3: this->posX++; break; //right
         }
+        if (this->getUnitType() == 0 && this->capturing != 0){
+            this->capturing->abandonCapture();
+            this->capturing = NULL;
+        }
 		this->moves_left -= terrainMod;
         return true;
     }
@@ -139,6 +144,16 @@ void Unit::endTurn()
 void Unit::newTurn()
 {
     this->moves_left = this->speed;
+}
+
+bool Unit::isCapturing()
+{
+    return this->capturing;
+}
+
+void Unit::setCapture(Building *building)
+{
+    this->capturing = building;
 }
 
 

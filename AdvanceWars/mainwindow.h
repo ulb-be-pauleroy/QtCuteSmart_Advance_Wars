@@ -34,8 +34,8 @@ public:
 	void receiveGame(Game* gm);
 	void receiveNetwork(Network* net);
     void loadImages();
-	//void paintMap(QPainter &painter);
-	//void paintUnits(QPainter &painter);
+    void loadImage(int x, int y);
+    void refresh();
 
 private:
 	Ui::MainWindow *ui;

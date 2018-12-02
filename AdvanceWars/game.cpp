@@ -29,7 +29,12 @@ void Game::setPath(QString path)
 	unsigned int y = intMap[0].size();
 	vector<vector<vector<GameObject*> > > mapPro(x, vector<vector<GameObject*> >(y,vector<GameObject*>()));
 	this->map = mapPro;
-	MapBuilder::buildTerrainMap(this);
+    MapBuilder::buildTerrainMap(this);
+}
+
+void Game::setWindow(MainWindow *wn)
+{
+    this->wn = wn;
 }
 
 Game::Game(bool isHost)
@@ -39,6 +44,7 @@ Game::Game(bool isHost)
 	this->network = NULL;
     this->attacking = false;
 	this->selected_factory = NULL;
+    this->wn = NULL;
 	this->money_orange = 1000; //TODO
 	this->money_blue = 1000;
 	this->orange_on_turn = true;
@@ -548,15 +554,15 @@ void Game::cycleUnits(int dir)
             //cout << "Hello x" << endl;
 			if(this->selected_unit == *it){
 				if(dir >0){
-					it++;
-					if(it == this->units_orange.end()){
-						it = this->units_orange.begin();
-					}
-				}else{
-					it--;
-					if(it == this->units_orange.begin()-1){
-						it = this->units_orange.end()-1;
-					}
+                    it++;
+                    if(it == this->units_orange.end()){
+                        it = this->units_orange.begin();
+                    }
+                }else{
+                    it--;
+                    if(it == this->units_orange.begin()-1){
+                        it = this->units_orange.end()-1;
+                    }
 				}
                 //cout << "Hello" << endl;
                 break;
@@ -567,22 +573,22 @@ void Game::cycleUnits(int dir)
             //cout << "Hello x" << endl;
 			if(this->selected_unit == *it){
 				if(dir>0){
-					it++;
-					if(it == this->units_blue.end()){
+                    it++;
+                    if(it == this->units_blue.end()){
 						it = this->units_blue.begin();
-					}
+                    }
 				}else{
-					it--;
-					if(it == this->units_blue.begin()-1){
-						it = this->units_blue.end()-1;
-					}
+                    it--;
+                    if(it == this->units_blue.begin()-1){
+                        it = this->units_blue.end()-1;
+                    }
 				}
                 //cout << "Hello" << endl;
                 break;
             }
         }
     }
-	this->selected_unit = *it;
+    this->selected_unit = *it;
     this->selected_x = this->selected_unit->getPosX();
     this->selected_y = this->selected_unit->getPosY();
 	//cout << this->selected_unit << endl;
@@ -712,6 +718,7 @@ void Game::endTurn(bool net)
 		}else{
 			cout<<"The game had ended: Orange wins!"<<endl;
 		}
+        this->selected_unit = this->units_blue[0];
     }else{
         for(it = this->units_blue.begin(); it!=this->units_blue.end();it++){
 			(*it)->newTurn();
@@ -731,6 +738,23 @@ void Game::endTurn(bool net)
 		}else{
 			cout<<"The game had ended: Blue wins!"<<endl;
 		}
+        this->selected_unit = this->units_orange[0];
+    }
+}
+
+void Game::changeIndex(Building *bl, char initialOwner) //changes index of building when owner changes
+{
+    if(bl->getOwner() == 'b' && initialOwner == 'o' ){
+        this->intMap[bl->getPosX()][bl->getPosY()] += 5;
+    }
+    else if (bl->getOwner() == 'o' && initialOwner == 'b' ){
+        this->intMap[bl->getPosX()][bl->getPosY()] -= 5;
+    }
+    else if (bl->getOwner() == 'b' && initialOwner == 'n' ){
+        this->intMap[bl->getPosX()][bl->getPosY()] += 10;
+    }
+    else if (bl->getOwner() == 'o' && initialOwner == 'n' ){
+        this->intMap[bl->getPosX()][bl->getPosY()] += 5;
     }
 }
 
@@ -760,14 +784,15 @@ void Game::testCaptureAndHealing(Unit* un)
 	vector<GameObject*>::iterator itr;
 	for(itr = tl.begin();itr!=tl.end();itr++){
 		GameObject* go = *itr;
-		City* city = dynamic_cast<City*>(go);
+        Building* bl = dynamic_cast<Building*>(go);
         //cout << city << endl;
-		if(city != NULL) { // go->getType() == "City")
-			city->capture(un);
-		}
-		Building* bl = dynamic_cast<Building*>(go);
-		if(bl!=NULL){
-			bl->healUnit(un);
+        if(bl != NULL) { // go->getType() == "building")
+            char initialOwner = bl->getOwner();
+            bl->capture(un);
+            if(bl->getOwner() == un->getTeam()){
+                bl->healUnit(un);
+                this->changeIndex(bl, initialOwner);
+            }
 		}
 	}
 }
@@ -811,53 +836,3 @@ bool Game::testEndOfGame()
 	}
 	return false;
 }
-
-
-/*
-
-void Game::buildTerrainMap()
-{
- unsigned int x = this->intMap.size();
- unsigned int y = this->intMap[0].size();
- vector<vector<vector<GameObject*> > > mapPro(x, vector<vector<GameObject*> >(y,vector<GameObject*>()));
- this->map = mapPro;
- for(int i = 0; i != x; i++ ){
-     for (int j = 0; j != y; j++){
-         switch(intMap[i][j]){
-         case 1 : this->addGameObject(new Terrain(i,j,0), i, j) ; break;
-         case 2 : this->addGameObject(new Terrain(i,j,1), i, j) ; break;
-         case 3 : this->addGameObject(new Terrain(i,j,2), i, j) ; break;
-         case 4 ... 14 :  this->addGameObject(new Terrain(i,j,3), i, j) ; break;
-         case 15 ... 25:  this->addGameObject(new Terrain(i,j,4), i, j) ; break;
-         case 26 ... 27:  this->addGameObject(new Terrain(i,j,5), i, j) ; break;
-         case 28:  this->addGameObject(new Terrain(i,j,6), i, j) ; break;
-         case 29 ... 32 :  this->addGameObject(new Terrain(i,j,7), i, j) ; break;
-         case 33 : this->addGameObject(new Terrain(i,j,8), i, j) ; break;
-         case 34 : this->addGameObject(new City(i,j,'\0'), i, j , '\0') ; break;
-         case 35 : this->addGameObject(new Factory(i,j,'\0'), i, j , '\0') ; break;
-         case 36 : this->addGameObject(new Airport(i,j,'\0'), i, j , '\0') ; break;
-         case 37 : this->addGameObject(new City(i,j,'\0'), i, j , '\0') ; break;
-         case 38 : this->addGameObject(new City(i,j,'o'), i, j , 'o' ) ; break;
-         case 39 : this->addGameObject(new Factory(i,j,'o'), i, j , 'o') ; break;
-         case 40 : this->addGameObject(new Airport(i,j,'o'), i, j , 'o') ; break;
-         case 41 ... 42 :this->addGameObject(new City(i,j,'o'), i, j , 'o') ; break;
-         case 43 : this->addGameObject(new City(i,j,'o'), i, j , 'b') ; break;
-         case 44 : this->addGameObject(new Factory(i,j,'o'), i, j , 'b') ; break;
-         case 45 : this->addGameObject(new Airport(i,j,'o'), i, j , 'b') ; break;
-         case 46 ... 47 : this->addGameObject(new City(i,j,'o'), i, j , 'b') ; break;
-         case 101 ... 110 :  this->addGameObject(new Terrain(i,j,14), i, j) ; break;
-         case 111 ... 112 : this->addGameObject(new Terrain(i,j,0), i, j) ; break;
-         case 113 ... 114 : this->addGameObject(new Terrain(i,j,14), i, j) ; break;
-         case 115 ... 116 : this->addGameObject(new Terrain(i,j,0), i, j) ; break;
-         case 129 : this->addGameObject(new City(i,j,'o'), i, j , 'b') ; break;
-         case 133 : this->addGameObject(new City(i,j,'\0'), i, j , '\0') ; break;
-         case 134 : this->addGameObject(new City(i,j,'o'), i, j , 'o') ; break;
-         case 140 : this->addGameObject(new City(i,j,'o'), i, j , 'b') ; break;
-         case 145 : this->addGameObject(new City(i,j,'\0'), i, j , '\0') ; break;
-         case 146 : this->addGameObject(new City(i,j,'o'), i, j , 'o') ; break;
-
-         }
-     }
- }
- qDebug() << "jai fini les objets!";
-}*/

@@ -14,6 +14,7 @@
 //using namespace std; //this is dangerous
 class Network;
 class AI;
+class MainWindow;
 
 class Game{
 
@@ -37,11 +38,13 @@ class Game{
 	static Game* instance;
     Game(bool isHost);
 	std::vector<GameObject*> test;
+    MainWindow* wn;
 
 public:
 
     static Game* getInstance(bool isHost=true);
     void setPath(QString path);
+    void setWindow(MainWindow* wn);
 	//void makeIntMap(QString path);
 	//void verifyNumber(int& index);
 	std::vector<std::vector<int> > & getIntMap();
@@ -73,13 +76,15 @@ public:
     int getSelectedY();
 	char getTeamOnTurn() const;
 	void endTurn(bool net=false);
+    void changeIndex(Building* bl, char initialOwner);
 	//void buildTerrainMap();
-
 	int computeIncome(char);
 	void clearValidMoves();
-private:
-	bool testObstacle(int x, int y);
 
+
+private:
+
+	bool testObstacle(int x, int y);
     void drawPossibleMoves();
 	void testCaptureAndHealing(Unit*);
 	bool testEndOfGame();

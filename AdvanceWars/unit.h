@@ -8,12 +8,12 @@
 #include "edge.h"
 #include "validmove.h"
 #include "gameobject.h"
-
 #include "mapsize.h"
 
 //#include "game.h"
 // doesnt work as it is a cyclic dependency
 class Game; //used instead
+class Building;
 
 class Unit : public GameObject{
 	char team;
@@ -22,6 +22,7 @@ class Unit : public GameObject{
 	int moves_left;
 	int health;
 	int price;
+    Building* capturing;
 
     std::vector<Edge> ee[XDIM * YDIM]; //static + still hardcoded
 	std::vector<int> last;
@@ -44,6 +45,8 @@ public:
     //bool operator== (GameObject& obj) const;
     void endTurn();
     void newTurn();
+    bool isCapturing();
+    void setCapture(Building* building);
 
 	std::vector<ValidMove*> selected();
 	std::vector<int> getDirections(int,int);

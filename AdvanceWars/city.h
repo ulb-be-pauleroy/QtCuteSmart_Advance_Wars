@@ -12,8 +12,8 @@ public:
 	//void select();
 	void interactWith();
 	std::string getType() const;
-    void capture(Unit*);
-    void abandonCapture();
+    //void capture(Unit*);
+    //void abandonCapture();
 };
 
 #endif // CITY_H

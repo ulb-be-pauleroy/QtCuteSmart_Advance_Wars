@@ -17,7 +17,7 @@ std::string City::getType() const
     return "City";
 }
 
-void City::capture(Unit *un)
+/*void City::capture(Unit *un)
 {
 	if(un->getType() == "Infantry" && un->getTeam() != this->owner){
 		this->health -= un->getHealth(); //I think there is a health limit
@@ -36,5 +36,5 @@ void City::capture(Unit *un)
 void City::abandonCapture()
 {
     this->health = 20;
-}
+}*/
 

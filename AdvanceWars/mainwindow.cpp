@@ -2,14 +2,15 @@
 #include "ui_mainwindow.h"
 
 #include <QPainter>
+#include <iostream>
+#include <thread>
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
-
-	this->blk_size = 40;
+    this->blk_size = 50;
 	this->game = NULL;
 	this->network = NULL;
 }
@@ -46,7 +47,7 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 
 	}
 
-	this->update();
+    this->refresh();
 	}
 }
 
@@ -61,7 +62,7 @@ void MainWindow::mousePressEvent(QMouseEvent* event){
 	}else if(event->button()==2){
 		this->game->moveTo(x/this->blk_size,y/this->blk_size);
 	}
-	this->update();
+    this->refresh();
 	}
 }
 
@@ -74,7 +75,7 @@ void MainWindow::wheelEvent(QWheelEvent * event){
 	}else{
 		this->game->cycleUnits(1);
 	}
-	this->update();
+    this->refresh();
     }
 }
 
@@ -124,9 +125,10 @@ void MainWindow::paintEvent(QPaintEvent *)
 void MainWindow::receiveGame(Game* gm)
 {
     this->game = gm;
+    gm->setWindow(this);
     this->intMap = game->getIntMap();
     this->loadImages();
-    this->update();
+    this->refresh();
     setFixedSize((this->blk_size*intMap.size())*4/3,this->blk_size*intMap[1].size());
 }
 
@@ -145,7 +147,6 @@ void MainWindow::loadImages()
     for (unsigned int i = 0 ; i != x; i++){
         for (it2 = intMap[i].begin(); it2 != intMap[i].end(); it2++){
             this->imageMap[i].push_back(ImageLoader::loadImage(*it2));
-            //this->imageMap[i].push_back(loadImage(*it2));
         }
     }
     std::map<int,QImage*> unitImages;
@@ -163,48 +164,19 @@ void MainWindow::loadImages()
     this->UnitImages = unitImages;
 }
 
-
-/*
-void MainWindow::paintMap(QPainter &painter)
+void MainWindow::loadImage(int x, int y)
 {
-	unsigned int x = imageMap.size();
-
-    for (unsigned int i = 0; i!= x;  i++){
-		unsigned int y = imageMap[i].size();
-
-        for (unsigned int j = 0; j != y; j++){
-            QImage img = imageMap[i][j]->scaledToWidth(blk_size);
-            int x = int(i) * blk_size;
-			int r = img.height()-img.width();
-            int y = int(j) * blk_size - r;
-
-			painter.drawImage(QPoint(x, y), img );
-        }
-    }
+    this->imageMap[x][y] = ImageLoader::loadImage(this->intMap[x][y]);
+    this->refresh();
 }
-*/
-/*
-void MainWindow::paintUnits(QPainter &painter)
+
+void MainWindow::refresh()
 {
-	vector<Unit*> units = this->game->getUnits('b');
-	if (units.size()!=0){
-		//for (Unit* i : units ){
-		for(unsigned int j = 0;j<units.size();j++){
-			Unit* i = units[j];
-            QImage im = UnitImages[i->getUnitType()]->scaledToWidth(blk_size);
-            painter.drawImage(QPoint(i->getPosX()*blk_size, i->getPosY()*blk_size), im);
-        }
-    }
-	units = this->game->getUnits('o');
-	if (units.size()!=0){
-		//for (Unit* i : units ){
-		for(unsigned int j = 0;j<units.size();j++){
-			Unit* i = units[j];
-            QImage im = UnitImages[i->getUnitType()]->scaledToWidth(blk_size);
-            painter.drawImage(QPoint(i->getPosX()*blk_size, i->getPosY()*blk_size), im);
-        }
-    }
+    this->update();
+
 }
-*/
+
+
+
 
 
