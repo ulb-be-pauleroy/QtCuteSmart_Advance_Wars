@@ -32,10 +32,6 @@ void Game::setPath(QString path)
     MapBuilder::buildTerrainMap(this);
 }
 
-void Game::setWindow(MainWindow *wn)
-{
-    this->wn = wn;
-}
 
 Game::Game(bool isHost)
 {
@@ -44,7 +40,6 @@ Game::Game(bool isHost)
 	this->network = NULL;
     this->attacking = false;
 	this->selected_factory = NULL;
-    this->wn = NULL;
 	this->money_orange = 1000; //TODO
 	this->money_blue = 1000;
 	this->orange_on_turn = true;
@@ -118,8 +113,8 @@ void Game::networkAction(string type, int x, int y, int data, int data2)
 		}
 	}else if(type == "newunit"){ //sometimes causes a segfault, idk why
 		switch(data2){
-			case 1: this->addUnit(new Unit(x,y,data,'o'),x,y,'o',true);
-			case 2: this->addUnit(new Unit(x,y,data,'b'),x,y,'b',true);
+            case 1: this->addUnit(new Unit(x,y,data,'o'),x,y,'o',true);break;
+        case 2: this->addUnit(new Unit(x,y,data,'b'),x,y,'b',true);break;
 		}
 	}else if(type == "attack"){
 		Unit* attacker = NULL;

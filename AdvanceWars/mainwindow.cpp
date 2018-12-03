@@ -2,8 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <QPainter>
-#include <iostream>
-#include <thread>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -13,6 +12,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->blk_size = 50;
 	this->game = NULL;
 	this->network = NULL;
+    //connect(&timer, SIGNAL(), this, SLOT(refresh()));
+    //timer.start(50);
 }
 
 
@@ -47,7 +48,7 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 
 	}
 
-    this->refresh();
+    this->update();
 	}
 }
 
@@ -62,7 +63,7 @@ void MainWindow::mousePressEvent(QMouseEvent* event){
 	}else if(event->button()==2){
 		this->game->moveTo(x/this->blk_size,y/this->blk_size);
 	}
-    this->refresh();
+    this->update();
 	}
 }
 
@@ -75,7 +76,7 @@ void MainWindow::wheelEvent(QWheelEvent * event){
 	}else{
 		this->game->cycleUnits(1);
 	}
-    this->refresh();
+    this->update();
     }
 }
 
@@ -125,10 +126,9 @@ void MainWindow::paintEvent(QPaintEvent *)
 void MainWindow::receiveGame(Game* gm)
 {
     this->game = gm;
-    gm->setWindow(this);
     this->intMap = game->getIntMap();
     this->loadImages();
-    this->refresh();
+    this->update();
     setFixedSize((this->blk_size*intMap.size())*4/3,this->blk_size*intMap[1].size());
 }
 
@@ -167,16 +167,6 @@ void MainWindow::loadImages()
 void MainWindow::loadImage(int x, int y)
 {
     this->imageMap[x][y] = ImageLoader::loadImage(this->intMap[x][y]);
-    this->refresh();
-}
-
-void MainWindow::refresh()
-{
     this->update();
-
 }
-
-
-
-
 

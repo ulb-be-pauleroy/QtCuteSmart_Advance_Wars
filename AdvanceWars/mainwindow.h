@@ -35,7 +35,6 @@ public:
 	void receiveNetwork(Network* net);
     void loadImages();
     void loadImage(int x, int y);
-    void refresh();
 
 private:
 	Ui::MainWindow *ui;

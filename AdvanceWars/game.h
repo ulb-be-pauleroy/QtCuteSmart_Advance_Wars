@@ -14,7 +14,6 @@
 //using namespace std; //this is dangerous
 class Network;
 class AI;
-class MainWindow;
 
 class Game{
 
@@ -38,13 +37,11 @@ class Game{
 	static Game* instance;
     Game(bool isHost);
 	std::vector<GameObject*> test;
-    MainWindow* wn;
 
 public:
 
     static Game* getInstance(bool isHost=true);
     void setPath(QString path);
-    void setWindow(MainWindow* wn);
 	//void makeIntMap(QString path);
 	//void verifyNumber(int& index);
 	std::vector<std::vector<int> > & getIntMap();
