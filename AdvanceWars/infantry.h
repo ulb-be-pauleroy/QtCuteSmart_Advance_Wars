@@ -1,12 +1,12 @@
 ﻿#include "unit.h"
-#include "city.h"
+#include "building.h"
 
 class Infantry : public Unit{
-    City* capturing;
+	Building* capturing;
   public:
 	Infantry(int x, int y, int type, char team);
     virtual std::string getType() const;
 	bool move(int dir, int terrainMod);
-    void setCapture(City*);
+	void setCapture(Building*);
     bool isCapturing();
 };

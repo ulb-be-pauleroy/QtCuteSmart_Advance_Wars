@@ -7,8 +7,26 @@
 #include "airport.h"
 #include "airunit.h"
 #include "infantry.h"
+#include "city.h"
 
 using namespace std;
+
+// dmg_chart[attacker][target]
+// 0 = infantry, 1 = bazooka, 2 = recon, 3 = anti-air
+// 4 = tank, 5 = md. tank, 6 = mega tank, 7 = neotank
+// 8 = b-copter, 9 = fighter, 10 = bomber
+const int AI::dmg_chart[11][11] = {{55,45,12,5,5,1,1,1,7,0,0},
+									{65,55,85,65,55,15,5,15,9,0,0},
+									{70,65,35,4,6,1,1,1,12,0,0},
+									{105,105,60,45,25,10,1,5,120,65,75},
+									{75,70,85,65,55,15,10,15,10,0,0},
+									{105,95,105,105,85,55,25,45,12,0,0},
+									{135,125,195,195,180,125,65,115,22,0,0},
+									{125,115,125,115,105,75,35,55,22,0,0},
+									{75,75,55,25,55,25,10,20,65,0,0},
+									{0,0,0,0,0,0,0,0,100,55,100},
+									{110,110,105,95,105,95,35,90,0,0,0}
+									};
 
 const int AI::unitCost[11] = {1000,3000,4000,8000,7000,16000,28000,22000,9000,20000,22000};
 
@@ -162,6 +180,47 @@ void AI::make_sequence(int depth, std::vector<std::vector<std::pair<Unit *, int>
 			}
 		}
 	}
+	//decrement rating based on opponent
+	if(this->meOnTurn){
+		int enemyRating;
+		for(unsigned int i=0;i<enemyCases[depth]->size();i++){
+			int imax = -1;
+			int imaxI;
+			for(unsigned int j=0;j<(*enemyCases[depth])[i].size();j++){ //TODO use a data structure for max search
+				if((*enemyCases[depth])[i][j].second > imax){
+					imaxI = j;
+					imax = (*enemyCases[depth])[i][j].second;
+				}
+			}
+			//TODO check for memory leak
+			enemyRating += imax;
+		}
+		for(unsigned int i=0;i<myCases[depth]->size();i++){
+			for(unsigned int j=0;j<myCases[depth][i].size();j++){
+				(*myCases[depth])[i][j].second -= enemyRating;
+			}
+		}
+	}else{
+		int enemyRating;
+		for(unsigned int i=0;i<myCases[depth]->size();i++){
+			int imax = -1;
+			int imaxI;
+			for(unsigned int j=0;j<myCases[depth][i].size();j++){ //TODO use a data structure for max search
+				if((*myCases[depth])[i][j].second > imax){
+					imaxI = j;
+					imax = (*myCases[depth])[i][j].second;
+				}
+			}
+			//TODO check for memory leak
+			enemyRating += imax;
+		}
+		for(unsigned int i=0;i<enemyCases[depth]->size();i++){
+			for(unsigned int j=0;j<enemyCases[depth][i].size();j++){
+				(*enemyCases[depth])[i][j].second -= enemyRating;
+			}
+		}
+	}
+
 	//TODO unit purchases, doesnt work (or is defensive)
 }
 
@@ -442,7 +501,7 @@ int AI::rateAction(Unit * un, ValidMove * vm)
 	int rating = 0;
 	vector<GameObject*>& tile = Game::getInstance()->getObjectsOnPos(vm->getPosX(),vm->getPosY());
 	for(unsigned int i=0;i<tile.size();i++){
-		if(City* ct = dynamic_cast<City*>(tile[i])){
+		if(City* ct = dynamic_cast<City*>(tile[i])){ // TODO verify capture and healing logic
 			if(ct->getOwner() == un->getTeam()){
 				if(un->getHealth() != 10){
 					rating += 3;	//unit can heal
@@ -464,9 +523,6 @@ int AI::rateAction(Unit * un, ValidMove * vm)
 	if(vm->isLast()){ // only rates completes moves for now
 		return rating+1;
 	}
-	if(un->getTeam() != this->team){
-		rating *= -1; //enemy moves are rated negatively
-	}
 	return rating;
 }
 
@@ -484,12 +540,11 @@ int AI::ratePurchase(int type, int money)
 
 int AI::rateAttack(Unit * un, Unit * target)
 {
-	if(un->getUnitType() >= target->getUnitType()){ //TODO very stupid logic
-		return 5;
-	}else{
-		return 2;
+	int rating = this->dmg_chart[un->getUnitType()][target->getUnitType()] /4; //TODO try different values
+	if(un->getUnitType() >= target->getUnitType()){
+		rating += 5;
 	}
-
+	return rating;
 }
 
 vector<Unit*> AI::targetsFromPos(int x, int y)

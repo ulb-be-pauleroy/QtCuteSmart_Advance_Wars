@@ -22,9 +22,9 @@ bool Infantry::move(int dir, int terrainMod)
     return ok;
 }
 
-void Infantry::setCapture(City * city)
+void Infantry::setCapture(Building * bld)
 {
-    this->capturing = city;
+	this->capturing = bld;
 }
 
 bool Infantry::isCapturing()

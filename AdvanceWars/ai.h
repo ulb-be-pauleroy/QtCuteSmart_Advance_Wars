@@ -16,6 +16,7 @@ class AI : public QObject
 	std::vector<Factory*> factories;
 
 	static const int unitCost[];
+	static const int dmg_chart[11][11];
 	std::vector<std::pair<std::vector<int>, int> > buildCase;
 
 	int myMoney;
