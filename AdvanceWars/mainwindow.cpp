@@ -130,6 +130,7 @@ void MainWindow::receiveGame(Game* gm)
     this->loadImages();
     this->update();
     setFixedSize((this->blk_size*intMap.size())*4/3,this->blk_size*intMap[1].size());
+    this->ui->horizontalSpacer->changeSize(1000,100);
 }
 
 void MainWindow::receiveNetwork(Network *net)
