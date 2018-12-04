@@ -10,6 +10,7 @@ Game* Game::instance = 0; //needed for singleton
 #include "ai.h"
 #include "infantry.h"
 #include "terrain.h"
+#include "mainwindow.h"
 
 #include "mapbuilder.h"
 using namespace std;
@@ -39,13 +40,16 @@ Game::Game(bool isHost)
     this->setPath(":/Map/Images/Maps/Map.txt");
 	this->network = NULL;
     this->attacking = false;
+    this->ai = NULL;
 	this->selected_factory = NULL;
 	this->money_orange = 1000; //TODO
 	this->money_blue = 1000;
 	this->orange_on_turn = true;
 
 	if(isHost){
-        if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
+
+        //if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
+        //AI is still buggy, uncomment to set AI
 
 		Unit* un = new Unit(5,5,1,'b');
 		this->addUnit(un,5,5,'b');
@@ -53,13 +57,7 @@ Game::Game(bool isHost)
 		this->addUnit(un,5,8,'o');
 		un = new Unit(3,2,1,'o');
 		this->addUnit(un,3,2,'o');
-/*
-		Infantry* in = new Infantry(0,3,0,'b');
-		this->map[0][3].push_back(in);
-		this->units_blue.push_back(in);
-*/
 		this->selected_unit = this->units_orange[0];
-
 		this->selected_x = 1;
 		this->selected_y = 1;
 
@@ -648,7 +646,12 @@ void Game::clearValidMoves(){
 				}
 			}
 		}
-	}
+    }
+}
+
+void Game::setWn(MainWindow *wn)
+{
+    this->wn = wn;
 }
 
 void Game::drawPossibleMoves(){
@@ -709,11 +712,14 @@ void Game::endTurn(bool net)
 				}
 			}*/
 			cout<<"Blue money: "<<this->money_blue<<endl;
-			this->ai->play();
+            if (this->ai != NULL){
+                this->ai->play();
+            }
+            this->selected_unit = this->units_blue[0];
+
 		}else{
 			cout<<"The game had ended: Orange wins!"<<endl;
 		}
-        this->selected_unit = this->units_blue[0];
     }else{
         for(it = this->units_blue.begin(); it!=this->units_blue.end();it++){
 			(*it)->newTurn();
@@ -728,13 +734,16 @@ void Game::endTurn(bool net)
 				if(this->buildings[i]->getType() != "Airport" && this->buildings[i]->getOwner() =='o'){
 					this->money_orange += 1000;
 				}
-			}*/
+            }*/
+
+            this->selected_unit = this->units_orange[0];
 			cout<<"Orange money: "<<this->money_orange<<endl;
 		}else{
 			cout<<"The game had ended: Blue wins!"<<endl;
 		}
-        this->selected_unit = this->units_orange[0];
+
     }
+    this->wn->update();
 }
 
 void Game::changeIndex(Building *bl, char initialOwner) //changes index of building when owner changes
@@ -745,12 +754,13 @@ void Game::changeIndex(Building *bl, char initialOwner) //changes index of build
     else if (bl->getOwner() == 'o' && initialOwner == 'b' ){
         this->intMap[bl->getPosX()][bl->getPosY()] -= 5;
     }
-    else if (bl->getOwner() == 'b' && initialOwner == 'n' ){
-        this->intMap[bl->getPosX()][bl->getPosY()] += 10;
+    else if (bl->getOwner() == 'b' && initialOwner == '\0' ){
+        this->intMap[bl->getPosX()][bl->getPosY()] += 9;
     }
-    else if (bl->getOwner() == 'o' && initialOwner == 'n' ){
-        this->intMap[bl->getPosX()][bl->getPosY()] += 5;
+    else if (bl->getOwner() == 'o' && initialOwner == '\0' ){
+        this->intMap[bl->getPosX()][bl->getPosY()] += 4;
     }
+    qDebug() << this->intMap[bl->getPosX()][bl->getPosY()];
 }
 
 int Game::computeIncome(char pl){
@@ -788,6 +798,7 @@ void Game::testCaptureAndHealing(Unit* un)
                 bl->healUnit(un);
                 if (bl->getOwner() != initialOwner){
                     this->changeIndex(bl, initialOwner);
+                    this->wn->reloadImage(bl->getPosX(),bl->getPosY());
                 }
             }
 		}

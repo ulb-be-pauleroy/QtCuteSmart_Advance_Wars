@@ -86,5 +86,33 @@
         <file>Images/Units/gemd.tank.gif</file>
         <file>Images/Units/geneotank.gif</file>
         <file>Images/Units/gerecon.gif</file>
+        <file>Images/Units/bmanti-air.gif</file>
+        <file>Images/Units/bmapc.gif</file>
+        <file>Images/Units/bmartillery.gif</file>
+        <file>Images/Units/bmb-copter.gif</file>
+        <file>Images/Units/bmbomber.gif</file>
+        <file>Images/Units/bmfighter.gif</file>
+        <file>Images/Units/bminfantry.gif</file>
+        <file>Images/Units/bmmd-tank.gif</file>
+        <file>Images/Units/bmmech.gif</file>
+        <file>Images/Units/bmmegatank.gif</file>
+        <file>Images/Units/bmneotank.gif</file>
+        <file>Images/Units/bmrecon.gif</file>
+        <file>Images/Units/bmtank.gif</file>
+        <file>Images/Units/bmt-copter.gif</file>
+        <file>Images/Units/osanti-air.gif</file>
+        <file>Images/Units/osapc.gif</file>
+        <file>Images/Units/osartillery.gif</file>
+        <file>Images/Units/osb-copter.gif</file>
+        <file>Images/Units/osbomber.gif</file>
+        <file>Images/Units/osfighter.gif</file>
+        <file>Images/Units/osinfantry.gif</file>
+        <file>Images/Units/osmd-tank.gif</file>
+        <file>Images/Units/osmech.gif</file>
+        <file>Images/Units/osmegatank.gif</file>
+        <file>Images/Units/osneotank.gif</file>
+        <file>Images/Units/osrecon.gif</file>
+        <file>Images/Units/ostank.gif</file>
+        <file>Images/Units/ost-copter.gif</file>
     </qresource>
 </RCC>

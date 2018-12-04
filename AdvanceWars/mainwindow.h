@@ -19,9 +19,9 @@ class MainWindow : public QMainWindow
 	Game* game;
 	int blk_size;
 	Network* network;
-    std::vector<std::vector<int> > intMap;
     std::vector<std::vector<QImage*> > imageMap;
-    std::map<int, QImage*> UnitImages ;
+    std::map<int, QImage*> osUnitImages ;
+    std::map<int, QImage*> bmUnitImages ;
 
 public:
 	explicit MainWindow(QWidget *parent = 0);
@@ -34,7 +34,7 @@ public:
 	void receiveGame(Game* gm);
 	void receiveNetwork(Network* net);
     void loadImages();
-    void loadImage(int x, int y);
+    void reloadImage(int x, int y);
 
 private:
 	Ui::MainWindow *ui;

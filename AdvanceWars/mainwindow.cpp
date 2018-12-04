@@ -89,8 +89,8 @@ void MainWindow::paintEvent(QPaintEvent *)
     col1.setAlpha(100);
     col2.setAlpha(100);
 
-    for(int i = 0; i < this->intMap.size() ; i++){
-        for(int j = 0; j < this->intMap[i].size() ; j++){
+    for(int i = 0; i < this->game->getIntMap().size() ; i++){
+        for(int j = 0; j < this->game->getIntMap()[i].size() ; j++){
 			QImage img = imageMap[i][j]->scaledToWidth(blk_size);
 			int x = int(i) * blk_size;
 			int r = img.height()-img.width();
@@ -111,8 +111,15 @@ void MainWindow::paintEvent(QPaintEvent *)
 					}
 				}
 				else if(Unit* un = dynamic_cast<Unit*>(go)){
-					QImage im = UnitImages[un->getUnitType()]->scaledToWidth(blk_size);
-					painter.drawImage(QPoint(i*blk_size, j*blk_size), im);
+                    if(un->getTeam() == 'o'){
+                        QImage im = osUnitImages[un->getUnitType()]->scaledToWidth(blk_size);
+                        painter.drawImage(QPoint(i*blk_size, j*blk_size), im);
+                    }
+                    else{
+                        QImage im = bmUnitImages[un->getUnitType()]->scaledToWidth(blk_size);
+                        painter.drawImage(QPoint(i*blk_size, j*blk_size), im);
+                    }
+
 				}
 			}
 
@@ -125,10 +132,10 @@ void MainWindow::paintEvent(QPaintEvent *)
 void MainWindow::receiveGame(Game* gm)
 {
     this->game = gm;
-    this->intMap = game->getIntMap();
+    gm->setWn(this);
     this->loadImages();
     this->update();
-    setFixedSize((this->blk_size*intMap.size())*4/3,this->blk_size*intMap[1].size());
+    setFixedSize((this->blk_size*this->game->getIntMap().size())*4/3,this->blk_size*this->game->getIntMap()[1].size());
     this->ui->horizontalSpacer->changeSize(1000,100);
 }
 
@@ -139,34 +146,51 @@ void MainWindow::receiveNetwork(Network *net)
 
 void MainWindow::loadImages()
 {
-    std::vector<std::vector<QImage*> > imageMap(this->intMap.size());
-	unsigned int x = this->intMap.size();
+    std::vector<std::vector<QImage*> > imageMap(this->game->getIntMap().size());
+    unsigned int x = this->game->getIntMap().size();
     this->imageMap = imageMap;
     //std::vector<std::vector<int> >::iterator it1;
     std::vector<int>::iterator it2;
     for (unsigned int i = 0 ; i != x; i++){
-        for (it2 = intMap[i].begin(); it2 != intMap[i].end(); it2++){
+        for (it2 = this->game->getIntMap()[i].begin(); it2 != this->game->getIntMap()[i].end(); it2++){
             this->imageMap[i].push_back(ImageLoader::loadImage(*it2));
         }
     }
-    std::map<int,QImage*> unitImages;
-    unitImages.insert(std::pair<int, QImage* >(0, new QImage(":/Units/Images/Units/geinfantry.gif")));
-    unitImages.insert(std::pair<int, QImage* >(1, new QImage(":/Units/Images/Units/gemech.gif")));
-    unitImages.insert(std::pair<int, QImage* >(2, new QImage(":/Units/Images/Units/gerecon.gif")));
-    unitImages.insert(std::pair<int, QImage* >(3, new QImage(":/Units/Images/Units/geanti-air.gif")));
-    unitImages.insert(std::pair<int, QImage* >(4, new QImage(":/Units/Images/Units/getank.gif")));
-    unitImages.insert(std::pair<int, QImage* >(5, new QImage(":/Units/Images/Units/gemd.tank.gif")));
-    unitImages.insert(std::pair<int, QImage* >(6, new QImage(":/Units/Images/Units/gemegatank.gif")));
-    unitImages.insert(std::pair<int, QImage* >(7, new QImage(":/Units/Images/Units/geneotank.gif")));
-    unitImages.insert(std::pair<int, QImage* >(8, new QImage(":/Units/Images/Units/geb-copter.gif")));
-    unitImages.insert(std::pair<int, QImage* >(9, new QImage(":/Units/Images/Units/gefighter.gif")));
-    unitImages.insert(std::pair<int, QImage* >(10, new QImage(":/Units/Images/Units/gebomber.gif")));
-    this->UnitImages = unitImages;
+
+    std::map<int,QImage*> osUnitImages;
+    osUnitImages.insert(std::pair<int, QImage* >(0, new QImage(":/Units/Images/Units/osinfantry.gif")));
+    osUnitImages.insert(std::pair<int, QImage* >(1, new QImage(":/Units/Images/Units/osmech.gif")));
+    osUnitImages.insert(std::pair<int, QImage* >(2, new QImage(":/Units/Images/Units/osrecon.gif")));
+    osUnitImages.insert(std::pair<int, QImage* >(3, new QImage(":/Units/Images/Units/osanti-air.gif")));
+    osUnitImages.insert(std::pair<int, QImage* >(4, new QImage(":/Units/Images/Units/ostank.gif")));
+    osUnitImages.insert(std::pair<int, QImage* >(5, new QImage(":/Units/Images/Units/osmd.tank.gif")));
+    osUnitImages.insert(std::pair<int, QImage* >(6, new QImage(":/Units/Images/Units/osmegatank.gif")));
+    osUnitImages.insert(std::pair<int, QImage* >(7, new QImage(":/Units/Images/Units/osneotank.gif")));
+    osUnitImages.insert(std::pair<int, QImage* >(8, new QImage(":/Units/Images/Units/osb-copter.gif")));
+    osUnitImages.insert(std::pair<int, QImage* >(9, new QImage(":/Units/Images/Units/osfighter.gif")));
+    osUnitImages.insert(std::pair<int, QImage* >(10, new QImage(":/Units/Images/Units/osbomber.gif")));
+    this->osUnitImages = osUnitImages;
+
+    std::map<int,QImage*> bmUnitImages;
+    bmUnitImages.insert(std::pair<int, QImage* >(0, new QImage(":/Units/Images/Units/bminfantry.gif")));
+    bmUnitImages.insert(std::pair<int, QImage* >(1, new QImage(":/Units/Images/Units/bmmech.gif")));
+    bmUnitImages.insert(std::pair<int, QImage* >(2, new QImage(":/Units/Images/Units/bmrecon.gif")));
+    bmUnitImages.insert(std::pair<int, QImage* >(3, new QImage(":/Units/Images/Units/bmanti-air.gif")));
+    bmUnitImages.insert(std::pair<int, QImage* >(4, new QImage(":/Units/Images/Units/bmtank.gif")));
+    bmUnitImages.insert(std::pair<int, QImage* >(5, new QImage(":/Units/Images/Units/bmmd.tank.gif")));
+    bmUnitImages.insert(std::pair<int, QImage* >(6, new QImage(":/Units/Images/Units/bmmegatank.gif")));
+    bmUnitImages.insert(std::pair<int, QImage* >(7, new QImage(":/Units/Images/Units/bmneotank.gif")));
+    bmUnitImages.insert(std::pair<int, QImage* >(8, new QImage(":/Units/Images/Units/bmb-copter.gif")));
+    bmUnitImages.insert(std::pair<int, QImage* >(9, new QImage(":/Units/Images/Units/bmfighter.gif")));
+    bmUnitImages.insert(std::pair<int, QImage* >(10, new QImage(":/Units/Images/Units/bmbomber.gif")));
+    this->bmUnitImages = bmUnitImages;
 }
 
-void MainWindow::loadImage(int x, int y)
+void MainWindow::reloadImage(int x, int y)
 {
-    this->imageMap[x][y] = ImageLoader::loadImage(this->intMap[x][y]);
+    this->imageMap[x][y] = ImageLoader::loadImage(this->game->getIntMap()[x][y]);
+    qDebug() << this->game->getIntMap()[x][y];
     this->update();
+    qDebug() << "j'ai sélectionné une nouvelle image!";
 }
 
