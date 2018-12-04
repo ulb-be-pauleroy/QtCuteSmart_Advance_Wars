@@ -54,7 +54,7 @@ void AI::play()
 		vector<Unit*> v;
 		v.push_back(NULL);
 		pair<vector<Unit*>, int> p(v,0);
-		std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases = this->makePurchases(this->myMoney,p); //make_pair(v,0));
+        std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases = this->makePurchases(this->myMoney,p); //make_pair(v,0));
 		newUnits.insert(newUnits.end(),purchases.begin(),purchases.end());
 		/*
 		std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > >::iterator it;
@@ -149,9 +149,16 @@ void AI::play()
 		if(newUnits[j].second.second > imax){
 			imaxI = j;
 			imax = newUnits[j].second.second;
-		}
+        }
 	}
 	this->buyUnits(newUnits[imaxI].first);
+    for(unsigned int j=0;j<newUnits.size();j++){
+        // + cleanup work
+        vector<Unit*>& toClean = newUnits[j].first;
+        for(unsigned int k=0;k<toClean.size();k++){
+            delete toClean[k]; //leaves the base class in memory
+        }
+    }
 
 	cout<<"AI ending turn"<<endl;
 	Game::getInstance()->endTurn();
@@ -160,63 +167,67 @@ void AI::play()
 void AI::make_sequence(int depth, std::vector<std::vector<std::pair<Unit *, int> > > & units, int money, std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > &builtUnits){
 	//save sequence
 	if(this->meOnTurn){
-		this->myCases[depth] = &units; //TODO copy !!!
+		this->myCases[depth] = units; //we want a copy !!!
+		this->myBuildCases[depth] = builtUnits;
 	}else{
-		this->enemyCases[depth] = &units; //copy problem should be solved
+		this->enemyCases[depth] = units; //copy problem should be solved
+		this->enemyBuildCases[depth] = builtUnits;
 	}
 	this->meOnTurn = !this->meOnTurn;
 	//launch enemy turn
 	if(this->meOnTurn && depth < MAXDEPTH){ // my depth is the same as enemy-s TODO check
-		for(unsigned int i=0;i<this->myCases[depth-1]->size();i++){
-			this->playFutureTurn(depth,(*this->myCases[depth-1])[i],money,builtUnits);
+		for(unsigned int i=0;i<this->myCases[depth-1].size();i++){
+			this->playFutureTurn(depth,(this->myCases[depth-1])[i],money,this->myBuildCases[depth]);
 		}
 	}else if(depth < MAXDEPTH -1){
 		if(depth == 0){ //first iteration
 			std::vector<std::pair<Unit *, int> > dummy;
-			this->playFutureTurn(depth+1,dummy,money,builtUnits);
+			std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > buildDummy;
+			this->playFutureTurn(depth+1,dummy,money,buildDummy);
 		}else{
-			for(unsigned int i=0;i<this->enemyCases[depth]->size();i++){
-				this->playFutureTurn(depth+1,(*this->enemyCases[depth])[i],money,builtUnits);
+			for(unsigned int i=0;i<this->enemyCases[depth].size();i++){
+				this->playFutureTurn(depth+1,(this->enemyCases[depth])[i],money,this->enemyBuildCases[depth]);
 			}
 		}
 	}
 	//decrement rating based on opponent
-	if(this->meOnTurn){
+	this->meOnTurn = !this->meOnTurn;
+	if(this->meOnTurn && depth < MAXDEPTH -1){ // enemy didnt play next turn at depth end
 		int enemyRating;
-		for(unsigned int i=0;i<enemyCases[depth]->size();i++){
+		for(unsigned int i=0;i<enemyCases[depth+1].size();i++){
 			int imax = -1;
 			int imaxI;
-			for(unsigned int j=0;j<(*enemyCases[depth])[i].size();j++){ //TODO use a data structure for max search
-				if((*enemyCases[depth])[i][j].second > imax){
+			for(unsigned int j=0;j<(enemyCases[depth+1])[i].size();j++){ //TODO use a data structure for max search
+				if((enemyCases[depth+1])[i][j].second > imax){
 					imaxI = j;
-					imax = (*enemyCases[depth])[i][j].second;
+					imax = (enemyCases[depth+1])[i][j].second;
 				}
 			}
 			//TODO check for memory leak
 			enemyRating += imax;
 		}
-		for(unsigned int i=0;i<myCases[depth]->size();i++){
+		for(unsigned int i=0;i<myCases[depth].size();i++){
 			for(unsigned int j=0;j<myCases[depth][i].size();j++){
-				(*myCases[depth])[i][j].second -= enemyRating;
+				(myCases[depth])[i][j].second -= enemyRating;
 			}
 		}
-	}else{
-		int enemyRating;
-		for(unsigned int i=0;i<myCases[depth]->size();i++){
+	}else if(!this->meOnTurn && depth > 0){
+        int enemyRating; //TODO myCases[1][0] not accessible -> segfault
+		for(unsigned int i=0;i<myCases[depth].size();i++){
 			int imax = -1;
 			int imaxI;
-			for(unsigned int j=0;j<myCases[depth][i].size();j++){ //TODO use a data structure for max search
-				if((*myCases[depth])[i][j].second > imax){
+			for(unsigned int j=0;j<(myCases[depth])[i].size();j++){ //TODO use a data structure for max search
+				if((myCases[depth])[i][j].second > imax){
 					imaxI = j;
-					imax = (*myCases[depth])[i][j].second;
+					imax = (myCases[depth])[i][j].second;
 				}
 			}
 			//TODO check for memory leak
 			enemyRating += imax;
 		}
-		for(unsigned int i=0;i<enemyCases[depth]->size();i++){
-			for(unsigned int j=0;j<enemyCases[depth][i].size();j++){
-				(*enemyCases[depth])[i][j].second -= enemyRating;
+		for(unsigned int i=0;i<enemyCases[depth].size();i++){
+			for(unsigned int j=0;j<(enemyCases[depth])[i].size();j++){
+				(enemyCases[depth])[i][j].second -= enemyRating;
 			}
 		}
 	}
@@ -230,7 +241,7 @@ void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units,
 	std::vector<std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > > newUnits;
 	std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > passUnits;
 	for(unsigned int i=0;i<builtUnits.size();i++){
-		int balance = money - builtUnits[i].second.first + Game::getInstance()->computeIncome(this->team);
+		int balance = money - builtUnits[i].second.first + Game::getInstance()->computeIncome(this->team); //TODO set team
 		//if(balance > 0){
 			pair<vector<Unit*>,int> p = make_pair(builtUnits[i].first,builtUnits[i].second.second); //int is rating
 			std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases;
@@ -326,7 +337,7 @@ void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units,
 			// + cleanup work
 			vector<Unit*>& toClean = newUnits[i][j].first;
 			for(unsigned int k=0;k<toClean.size();k++){
-				delete toClean[k];
+                delete toClean[k]; //leaves the base class in memory
 			}
 		}
 		builtUnits[i].second.second += newUnits[i][umaxI].second.second;
@@ -336,7 +347,7 @@ void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units,
 void AI::choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >& poss){
 	// reduces the size of input
 	float reduction = (float)1/4;
-	if(poss.size() > 4){ //try different values
+    if(poss.size() > 8){ //try different values
 		unsigned int newSize = poss.size() * reduction;
 		vector<pair<Unit*,int> >::iterator it;
 		it = poss.begin();
@@ -375,7 +386,7 @@ std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > AI::makePurch
 	}
 	vector<int> cs;
 	this->buildCase.clear();
-	this->generatePurchasePossibilities(money,fac_cnt,air_cnt,cs);
+    this->generatePurchasePossibilities(money,fac_cnt,air_cnt,cs);
 	//TODO misses no builts
 
 	/*
@@ -448,7 +459,7 @@ void AI::generatePurchasePossibilities(int money, int facN, int airN, std::vecto
 	bool built = false;
 	if(facN > 0){
 		for(int i=0;i<8;i++){
-			if(money < unitCost[i]){
+            if(money > unitCost[i]){
 				cs.push_back(i);
 				built = true;
 				this->generatePurchasePossibilities(money-unitCost[i],facN-1,airN,cs);
@@ -459,7 +470,7 @@ void AI::generatePurchasePossibilities(int money, int facN, int airN, std::vecto
 		}
 	}else if(airN > 0){
 		for(int i=8;i<11;i++){
-			if(money < unitCost[i]){
+            if(money > unitCost[i]){
 				cs.push_back(i);
 				built = true;
 				this->generatePurchasePossibilities(money-unitCost[i],facN,airN-1,cs);
@@ -607,22 +618,38 @@ void AI::buyUnits(std::vector<Unit *> units)
 {
 	for(unsigned int i=0;i<units.size();i++){
 		Game::getInstance()->click(units[i]->getPosX(),units[i]->getPosY());
-		Game::getInstance()->buyUnit(units[i]->getUnitType());
+        Game::getInstance()->buyUnit(units[i]->getUnitType()+1); // setup to use keyboard
+        //TODO might not work with airunits
 	}
 }
 
 Unit* AI::buildUnit(int x, int y, int type) // unit differentiator
 {
+    char team;
+    if(this->team == 'o'){
+        if(this->meOnTurn){
+            team = 'o';
+        }else{
+            team = 'b';
+        }
+    }else{
+        if(this->meOnTurn){
+            team = 'b';
+        }else{
+            team = 'o';
+        }
+    }
+
 	Unit* un;
 	switch(type){
 		case 0: case 1:
-			un = new Infantry(x,y,type,this->team);
+            un = new Infantry(x,y,type,team);
 			break;
 		case 2: case 3: case 4: case 5: case 6: case 7:
-			un = new Unit(x,y,type,this->team);
+            un = new Unit(x,y,type,team);
 			break;
 		case 8: case 9: case 10:
-			un = new AirUnit(x,y,type,this->team);
+            un = new AirUnit(x,y,type,team);
 			break;
 		default:
 			un = NULL; //error

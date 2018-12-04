@@ -48,14 +48,14 @@ Game::Game(bool isHost)
 
 	if(isHost){
 
-        //if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
+		if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
         //AI is still buggy, uncomment to set AI
 
-		Unit* un = new Unit(5,5,1,'b');
+		Unit* un = new Infantry(5,5,1,'b');
 		this->addUnit(un,5,5,'b');
-		un = new Unit(5,8,0,'o');
+		un = new Infantry(5,8,0,'o');
 		this->addUnit(un,5,8,'o');
-		un = new Unit(3,2,1,'o');
+		un = new Infantry(3,2,1,'o');
 		this->addUnit(un,3,2,'o');
 		this->selected_unit = this->units_orange[0];
 		this->selected_x = 1;
@@ -453,8 +453,7 @@ void Game::click(int x, int y)
 		vector<GameObject*>::iterator itr;
 		vector<GameObject*>& tile = this->map[x][y]; //to prevent concurrentModificationException
 		for(itr = tile.begin();itr!=tile.end();itr++){
-			if((*itr)->getType() == "Factory"){
-				Factory* fac = dynamic_cast<Factory*>(*itr);
+			if(Factory* fac = dynamic_cast<Factory*>(*itr)){
 				if((fac->getOwner() == 'o' && this->orange_on_turn)
 					|| (fac->getOwner()=='b' && !this->orange_on_turn)){ //tests for selecting enemy fac
 						this->selected_factory = fac;
@@ -715,8 +714,9 @@ void Game::endTurn(bool net)
 			cout<<"Blue money: "<<this->money_blue<<endl;
             if (this->ai != NULL){
                 this->ai->play();
-            }
-            this->selectUnit(this->units_blue[0]);
+			}else{
+				this->selectUnit(this->units_blue[0]); //TODO segfault
+			}
 
 		}else{
 			cout<<"The game had ended: Orange wins!"<<endl;

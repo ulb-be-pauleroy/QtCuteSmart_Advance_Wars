@@ -5,7 +5,7 @@
 #include <QThread>
 #include "game.h"
 
-#define MAXDEPTH 2
+#define MAXDEPTH 8
 
 class AI : public QObject
 {
@@ -23,8 +23,10 @@ class AI : public QObject
 	int enemyMoney;
 
 	bool meOnTurn;
-	std::vector<std::vector<std::pair<Unit *, int> > >* myCases[MAXDEPTH];
-	std::vector<std::vector<std::pair<Unit *, int> > >* enemyCases[MAXDEPTH];
+	std::vector<std::vector<std::pair<Unit *, int> > > myCases[MAXDEPTH];
+	std::vector<std::vector<std::pair<Unit *, int> > > enemyCases[MAXDEPTH];
+	std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > myBuildCases[MAXDEPTH];
+	std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > enemyBuildCases[MAXDEPTH];
 
 	int th_cnt;
 	int th_done;
