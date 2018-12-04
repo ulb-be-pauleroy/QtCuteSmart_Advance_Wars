@@ -534,6 +534,7 @@ void Game::selectUnit(Unit* un){
 		cout<< "Error when selecting unit, the unit seems to not exist."<<endl;
 		//also when not selecting your unit
 	}
+    this->wn->update();
 }
 
 void Game::cycleUnits(int dir)
@@ -715,7 +716,7 @@ void Game::endTurn(bool net)
             if (this->ai != NULL){
                 this->ai->play();
             }
-            this->selected_unit = this->units_blue[0];
+            this->selectUnit(this->units_blue[0]);
 
 		}else{
 			cout<<"The game had ended: Orange wins!"<<endl;
@@ -736,14 +737,13 @@ void Game::endTurn(bool net)
 				}
             }*/
 
-            this->selected_unit = this->units_orange[0];
+            this->selectUnit(this->units_orange[0]);
 			cout<<"Orange money: "<<this->money_orange<<endl;
 		}else{
 			cout<<"The game had ended: Blue wins!"<<endl;
 		}
 
     }
-    this->wn->update();
 }
 
 void Game::changeIndex(Building *bl, char initialOwner) //changes index of building when owner changes
