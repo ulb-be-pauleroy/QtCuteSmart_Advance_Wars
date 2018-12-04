@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 	MainWindow w;
 	w.show();
     StartingWindow w2;
-    w2.show();
+    //w2.show(); //uncomment to show starting window
 
 	//bool online = true;
 

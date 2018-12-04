@@ -33,7 +33,7 @@ void Building::capture(Unit *un)
     if(un->getUnitType() == 0 && un->getTeam() != this->owner){
         this->health -= un->getHealth(); //I think there is a health limit
         un->setCapture(this);
-        std::cout<<"capturing "<<this->health<<" health left"<<std::endl;
+        std::cout<<"capturing: "<<this->health<<" health left"<<std::endl;
         if(this->health <=0){
             qDebug() << "this bulding got captured!";
             switch(un->getTeam()){
@@ -41,6 +41,7 @@ void Building::capture(Unit *un)
                 case 'b': this->owner ='b'; break;
                 // 'o' is char "o" is string
             }
+            this->health = 20;
         }
     }
 }

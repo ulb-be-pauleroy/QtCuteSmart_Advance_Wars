@@ -12,8 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->blk_size = 50;
 	this->game = NULL;
 	this->network = NULL;
-    //connect(&timer, SIGNAL(), this, SLOT(refresh()));
-    //timer.start(50);
+    this->ui->pushButton->hide();
 }
 
 

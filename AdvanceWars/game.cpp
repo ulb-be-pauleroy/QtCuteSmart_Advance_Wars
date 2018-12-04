@@ -45,7 +45,7 @@ Game::Game(bool isHost)
 	this->orange_on_turn = true;
 
 	if(isHost){
-		if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
+        if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
 
 		Unit* un = new Unit(5,5,1,'b');
 		this->addUnit(un,5,5,'b');
@@ -786,7 +786,9 @@ void Game::testCaptureAndHealing(Unit* un)
             bl->capture(un);
             if(bl->getOwner() == un->getTeam()){
                 bl->healUnit(un);
-                this->changeIndex(bl, initialOwner);
+                if (bl->getOwner() != initialOwner){
+                    this->changeIndex(bl, initialOwner);
+                }
             }
 		}
 	}
