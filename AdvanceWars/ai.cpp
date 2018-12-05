@@ -32,7 +32,7 @@ const int AI::unitCost[11] = {1000,3000,4000,8000,7000,16000,28000,22000,9000,20
 
 AI::AI(char team, const std::vector<Unit *> * units, const std::vector<Building *>& buildings)
 {
-	this->team = team;
+	this->setTeam(team);
 	this->myUnits = units;
 
 	for(unsigned int i=0;i<buildings.size();i++){
@@ -46,15 +46,14 @@ void AI::play()
 {
 	cout<<"AI starting turn"<<endl;
 	this->meOnTurn = true;
-	this->myMoney = Game::getInstance()->getBalance(this->team);
-	this->enemyMoney = Game::getInstance()->getBalance('o'); //TODO setup
+	this->myMoney[0] = Game::getInstance()->getBalance(this->myTeam);
 
 	std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > newUnits;
 	//for(unsigned int i=0;i<builtUnits.size();i++){
 		vector<Unit*> v;
 		v.push_back(NULL);
 		pair<vector<Unit*>, int> p(v,0);
-        std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases = this->makePurchases(this->myMoney,p); //make_pair(v,0));
+		std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases = this->makePurchases(this->myMoney[0],p); //make_pair(v,0));
 		newUnits.insert(newUnits.end(),purchases.begin(),purchases.end());
 		/*
 		std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > >::iterator it;
@@ -91,7 +90,7 @@ void AI::play()
 			futureUnits.push_back(make_pair(this->buildUnit(poss[j][0],poss[j][1],un->getUnitType()),rating));
 
 			QThread* thread = new QThread;
-			AIWorker* worker = new AIWorker(futureUnits[j],this->team,this->myMoney,newUnits);
+			AIWorker* worker = new AIWorker(futureUnits[j],this->myTeam,this->myMoney[0],newUnits); //TODO multithreading
 			worker->moveToThread(thread);
 			connect(worker, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
 			connect(thread, SIGNAL(started()), worker, SLOT(process()));
@@ -126,7 +125,7 @@ void AI::play()
 		futureTurn.push_back(futureUnits);
 	}
 
-	this->make_sequence(0,futureTurn,this->myMoney +Game::getInstance()->computeIncome(this->team),newUnits);
+	this->make_sequence(0,futureTurn,this->myMoney[0],newUnits);
 	for(unsigned int i=0;i<futureTurn.size();i++){
 		int max = -1;
 		int maxI;
@@ -169,24 +168,26 @@ void AI::make_sequence(int depth, std::vector<std::vector<std::pair<Unit *, int>
 	if(this->meOnTurn){
 		this->myCases[depth] = units; //we want a copy !!!
 		this->myBuildCases[depth] = builtUnits;
+		this->myMoney[depth] = money;
 	}else{
 		this->enemyCases[depth] = units; //copy problem should be solved
 		this->enemyBuildCases[depth] = builtUnits;
+		this->enemyMoney[depth] = money;
 	}
 	this->meOnTurn = !this->meOnTurn;
 	//launch enemy turn
 	if(this->meOnTurn && depth < MAXDEPTH){ // my depth is the same as enemy-s TODO check
 		for(unsigned int i=0;i<this->myCases[depth-1].size();i++){
-			this->playFutureTurn(depth,(this->myCases[depth-1])[i],money,this->myBuildCases[depth]);
+			this->playFutureTurn(depth,(this->myCases[depth-1])[i],this->myMoney[depth]+Game::getInstance()->computeIncome(this->myTeam),this->myBuildCases[depth]);
 		}
 	}else if(depth < MAXDEPTH -1){
 		if(depth == 0){ //first iteration
 			std::vector<std::pair<Unit *, int> > dummy;
 			std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > buildDummy;
-			this->playFutureTurn(depth+1,dummy,money,buildDummy);
+			this->playFutureTurn(depth+1,dummy,Game::getInstance()->getBalance(this->enemyTeam),buildDummy);
 		}else{
 			for(unsigned int i=0;i<this->enemyCases[depth].size();i++){
-				this->playFutureTurn(depth+1,(this->enemyCases[depth])[i],money,this->enemyBuildCases[depth]);
+				this->playFutureTurn(depth+1,(this->enemyCases[depth])[i],this->enemyMoney[depth]+Game::getInstance()->computeIncome(this->enemyTeam),this->enemyBuildCases[depth]);
 			}
 		}
 	}
@@ -232,7 +233,7 @@ void AI::make_sequence(int depth, std::vector<std::vector<std::pair<Unit *, int>
 		}
 	}
 
-	//TODO unit purchases, doesnt work (or is defensive)
+	//TODO unit purchase ratings
 }
 
 void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units, int money, std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > &builtUnits)
@@ -241,7 +242,7 @@ void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units,
 	std::vector<std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > > newUnits;
 	std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > passUnits;
 	for(unsigned int i=0;i<builtUnits.size();i++){
-		int balance = money - builtUnits[i].second.first + Game::getInstance()->computeIncome(this->team); //TODO set team
+		int balance = money - builtUnits[i].second.first;// + Game::getInstance()->computeIncome(this->team); //TODO set team
 		//if(balance > 0){
 			pair<vector<Unit*>,int> p = make_pair(builtUnits[i].first,builtUnits[i].second.second); //int is rating
 			std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases;
@@ -303,12 +304,9 @@ void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units,
 	}
 	//modify ratings of variable units
 
-	this->make_sequence(depth,futureTurn,money +Game::getInstance()->computeIncome(this->team),passUnits);
+	char team = this->getActiveTeam();
+	this->make_sequence(depth,futureTurn,money +Game::getInstance()->computeIncome(team),passUnits);
 	for(unsigned int i=0;i<futureTurn.size();i++){
-		if(depth < MAXDEPTH){ // evaluates possibilities in future moves
-	//		this->playFutureTurn(depth+1,futureTurn[i],money +Game::getInstance()->computeIncome(this->team),passUnits);
-		}
-
 		// chooses the best possibility
 		int max = -1;
 		int maxI;
@@ -347,14 +345,49 @@ void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units,
 void AI::choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >& poss){
 	// reduces the size of input
 	float reduction = (float)1/4;
-    if(poss.size() > 8){ //try different values
+	if(poss.size() > 12){ //try different values
 		unsigned int newSize = poss.size() * reduction;
+/*
+		int maxVal[3]; maxVal[0] = -1; maxVal[1] = -1; maxVal[2] = -1;
+		int maxValCnt[3];
+		int maxI[3];
+		int minI = 0;
+		for(unsigned int i=0;i<poss.size();i++){
+			if(poss[i].second > maxVal[minI]){
+				maxVal[minI] = poss[i].second;
+				maxValCnt[minI] =1;
+				maxI[minI] = i;
+				int min = 10000;
+				for(int j=0;j<3;j++){
+					if(maxVal[j] < min){
+						min = maxVal[j];
+						minI = j;
+					}
+				}
+			}else{
+				for(int j=0;j<3;j++){
+					if(poss[i].second = maxVal[j]){
+						maxValCnt[j]++;
+					}
+				}
+			}
+		}
+*/
 		vector<pair<Unit*,int> >::iterator it;
 		it = poss.begin();
 		while(poss.size() != newSize){
 			if(0 == rand()%3){ //maybe try different values
-				//delete (*it).first; //TODO memory leak
-				poss.erase(it);
+				/*
+				bool notMax = true;
+				for(unsigned int i=0;i<3;i++){
+					if((*it).first->getPosX() == poss[maxI[i]].first->getPosX() && (*it).first->getPosY() == poss[maxI[i]].first->getPosY()){
+						notMax = false; break;
+					}
+				}
+				if(notMax){*/
+					//delete (*it).first; //TODO memory leak
+					poss.erase(it);
+				//}
 			}
 			it++;
 			if(it == poss.end()){
@@ -369,12 +402,14 @@ std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > AI::makePurch
 	std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > result; //TODO internal variable
 	result.push_back(make_pair(vector<Unit*>(),make_pair(money,0))); //can always build nothing
 
+	char team = this->getActiveTeam();
+
 	int fac_cnt =0;
 	int air_cnt =0;
 	vector<Factory*> fac_lst;
 	vector<Airport*> air_lst;
 	for(unsigned int i=0;i<this->factories.size();i++){
-		if(this->factories[i]->getOwner() == this->team){
+		if(this->factories[i]->getOwner() == team){
 			if(Airport* air = dynamic_cast<Airport*>(this->factories[i])){
 				air_cnt++;
 				air_lst.push_back(air);
@@ -509,23 +544,28 @@ std::vector<std::vector<int> > AI::moveUnit(Unit * un)
 
 int AI::rateAction(Unit * un, ValidMove * vm)
 {
+	char team = this->getActiveTeam();
+
 	int rating = 0;
 	vector<GameObject*>& tile = Game::getInstance()->getObjectsOnPos(vm->getPosX(),vm->getPosY());
 	for(unsigned int i=0;i<tile.size();i++){
-		if(City* ct = dynamic_cast<City*>(tile[i])){ // TODO verify capture and healing logic
-			if(ct->getOwner() == un->getTeam()){
+		if(Building* bld = dynamic_cast<Building*>(tile[i])){ // TODO verify capture and healing logic
+			if(bld->getOwner() == un->getTeam()){
 				if(un->getHealth() != 10){
 					rating += 3;	//unit can heal
 				}
 			}else{
 				if(un->getType() == "InfantryUnit"){
-					rating += un->getHealth();	//city capture + also depends on health
+					rating += 2*un->getHealth();	//building capture + also depends on health
+					if(un->getPosX() == vm->getPosX() && un->getPosY() == vm->getPosY()){
+						rating += 10; // continuing capture
+					}
 				}
 			}
 			break;
 		}
 		if(Unit* unit = dynamic_cast<Unit*>(tile[i])){
-			if(unit->getTeam() == this->team && un->getHealth() + unit->getHealth() <= 10){
+			if(unit->getTeam() == team && un->getHealth() + unit->getHealth() <= 10){
 				rating += 3; // unit fusion
 			}
 		}
@@ -574,11 +614,13 @@ vector<Unit*> AI::targetsFromPos(int x, int y)
 
 std::vector<Unit *> AI::searchForUnits(int x, int y)
 {
+	char team = this->getActiveTeam();
+
 	vector<Unit*> units;
 	vector<GameObject*>& tile = Game::getInstance()->getObjectsOnPos(x,y);
 	for(unsigned int i=0;i<tile.size();i++){
 		if(Unit* unit = dynamic_cast<Unit*>(tile[i])){ //doesnt work in one line
-			if(unit->getTeam() != this->team){
+			if(unit->getTeam() != team){
 				units.push_back(unit);
 			}
 		}
@@ -625,20 +667,7 @@ void AI::buyUnits(std::vector<Unit *> units)
 
 Unit* AI::buildUnit(int x, int y, int type) // unit differentiator
 {
-    char team;
-    if(this->team == 'o'){
-        if(this->meOnTurn){
-            team = 'o';
-        }else{
-            team = 'b';
-        }
-    }else{
-        if(this->meOnTurn){
-            team = 'b';
-        }else{
-            team = 'o';
-        }
-    }
+	char team = this->getActiveTeam();
 
 	Unit* un;
 	switch(type){
@@ -655,6 +684,24 @@ Unit* AI::buildUnit(int x, int y, int type) // unit differentiator
 			un = NULL; //error
 	}
 	return un;
+}
+
+char AI::getActiveTeam() const{
+	if(this->meOnTurn){
+		return this->myTeam;
+	}else{
+		return this->enemyTeam;
+	}
+}
+
+void AI::setTeam(char me){
+	if(me == 'o'){
+		this->myTeam = 'o';
+		this->enemyTeam = 'b';
+	}else{
+		this->myTeam = 'b';
+		this->enemyTeam = 'o';
+	}
 }
 
 void AI::errorString(QString str)

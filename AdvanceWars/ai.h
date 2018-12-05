@@ -11,7 +11,8 @@ class AI : public QObject
 {
 	Q_OBJECT
 
-	char team;
+	char myTeam;
+	char enemyTeam;
 	const std::vector<Unit*>* myUnits;
 	std::vector<Factory*> factories;
 
@@ -19,8 +20,8 @@ class AI : public QObject
 	static const int dmg_chart[11][11];
 	std::vector<std::pair<std::vector<int>, int> > buildCase;
 
-	int myMoney;
-	int enemyMoney;
+	int myMoney[MAXDEPTH];
+	int enemyMoney[MAXDEPTH];
 
 	bool meOnTurn;
 	std::vector<std::vector<std::pair<Unit *, int> > > myCases[MAXDEPTH];
@@ -55,6 +56,8 @@ protected:
 	void executeAction(Unit*,int, int,std::vector<std::vector<int> >);
 	void buyUnits(std::vector<Unit*>);
 	Unit* buildUnit(int,int,int);
+	char getActiveTeam() const;
+	void setTeam(char me);
 };
 
 #endif // AI_H
