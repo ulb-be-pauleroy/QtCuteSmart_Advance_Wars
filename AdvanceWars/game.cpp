@@ -290,7 +290,7 @@ Unit* Game::addUnit(Unit* un, int x, int y, const char team, bool net)
 	return un;
 }
 
-void Game::move(int dir, bool net)
+void Game::move(int dir, bool net, bool justPassing)
 {
 	if(this->attacking){
 		this->attack(dir);
@@ -305,29 +305,45 @@ void Game::move(int dir, bool net)
 			case 2: newX = x-1; newY = y; break; //left
 			case 3: newX = x+1; newY = y; break; //right
 		}
-		if(newX>= 0 && newY>= 0 && newX<XDIM && newY<YDIM && !testObstacle(newX,newY)){
-			if(this->selected_unit->move(dir,this->getTerrainMovementModifier(this->selected_unit, newX, newY))){
-
-				vector<GameObject*>::iterator it;
-				for(it=this->map[x][y].begin();it!=this->map[x][y].end();it++){
-					//cout<< "Cycle"<<endl;
-					//cout<< this->selected_unit<< " "<<*it<<endl;
-					if(this->selected_unit == (*it)){
-						this->map[x][y].erase(it);
-						//cout<<"Mov erase"<<endl;
-						if(this->network && !net){
-							this->network->sendData("move",x,y, newX, newY);
-						}
-						break;
-					}
+		if(justPassing){
+			this->selected_unit->move(dir,this->getTerrainMovementModifier(this->selected_unit, newX, newY));
+			vector<GameObject*>::iterator it;
+			for(it=this->map[x][y].begin();it!=this->map[x][y].end();it++){
+				if(this->selected_unit == (*it)){
+					this->map[x][y].erase(it);
+					break;
 				}
-				x = this->selected_unit->getPosX();
-				y = this->selected_unit->getPosY();
-				//cout<<(*(*it)).getType()<<endl;
-				this->map[x][y].push_back(*it); //possible conflict
-				this->selected_x = x;
-				this->selected_y = y;
-				this->drawPossibleMoves();
+			}
+			x = this->selected_unit->getPosX();
+			y = this->selected_unit->getPosY();
+			this->map[x][y].push_back(*it); //possible conflict
+			this->selected_x = x;
+			this->selected_y = y;
+		}else{
+			if(newX>= 0 && newY>= 0 && newX<XDIM && newY<YDIM && !testObstacle(newX,newY)){
+				if(this->selected_unit->move(dir,this->getTerrainMovementModifier(this->selected_unit, newX, newY))){
+
+					vector<GameObject*>::iterator it;
+					for(it=this->map[x][y].begin();it!=this->map[x][y].end();it++){
+						//cout<< "Cycle"<<endl;
+						//cout<< this->selected_unit<< " "<<*it<<endl;
+						if(this->selected_unit == (*it)){
+							this->map[x][y].erase(it);
+							//cout<<"Mov erase"<<endl;
+							if(this->network && !net){
+								this->network->sendData("move",x,y, newX, newY);
+							}
+							break;
+						}
+					}
+					x = this->selected_unit->getPosX();
+					y = this->selected_unit->getPosY();
+					//cout<<(*(*it)).getType()<<endl;
+					this->map[x][y].push_back(*it); //possible conflict
+					this->selected_x = x;
+					this->selected_y = y;
+					this->drawPossibleMoves();
+				}
 			}
 		}
 	}
@@ -355,9 +371,10 @@ void Game::moveTo(int x, int y)
 	if(ok){
 		//cout<< "moving"<<endl;
 		vector<int> directions = this->selected_unit->getDirections(x,y);
-		for(unsigned int i=directions.size();i>0;i--){ // parse in reverse
-			this->move(directions[i-1]);
+		for(unsigned int i=directions.size();i>1;i--){ // parse in reverse
+			this->move(directions[i-1],false,true);
 		}
+		this->move(directions[0],false,false);
 		/*
 		while(this->selected_unit->getPosX() != x){
 			if(this->selected_unit->getPosX() > x){

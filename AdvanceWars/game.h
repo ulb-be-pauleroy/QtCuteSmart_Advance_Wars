@@ -62,7 +62,7 @@ public:
 	void pay(int qnt, char player);
 	GameObject* addGameObject(GameObject* go, int x, int y, const char team='\0');
 	Unit* addUnit(Unit* un, int x, int y, const char team, bool net=false);
-	void move(int dir, bool net=false);
+	void move(int dir, bool net=false, bool justPassing=false);
 	void moveTo(int x, int y);
 	void setAttack();
 	void attack(int dir);
