@@ -49,7 +49,7 @@ protected:
 	void generatePurchasePossibilities(int,int,int,std::vector<int>&);
 	std::vector<std::vector<int> > moveUnit(Unit*);
 	int rateAction(Unit*,ValidMove*);
-	int ratePurchase(int,int);
+	int ratePurchase(int,int,const std::vector<int>&);
 	int rateAttack(Unit*,Unit*);
 	std::vector<Unit *> targetsFromPos(int,int);
 	std::vector<Unit *> searchForUnits(int,int);

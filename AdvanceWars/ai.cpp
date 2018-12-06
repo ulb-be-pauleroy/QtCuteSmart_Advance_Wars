@@ -458,6 +458,17 @@ std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > AI::makePurch
 		cost += units[i]->getPrice();
 	}
 	result.push_back(make_pair(units,make_pair(cost,totalRating)));*/
+	char enemy;
+	if(!this->meOnTurn){
+		enemy = this->myTeam;
+	}else{
+		enemy = this->enemyTeam;
+	}
+	vector<Unit*>* enemyUnits = Game::getInstance()->getUnits(enemy);
+	vector<int> enemyUnitsTypes;
+	for(unsigned int i=0;i<enemyUnits->size();i++){
+		enemyUnitsTypes.push_back((*enemyUnits)[i]->getUnitType());
+	}
 
 	for(unsigned int i=0;i<this->buildCase.size();i++){
 		if(this->buildCase[i].second <= money){ //TODO do better, directly in generator
@@ -468,7 +479,7 @@ std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > AI::makePurch
 			vector<Unit*> v;
 			for(unsigned int j=0;j<this->buildCase[i].first.size();j++){
 				int type = this->buildCase[i].first[j];
-				rating += this->ratePurchase(type,money_left);
+				rating += this->ratePurchase(type,money_left,enemyUnitsTypes);
 				if(type<8 && f_pos < fac_cnt){ //idk if correct
 					int x = fac_lst[f_pos]->getPosX();		// no intelligence for factory choice
 					int y = fac_lst[f_pos]->getPosY();
@@ -498,6 +509,8 @@ void AI::generatePurchasePossibilities(int money, int facN, int airN, std::vecto
 				cs.push_back(i);
 				built = true;
 				this->generatePurchasePossibilities(money-unitCost[i],facN-1,airN,cs);
+				vector<int>::iterator it = cs.end()-1; // roll back the choice
+				cs.erase(it);
 			}
 		}
 		if(!built){
@@ -509,6 +522,8 @@ void AI::generatePurchasePossibilities(int money, int facN, int airN, std::vecto
 				cs.push_back(i);
 				built = true;
 				this->generatePurchasePossibilities(money-unitCost[i],facN,airN-1,cs);
+				vector<int>::iterator it = cs.end()-1; // roll back the choice
+				cs.erase(it);
 			}
 		}
 		if(!built){
@@ -577,15 +592,19 @@ int AI::rateAction(Unit * un, ValidMove * vm)
 	return rating;
 }
 
-int AI::ratePurchase(int type, int money)
+int AI::ratePurchase(int type, int money, const std::vector<int> & enemyUnits)
 {
-	const int ratings[11] = {3,1,3,4,6,5,4,5,6,2,2};
+	//const int ratings[11] = {3,1,3,4,6,5,4,5,6,2,2};
 	//very stupid for now
 	//Unit* un = this->buildUnit(0,0,type);
 	if(this->unitCost[type] > money){
-		return -10;
+		return 0;
 	}else{
-		return ratings[type];
+		int rating =0;
+		for(unsigned int i=0;i<enemyUnits.size();i++){
+			rating += this->dmg_chart[type][enemyUnits[i]];
+		}
+		return rating;
 	}
 }
 
