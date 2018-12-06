@@ -347,15 +347,15 @@ void AI::choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >& poss){
 	float reduction = (float)1/4;
 	if(poss.size() > 12){ //try different values
 		unsigned int newSize = poss.size() * reduction;
-/*
+
 		int maxVal[3]; maxVal[0] = -1; maxVal[1] = -1; maxVal[2] = -1;
-		int maxValCnt[3];
-		int maxI[3];
+		//int maxValCnt[3];
+		unsigned int maxI[3];
 		int minI = 0;
 		for(unsigned int i=0;i<poss.size();i++){
 			if(poss[i].second > maxVal[minI]){
 				maxVal[minI] = poss[i].second;
-				maxValCnt[minI] =1;
+				//maxValCnt[minI] =1;
 				maxI[minI] = i;
 				int min = 10000;
 				for(int j=0;j<3;j++){
@@ -364,19 +364,25 @@ void AI::choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >& poss){
 						minI = j;
 					}
 				}
-			}else{
+			}else{/*
 				for(int j=0;j<3;j++){
 					if(poss[i].second = maxVal[j]){
 						maxValCnt[j]++;
 					}
-				}
+				}*/
 			}
 		}
-*/
+
 		vector<pair<Unit*,int> >::iterator it;
 		it = poss.begin();
+		unsigned int pos = 0;
 		while(poss.size() != newSize){
 			if(0 == rand()%3){ //maybe try different values
+				if(pos != maxI[0] && pos != maxI[1] && pos != maxI[2]){
+					vector<pair<Unit*,int> >::iterator itr = poss.begin() + pos;
+					delete poss[pos].first; //TODO memory leak
+					poss.erase(itr);
+				}
 				/*
 				bool notMax = true;
 				for(unsigned int i=0;i<3;i++){
@@ -384,15 +390,18 @@ void AI::choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >& poss){
 						notMax = false; break;
 					}
 				}
-				if(notMax){*/
+				if(notMax){
 					//delete (*it).first; //TODO memory leak
 					poss.erase(it);
-				//}
+				//}*/
 			}
+			pos++;
+			if(pos >= poss.size()) pos = 0;
+			/*
 			it++;
 			if(it == poss.end()){
 				it = poss.begin();
-			}
+			}*/
 		}
 	}
 }
