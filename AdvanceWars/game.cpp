@@ -9,23 +9,24 @@ Game* Game::instance = 0; //needed for singleton
 #include "network.h"
 #include "ai.h"
 #include "infantry.h"
+#include "airunit.h"
 #include "terrain.h"
 #include "mainwindow.h"
 
 #include "mapbuilder.h"
 using namespace std;
 
-Game *Game::getInstance(bool isHost){
+Game *Game::getInstance(){
 
     if(!Game::instance){ // doesnt work yet
-        Game::instance = new Game(isHost);
+		Game::instance = new Game();
     }
     return Game::instance;
 }
 
 void Game::setPath(QString path)
 {
-	this->intMap = MapBuilder::makeIntMap(path);
+	//this->intMap = MapBuilder::makeIntMap(path);
 	unsigned int x = intMap.size();
 	unsigned int y = intMap[0].size();
 	vector<vector<vector<GameObject*> > > mapPro(x, vector<vector<GameObject*> >(y,vector<GameObject*>()));
@@ -34,36 +35,44 @@ void Game::setPath(QString path)
 }
 
 
-Game::Game(bool isHost)
+Game::Game()
 {
-
-    this->setPath(":/Map/Images/Maps/Map.txt");
 	this->network = NULL;
     this->attacking = false;
     this->ai = NULL;
+	this->selected_unit = NULL;
 	this->selected_factory = NULL;
 	this->money_orange = 1000; //TODO
 	this->money_blue = 1000;
 	this->orange_on_turn = true;
+}
 
+void Game::setupGame(const bool isHost){
 	if(isHost){
-
-		if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
-        //AI is still buggy, uncomment to set AI
-
+		this->intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
+		this->setPath(":/Map/Images/Maps/Map.txt");
+		//if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
+		//AI is still buggy, uncomment to set AI
+/*
 		Unit* un = new Infantry(5,5,1,'b');
 		this->addUnit(un,5,5,'b');
 		un = new Infantry(5,8,0,'o');
 		this->addUnit(un,5,8,'o');
 		un = new Infantry(3,2,1,'o');
 		this->addUnit(un,3,2,'o');
-		this->selected_unit = this->units_orange[0];
+		this->selected_unit = this->units_orange[0];*/
 		this->selected_x = 1;
 		this->selected_y = 1;
 
 		this->setIncome(1000); //TODO
 
+	}else{
+		this->ai = new AI('b',&this->units_blue, this->buildings);
 	}
+}
+
+void Game::setIntMap(std::vector<std::vector<int> > & map){
+	this->intMap = map;
 }
 
 vector<vector<int> > & Game::getIntMap()
@@ -111,8 +120,8 @@ void Game::networkAction(string type, int x, int y, int data, int data2)
 		}
 	}else if(type == "newunit"){ //sometimes causes a segfault, idk why
 		switch(data2){
-            case 1: this->addUnit(new Unit(x,y,data,'o'),x,y,'o',true);break;
-        case 2: this->addUnit(new Unit(x,y,data,'b'),x,y,'b',true);break;
+			case 1: this->addUnit(this->buildUnit(x,y,data,'o'),x,y,'o',true);break;
+		case 2: this->addUnit(this->buildUnit(x,y,data,'b'),x,y,'b',true);break;
 		}
 	}else if(type == "attack"){
 		Unit* attacker = NULL;
@@ -139,6 +148,25 @@ void Game::networkAction(string type, int x, int y, int data, int data2)
 	}
 }
 
+Unit* Game::buildUnit(int x, int y, int type,char team) // unit differentiator
+{
+	Unit* un;
+	switch(type){
+		case 0: case 1:
+			un = new Infantry(x,y,type,team);
+			break;
+		case 2: case 3: case 4: case 5: case 6: case 7:
+			un = new Unit(x,y,type,team);
+			break;
+		case 8: case 9: case 10:
+			un = new AirUnit(x,y,type,team);
+			break;
+		default:
+			un = NULL; //error
+	}
+	return un;
+}
+/*
 vector<GameObject*>* Game::getMapContent(){
 	vector<GameObject*>* vec = new vector<GameObject*>;
 	for(int i=0;i<XDIM;i++){
@@ -154,7 +182,7 @@ vector<GameObject*>* Game::getMapContent(){
 	}
 	return vec;
 }
-
+*/
 vector<GameObject*>& Game::getObjectsOnPos(int x, int y)// const
 {
 	if(x>=0 && y>=0 && x<XDIM && y<YDIM){
@@ -294,7 +322,7 @@ void Game::move(int dir, bool net, bool justPassing)
 {
 	if(this->attacking){
 		this->attack(dir);
-	}else{
+	}else if(this->selected_unit){
 		int x = this->selected_unit->getPosX();
 		int y = this->selected_unit->getPosY();
         int newX = 0;
@@ -343,6 +371,7 @@ void Game::move(int dir, bool net, bool justPassing)
 					this->selected_x = x;
 					this->selected_y = y;
 					this->drawPossibleMoves();
+					this->wn->update();
 				}
 			}
 		}
@@ -352,11 +381,13 @@ void Game::move(int dir, bool net, bool justPassing)
 void Game::moveTo(int x, int y)
 {
 	bool ok = false;
-	vector<ValidMove*> moves = this->selected_unit->selected();
-	for(unsigned int i=0;i<moves.size();i++){
-		if(moves[i]->getPosX()==x && moves[i]->getPosY()==y){
-			ok=true;
-			break;
+	if(this->selected_unit){
+		vector<ValidMove*> moves = this->selected_unit->selected();
+		for(unsigned int i=0;i<moves.size();i++){
+			if(moves[i]->getPosX()==x && moves[i]->getPosY()==y){
+				ok=true;
+				break;
+			}
 		}
 	}/*
 	vector<vector<int> >::iterator it_mv;
@@ -428,36 +459,37 @@ void Game::setAttack(){
 
 void Game::attack(int dir)
 {
-    int x = this->selected_unit->getPosX();
-    int y = this->selected_unit->getPosY();
-	int attX;
-	int attY;
-	switch(dir){
-		case 0: attX = x; attY = y-1; break; //up
-		case 1: attX = x; attY = y+1; break; //down
-		case 2: attX = x-1; attY = y; break; //left
-		case 3: attX = x+1; attY = y; break; //right
-	}
-	vector<Unit*>::iterator it;
-    if(this->orange_on_turn){
-        for(it = this->units_blue.begin(); it!=this->units_blue.end();it++){
-            //yes, it works only on one orientation yet
-			if((*it)->getPosX() == attX && (*it)->getPosY() == attY){
-				this->selected_unit->attack(**it);
-				if(this->network) this->network->sendData("attack",this->selected_unit->getPosX(),this->selected_unit->getPosY(),
-										(*it)->getPosX(),(*it)->getPosY());
-				break;
-            }
-        }
-    }else{
-        for(it = this->units_orange.begin(); it!=this->units_orange.end();it++){
-			if((*it)->getPosX() == attX && (*it)->getPosY() == attY){
-				this->selected_unit->attack(**it);
-				if(this->network) this->network->sendData("attack",this->selected_unit->getPosX(),this->selected_unit->getPosY(),
-										(*it)->getPosX(),(*it)->getPosY());
-				break;
-            }
-        }
+	if(this->selected_unit){
+		int x = this->selected_unit->getPosX();
+		int y = this->selected_unit->getPosY();
+		int attX;
+		int attY;
+		switch(dir){
+			case 0: attX = x; attY = y-1; break; //up
+			case 1: attX = x; attY = y+1; break; //down
+			case 2: attX = x-1; attY = y; break; //left
+			case 3: attX = x+1; attY = y; break; //right
+		}
+		vector<Unit*>::iterator it;
+		if(this->orange_on_turn){
+			for(it = this->units_blue.begin(); it!=this->units_blue.end();it++){
+				if((*it)->getPosX() == attX && (*it)->getPosY() == attY){
+					this->selected_unit->attack(**it);
+					if(this->network) this->network->sendData("attack",this->selected_unit->getPosX(),this->selected_unit->getPosY(),
+											(*it)->getPosX(),(*it)->getPosY());
+					break;
+				}
+			}
+		}else{
+			for(it = this->units_orange.begin(); it!=this->units_orange.end();it++){
+				if((*it)->getPosX() == attX && (*it)->getPosY() == attY){
+					this->selected_unit->attack(**it);
+					if(this->network) this->network->sendData("attack",this->selected_unit->getPosX(),this->selected_unit->getPosY(),
+											(*it)->getPosX(),(*it)->getPosY());
+					break;
+				}
+			}
+		}
 	}
 	this->attacking = false;
 }
@@ -560,49 +592,59 @@ void Game::cycleUnits(int dir)
     //cout << "size " << this->units.size() << " Add "<< &this->units[0] << " " <<&this->units[1]
     //     <<" "<< &this->units[2] << endl;
     if(this->orange_on_turn){
-        for(it = this->units_orange.begin(); it!=this->units_orange.end();it++){
-            //cout << "Hello x" << endl;
-			if(this->selected_unit == *it){
-				if(dir >0){
-                    it++;
-                    if(it == this->units_orange.end()){
-                        it = this->units_orange.begin();
-                    }
-                }else{
-                    it--;
-                    if(it == this->units_orange.begin()-1){
-                        it = this->units_orange.end()-1;
-                    }
+		if(!this->selected_unit){
+			if(this->units_orange.size() != 0) this->selected_unit = this->units_orange[0];
+		}else{
+			for(it = this->units_orange.begin(); it!=this->units_orange.end();it++){
+				//cout << "Hello x" << endl;
+				if(this->selected_unit == *it){
+					if(dir >0){
+						it++;
+						if(it == this->units_orange.end()){
+							it = this->units_orange.begin();
+						}
+					}else{
+						it--;
+						if(it == this->units_orange.begin()-1){
+							it = this->units_orange.end()-1;
+						}
+					}
+					//cout << "Hello" << endl;
+					break;
 				}
-                //cout << "Hello" << endl;
-                break;
-            }
-        }
+			}
+		}
     }else{
+		if(!this->selected_unit){
+			if(this->units_blue.size() != 0) this->selected_unit = this->units_blue[0];
+		}else{
         for(it = this->units_blue.begin(); it!=this->units_blue.end();it++){
-            //cout << "Hello x" << endl;
-			if(this->selected_unit == *it){
-				if(dir>0){
-                    it++;
-                    if(it == this->units_blue.end()){
-						it = this->units_blue.begin();
-                    }
-				}else{
-                    it--;
-                    if(it == this->units_blue.begin()-1){
-                        it = this->units_blue.end()-1;
-                    }
+				//cout << "Hello x" << endl;
+				if(this->selected_unit == *it){
+					if(dir>0){
+						it++;
+						if(it == this->units_blue.end()){
+							it = this->units_blue.begin();
+						}
+					}else{
+						it--;
+						if(it == this->units_blue.begin()-1){
+							it = this->units_blue.end()-1;
+						}
+					}
+					//cout << "Hello" << endl;
+					break;
 				}
-                //cout << "Hello" << endl;
-                break;
-            }
-        }
+			}
+		}
     }
-    this->selected_unit = *it;
-    this->selected_x = this->selected_unit->getPosX();
-    this->selected_y = this->selected_unit->getPosY();
-	//cout << this->selected_unit << endl;
-    this->drawPossibleMoves();
+	if((this->orange_on_turn && this->units_orange.size() != 0) || (!this->orange_on_turn && this->units_blue.size() != 0)){
+		this->selected_unit = *it;
+		this->selected_x = this->selected_unit->getPosX();
+		this->selected_y = this->selected_unit->getPosY();
+		//cout << this->selected_unit << endl;
+		this->drawPossibleMoves();
+	}
 }
 
 void Game::deleteUnit(Unit *un)
@@ -711,6 +753,7 @@ char Game::getTeamOnTurn() const
 void Game::endTurn(bool net)
 {
     cout<< "End turn"<<endl;
+	this->selected_unit = NULL;
 	if(network && !net) this->network->sendData("endTurn");
 	vector<Unit*>::iterator it;
     if(this->orange_on_turn){
@@ -732,7 +775,7 @@ void Game::endTurn(bool net)
             if (this->ai != NULL){
                 this->ai->play();
 			}else{
-				this->selectUnit(this->units_blue[0]); //TODO segfault
+				//this->selectUnit(this->units_blue[0]); //TODO segfault
 			}
 
 		}else{
@@ -754,7 +797,7 @@ void Game::endTurn(bool net)
 				}
             }*/
 
-            this->selectUnit(this->units_orange[0]);
+			//this->selectUnit(this->units_orange[0]);
 			cout<<"Orange money: "<<this->money_orange<<endl;
 		}else{
 			cout<<"The game had ended: Blue wins!"<<endl;

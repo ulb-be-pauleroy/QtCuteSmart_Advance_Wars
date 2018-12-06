@@ -89,6 +89,7 @@ void MainWindow::paintEvent(QPaintEvent *)
     col1.setAlpha(100);
     col2.setAlpha(100);
 
+	if(this->game){
     for(int i = 0; i < this->game->getIntMap().size() ; i++){
         for(int j = 0; j < this->game->getIntMap()[i].size() ; j++){
 			QImage img = imageMap[i][j]->scaledToWidth(blk_size);
@@ -127,6 +128,7 @@ void MainWindow::paintEvent(QPaintEvent *)
     }
 	//paintUnits(painter);
     //std::cout<<"Here5"<<std::endl;
+	}
 }
 
 void MainWindow::receiveGame(Game* gm)

@@ -603,11 +603,12 @@ int AI::rateAction(Unit * un, ValidMove * vm)
 
 int AI::ratePurchase(int type, int money, const std::vector<int> & enemyUnits)
 {
-	//const int ratings[11] = {3,1,3,4,6,5,4,5,6,2,2};
-	//very stupid for now
 	//Unit* un = this->buildUnit(0,0,type);
 	if(this->unitCost[type] > money){
 		return 0;
+	}else if(enemyUnits.size() == 0){ //TODO when AI opening game
+		const int ratings[11] = {3,1,3,4,6,5,4,5,6,2,2};
+		return ratings[type];
 	}else{
 		int rating =0;
 		for(unsigned int i=0;i<enemyUnits.size();i++){
