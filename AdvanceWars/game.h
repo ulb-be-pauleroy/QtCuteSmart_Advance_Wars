@@ -36,14 +36,15 @@ class Game{
 	Network* network;
 	AI* ai;
 	static Game* instance;
-    Game(bool isHost);
 	std::vector<GameObject*> test;
     MainWindow* wn;
 
 public:
 
-    static Game* getInstance(bool isHost=true);
+	static Game* getInstance();
     void setPath(QString path);
+	void setupGame(const bool isHost=true);
+	void setIntMap(std::vector<std::vector<int> > & map);
 	//void makeIntMap(QString path);
 	//void verifyNumber(int& index);
     std::vector<std::vector<int> > &getIntMap();
@@ -51,7 +52,7 @@ public:
 	void setIncome(int inc);
 	int getIncome();
 	void networkAction(std::string type, int x, int y, int data, int data2);
-	std::vector<GameObject*>* getMapContent(); //network only
+	//std::vector<GameObject*>* getMapContent(); //network only
 	std::vector<GameObject*> & getObjectsOnPos(int x, int y);// const;
 	int getTerrainMovementModifier(Unit* un, int x, int y);// const;
 	int getTerrainDefenseModifier(Unit& un, int x, int y);// const;
@@ -62,7 +63,7 @@ public:
 	void pay(int qnt, char player);
 	GameObject* addGameObject(GameObject* go, int x, int y, const char team='\0');
 	Unit* addUnit(Unit* un, int x, int y, const char team, bool net=false);
-	void move(int dir, bool net=false);
+	void move(int dir, bool net=false, bool justPassing=false);
 	void moveTo(int x, int y);
 	void setAttack();
 	void attack(int dir);
@@ -81,9 +82,14 @@ public:
 	void clearValidMoves();
     void setWn(MainWindow* wn );
 
+	Unit* getSelected_unit();
+    int getMoney_orange();
+    int getMoney_blue();
+
 
 private:
-
+	Game();
+	Unit* buildUnit(int x, int y, int type,char team);
 	bool testObstacle(int x, int y);
     void drawPossibleMoves();
 	void testCaptureAndHealing(Unit*);

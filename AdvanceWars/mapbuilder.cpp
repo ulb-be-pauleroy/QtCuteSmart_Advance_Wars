@@ -27,7 +27,7 @@ std::vector<std::vector<int> > MapBuilder::makeIntMap(QString path)
 	QStringList list1 = s.split(QRegExp("\n|\r\n|\r"));
 	vector<QStringList> list2;
 	//for (QString x : list1){
-	for(unsigned int i=0;i<list1.size();i++){
+	for(int i=0;i<list1.size();i++){
 		QString x = list1[i];
 		list2.push_back(x.split(","));
 	}
@@ -40,7 +40,7 @@ std::vector<std::vector<int> > MapBuilder::makeIntMap(QString path)
 	   qDebug() << "fin de ligne";
 	}*/
 	unsigned int x = list2.size();
-	int y = list2[0].size();
+	unsigned int y = list2[0].size();
 	//qDebug() << x; qDebug() << y ;
 	vector<vector<int> > list3(y, vector<int>(x,0));         // watch out here, risk to swap x and y axis
 	for (unsigned int i = 0; i < y; i++){ // in order to avoid that, list2[i][j] must become list3[j][i]
@@ -106,8 +106,8 @@ void MapBuilder::buildTerrainMap(Game* game)
 	unsigned int y = intMap[0].size();
 	//vector<vector<vector<GameObject*> > > mapPro(x, vector<vector<GameObject*> >(y,vector<GameObject*>()));
 	//this->map = mapPro;
-	for(int i = 0; i != x; i++ ){
-		for (int j = 0; j != y; j++){
+	for(unsigned int i = 0; i != x; i++ ){
+		for (unsigned int j = 0; j != y; j++){
 			switch(intMap[i][j]){
 			case 1 : game->addGameObject(new Terrain(i,j,0), i, j) ; break;
 			case 2 : game->addGameObject(new Terrain(i,j,1), i, j) ; break;

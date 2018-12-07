@@ -89,6 +89,7 @@ void MainWindow::paintEvent(QPaintEvent *)
     col1.setAlpha(100);
     col2.setAlpha(100);
 
+	if(this->game){
     for(int i = 0; i < this->game->getIntMap().size() ; i++){
         for(int j = 0; j < this->game->getIntMap()[i].size() ; j++){
 			QImage img = imageMap[i][j]->scaledToWidth(blk_size);
@@ -127,6 +128,7 @@ void MainWindow::paintEvent(QPaintEvent *)
     }
 	//paintUnits(painter);
     //std::cout<<"Here5"<<std::endl;
+	}
 }
 
 void MainWindow::receiveGame(Game* gm)
@@ -136,7 +138,32 @@ void MainWindow::receiveGame(Game* gm)
     this->loadImages();
     this->update();
     setFixedSize((this->blk_size*this->game->getIntMap().size())*4/3,this->blk_size*this->game->getIntMap()[1].size());
-    this->ui->horizontalSpacer->changeSize(1000,100);
+	
+    ui->label->setFont(QFont("Comic Sans MS", 14));
+    ui->label->setText("Point de vie:");
+
+    ui->label_2->setFont(QFont("Comic Sans MS", 14));
+    ui->label_2->setText("crédit Bleu:");
+
+    ui->label_3->setFont(QFont("Comic Sans MS", 14));
+    ui->label_3->setText("crédit Orange:");
+
+    ui->lcdNumber->setSegmentStyle(QLCDNumber::Flat);
+    ui->lcdNumber->display(game->getSelected_unit()->getHealth());
+
+    ui->lcdNumber_4->setSegmentStyle(QLCDNumber::Flat);
+    ui->lcdNumber_4->display(game->getMoney_blue());
+
+    ui->lcdNumber_3->setSegmentStyle(QLCDNumber::Flat);
+    ui->lcdNumber_3->display(game->getMoney_orange());
+
+    Unit* uniteselec = game->getSelected_unit();
+
+    ui->pushButton->setFont(QFont("Comic Sans MS", 14));
+    QObject::connect(ui->pushButton, SIGNAL(clicked()), uniteselec, SLOT(capture()));
+
+    ui->pushButton_2->setFont(QFont("Comic Sans MS", 14));
+    QObject::connect(ui->pushButton_2, SIGNAL(clicked()), uniteselec, SLOT(attack()));
 }
 
 void MainWindow::receiveNetwork(Network *net)

@@ -1,8 +1,9 @@
 #include "network.h"
 #include <iostream>
-#include <strstream>
+//#include <strstream>
 #include "game.h"
 #include "mainwindow.h"
+#include "mapbuilder.h"
 
 #include "gameobject.h"
 #include "building.h"
@@ -45,6 +46,7 @@ void Network::onNewConnection() {
 	connect(this->other, SIGNAL(readyRead()), this, SLOT(onData()));
 
 	Game* game = Game::getInstance();
+	game->setupGame();
 	game->recieveNetwork(this);
 	//action to be executed when a client connects
 	// = send him the map
@@ -52,6 +54,16 @@ void Network::onNewConnection() {
 	this->team = 'o';
 	this->isConfigured = true;
 
+	QJsonArray map;
+	std::vector<std::vector<int> > intMap = game->getIntMap();
+	for(unsigned int i=0;i<intMap.size();i++){
+		QJsonArray mapLine;
+		for(unsigned int j=0;j<intMap[i].size();j++){
+			mapLine.append(intMap[i][j]);
+		}
+		map.append(mapLine);
+	}
+/*
 	std::vector<GameObject*>* objects = game->getMapContent();
 	int size = objects->size();
 	QJsonObject map;
@@ -99,12 +111,12 @@ void Network::onNewConnection() {
 		map[key+"3"] = owner;
 	}
 	delete objects;
-
+*/
 	QJsonArray units;
 
 	QJsonObject config;
 	config["income"] = game->getIncome();
-	config["map"] = map;		//TODO
+	config["map"] = 25087;//map;	//TODO input choice
 	config["firstplayer"] = 5;
 	config["secondplayer"] = 10;
 	config["youplay"] = "firstplayer";
@@ -146,44 +158,65 @@ void Network::onData() {
 
 	if(! this->isConfigured) { //first transmission
 		// recieves the map
-		QJsonObject map = json["map"].toObject();
 
-		Game* game = Game::getInstance(false);
+
+		Game* game = Game::getInstance();
 		game->recieveNetwork(this);
-		int size = map["size"].toInt();
-		for(int i=0;i<size;i++){
-			int dat[4];
-			for(int j=0;j<4;j++){
-				std::strstream ss;
-				ss << i; ss << j;
-				char* st;//[3];
-				st = ss.str();
-				char str[3];
-				str[0] = st[0];
-				str[1] = st[1];
-				str[2] = '\0';
-				QString key = str;//ss.str();//std::to_string(i) + std::to_string(j);
-				//std::cout<<str<<std::endl;
-				dat[j] = map[key].toInt();
+		if(!json["map"].isArray()){ //TODO array, parameter map num
+			std::vector<std::vector<int> > intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
+			game->setIntMap(intMap);
+			game->setPath(":/Map/Images/Maps/Map.txt");
+		}else{
+			std::vector<std::vector<int> > intMap;
+			QJsonArray map = json["map"].toArray();
+			for(int i=0;i<map.size();i++){
+				QJsonArray line = map[i].toArray();
+				intMap.push_back(std::vector<int>());
+				for(int j=0;j<line.size();j++){
+					intMap[i].push_back(line[j].toInt());
+				}
 			}
-			//int dat[] = json[i].toArray();
-			int x = dat[1];
-			int y = dat[2];
-			char owner;
-			switch(dat[3]){
-				case 0: owner = '\0'; break;
-				case 1: owner = 'o'; break;
-				case 2: owner = 'b'; break;
-			}
-			//std::cout<< x<<y<<owner<<std::endl;
+			game->setIntMap(intMap);
+			game->setPath(":/Map/Images/Maps/Map.txt");
+			/*
+			QJsonObject map = json["map"].toObject();
+			int size = map["size"].toInt();
+			for(int i=0;i<size;i++){
+				int dat[4];
+				for(int j=0;j<4;j++){
+					std::strstream ss;
+					ss << i; ss << j;
+					char* st;//[3];
+					st = ss.str();
+					char str[3];
+					str[0] = st[0];
+					str[1] = st[1];
+					str[2] = '\0';
+					QString key = str;//ss.str();//std::to_string(i) + std::to_string(j);
+					//std::cout<<str<<std::endl;
+					dat[j] = map[key].toInt();
+				}
+				//int dat[] = json[i].toArray();
+				int x = dat[1];
+				int y = dat[2];
+				char owner;
+				switch(dat[3]){
+					case 0: owner = '\0'; break;
+					case 1: owner = 'o'; break;
+					case 2: owner = 'b'; break;
+				}
+				//std::cout<< x<<y<<owner<<std::endl;
 
-			switch(dat[0]){
-				case 1: game->addGameObject(new Terrain(x,y,dat[3]),x,y); break;
-				case 2: game->addGameObject(new City(x,y,owner),x,y,owner); break;
-				case 3: game->addGameObject(new Factory(x,y,owner),x,y,owner); break;
-				case 4: game->addGameObject(new Airport(x,y,owner),x,y,owner); break;
-			}
+				switch(dat[0]){
+					case 1: game->addGameObject(new Terrain(x,y,dat[3]),x,y); break;
+					case 2: game->addGameObject(new City(x,y,owner),x,y,owner); break;
+					case 3: game->addGameObject(new Factory(x,y,owner),x,y,owner); break;
+					case 4: game->addGameObject(new Airport(x,y,owner),x,y,owner); break;
+				}
+			}*/
+
 		}
+		game->setupGame(false);
 
 		QJsonArray units = json["units"].toArray();
 		for(int i=0;i<units.size();i++){
@@ -195,7 +228,11 @@ void Network::onData() {
 		game->setIncome(json["income"].toInt());
 
 		this->win->receiveGame(game); //enables the gameplay as well
-		this->team = 'b';
+		if(json["country"].toInt() == 1){ //TODO country
+			this->team = 'o';
+		}else{
+			this->team = 'b';
+		}
 		this->isConfigured = true;
 	} else {
 		//normal gameplay
@@ -285,7 +322,7 @@ int Network::getUnitType(const QString & name)
 {
 	if(name == "infantry"){
 		return 0;
-	}else if(name == "bazzoka"){
+	}else if(name == "bazooka"){
 		return 1;
 	}else if(name == "recon"){
 		return 2;

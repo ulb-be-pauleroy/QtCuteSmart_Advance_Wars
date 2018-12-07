@@ -347,15 +347,15 @@ void AI::choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >& poss){
 	float reduction = (float)1/4;
 	if(poss.size() > 12){ //try different values
 		unsigned int newSize = poss.size() * reduction;
-/*
+
 		int maxVal[3]; maxVal[0] = -1; maxVal[1] = -1; maxVal[2] = -1;
-		int maxValCnt[3];
-		int maxI[3];
+		//int maxValCnt[3];
+		unsigned int maxI[3];
 		int minI = 0;
 		for(unsigned int i=0;i<poss.size();i++){
 			if(poss[i].second > maxVal[minI]){
 				maxVal[minI] = poss[i].second;
-				maxValCnt[minI] =1;
+				//maxValCnt[minI] =1;
 				maxI[minI] = i;
 				int min = 10000;
 				for(int j=0;j<3;j++){
@@ -364,19 +364,25 @@ void AI::choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >& poss){
 						minI = j;
 					}
 				}
-			}else{
+			}else{/*
 				for(int j=0;j<3;j++){
 					if(poss[i].second = maxVal[j]){
 						maxValCnt[j]++;
 					}
-				}
+				}*/
 			}
 		}
-*/
+
 		vector<pair<Unit*,int> >::iterator it;
 		it = poss.begin();
+		unsigned int pos = 0;
 		while(poss.size() != newSize){
 			if(0 == rand()%3){ //maybe try different values
+				if(pos != maxI[0] && pos != maxI[1] && pos != maxI[2]){
+					vector<pair<Unit*,int> >::iterator itr = poss.begin() + pos;
+					delete poss[pos].first; //TODO memory leak
+					poss.erase(itr);
+				}
 				/*
 				bool notMax = true;
 				for(unsigned int i=0;i<3;i++){
@@ -384,15 +390,18 @@ void AI::choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >& poss){
 						notMax = false; break;
 					}
 				}
-				if(notMax){*/
+				if(notMax){
 					//delete (*it).first; //TODO memory leak
 					poss.erase(it);
-				//}
+				//}*/
 			}
+			pos++;
+			if(pos >= poss.size()) pos = 0;
+			/*
 			it++;
 			if(it == poss.end()){
 				it = poss.begin();
-			}
+			}*/
 		}
 	}
 }
@@ -458,6 +467,17 @@ std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > AI::makePurch
 		cost += units[i]->getPrice();
 	}
 	result.push_back(make_pair(units,make_pair(cost,totalRating)));*/
+	char enemy;
+	if(!this->meOnTurn){
+		enemy = this->myTeam;
+	}else{
+		enemy = this->enemyTeam;
+	}
+	vector<Unit*>* enemyUnits = Game::getInstance()->getUnits(enemy);
+	vector<int> enemyUnitsTypes;
+	for(unsigned int i=0;i<enemyUnits->size();i++){
+		enemyUnitsTypes.push_back((*enemyUnits)[i]->getUnitType());
+	}
 
 	for(unsigned int i=0;i<this->buildCase.size();i++){
 		if(this->buildCase[i].second <= money){ //TODO do better, directly in generator
@@ -468,7 +488,7 @@ std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > AI::makePurch
 			vector<Unit*> v;
 			for(unsigned int j=0;j<this->buildCase[i].first.size();j++){
 				int type = this->buildCase[i].first[j];
-				rating += this->ratePurchase(type,money_left);
+				rating += this->ratePurchase(type,money_left,enemyUnitsTypes);
 				if(type<8 && f_pos < fac_cnt){ //idk if correct
 					int x = fac_lst[f_pos]->getPosX();		// no intelligence for factory choice
 					int y = fac_lst[f_pos]->getPosY();
@@ -498,6 +518,8 @@ void AI::generatePurchasePossibilities(int money, int facN, int airN, std::vecto
 				cs.push_back(i);
 				built = true;
 				this->generatePurchasePossibilities(money-unitCost[i],facN-1,airN,cs);
+				vector<int>::iterator it = cs.end()-1; // roll back the choice
+				cs.erase(it);
 			}
 		}
 		if(!built){
@@ -509,6 +531,8 @@ void AI::generatePurchasePossibilities(int money, int facN, int airN, std::vecto
 				cs.push_back(i);
 				built = true;
 				this->generatePurchasePossibilities(money-unitCost[i],facN,airN-1,cs);
+				vector<int>::iterator it = cs.end()-1; // roll back the choice
+				cs.erase(it);
 			}
 		}
 		if(!built){
@@ -577,15 +601,20 @@ int AI::rateAction(Unit * un, ValidMove * vm)
 	return rating;
 }
 
-int AI::ratePurchase(int type, int money)
+int AI::ratePurchase(int type, int money, const std::vector<int> & enemyUnits)
 {
-	const int ratings[11] = {3,1,3,4,6,5,4,5,6,2,2};
-	//very stupid for now
 	//Unit* un = this->buildUnit(0,0,type);
 	if(this->unitCost[type] > money){
-		return -10;
-	}else{
+		return 0;
+	}else if(enemyUnits.size() == 0){ //TODO when AI opening game
+		const int ratings[11] = {3,1,3,4,6,5,4,5,6,2,2};
 		return ratings[type];
+	}else{
+		int rating =0;
+		for(unsigned int i=0;i<enemyUnits.size();i++){
+			rating += this->dmg_chart[type][enemyUnits[i]];
+		}
+		return rating;
 	}
 }
 

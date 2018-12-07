@@ -15,13 +15,14 @@ int main(int argc, char *argv[])
 	//bool online = true;
 
 	//if(online){ // network creation in if statement doesnt connect
-    //Network net(&w);
+	Network net(&w);
 	//}
-
+/*
     Game* gm = Game::getInstance();
+	gm->setupGame();
     w.receiveGame(gm);
 
-
+*/
 	//uncomment lines 18 and 19 (Game) and comment line 15 (Network)
 	//when you want to play hotspot
 
