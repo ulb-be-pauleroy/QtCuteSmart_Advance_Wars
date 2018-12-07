@@ -12,17 +12,17 @@ int main(int argc, char *argv[])
     StartingWindow w2;
     //w2.show(); //uncomment to show starting window
 
-	//bool online = true;
+	bool online = false;
 
-	//if(online){ // network creation in if statement doesnt connect
-	Network net(&w);
-	//}
-/*
-    Game* gm = Game::getInstance();
-	gm->setupGame();
-    w.receiveGame(gm);
+    Network* net = NULL;
+    if(online){ // network creation in if statement doesnt connect
+        net = new Network(&w);
+    }else{
+        Game* gm = Game::getInstance();
+        gm->setupGame();
+        w.receiveGame(gm);
+    }
 
-*/
 	//uncomment lines 18 and 19 (Game) and comment line 15 (Network)
 	//when you want to play hotspot
 

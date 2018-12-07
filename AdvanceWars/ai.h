@@ -19,6 +19,7 @@ class AI : public QObject
 	static const int unitCost[];
 	static const int dmg_chart[11][11];
 	std::vector<std::pair<std::vector<int>, int> > buildCase;
+	std::vector<std::pair<int,int> > alreadyMovedTo;
 
 	int myMoney[MAXDEPTH];
 	int enemyMoney[MAXDEPTH];
@@ -48,6 +49,7 @@ protected:
 	std::vector<std::pair<std::vector<Unit*>, std::pair<int, int> > > makePurchases(int,std::pair<std::vector<Unit*>, int>&);
 	void generatePurchasePossibilities(int,int,int,std::vector<int>&);
 	std::vector<std::vector<int> > moveUnit(Unit*);
+	bool isFree(const int,const int);
 	int rateAction(Unit*,ValidMove*);
 	int ratePurchase(int,int,const std::vector<int>&);
 	int rateAttack(Unit*,Unit*);

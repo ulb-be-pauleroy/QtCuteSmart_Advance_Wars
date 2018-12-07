@@ -4,6 +4,9 @@ Pour Infantry, usage de parent[] cause un pointeur fou - capturing
 bug après le tour de l'ia si on utilise tab pour cycler les units - fixed
 unité pas sélectionnable si adjacente à ia à la fin du tour de l'ia
 StartingWindows -- English please :) - fixed
-Ajout de boutons dans mainwindow -> clavier inutilisable - temporary fix
-delete Infatry/Unit laisse Unit ou GameObject -> memory leak
-Network: transmission client->server peut ne pas passer (deadlock si endturn)
+Ajout de boutons dans mainwindow -> clavier inutilisable - temporary fix x2
+delete Infatry/Unit laisse Unit ou GameObject -> memory leak - only a debugger bug
+Network: transmission client->server peut ne pas passer (deadlock si endturn) - fixed
+StartingWindows -- English please :)
+les boutons ne compilent pas
+segfault a getHealth dans MainWindow

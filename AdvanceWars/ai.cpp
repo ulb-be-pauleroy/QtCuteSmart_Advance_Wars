@@ -126,11 +126,12 @@ void AI::play()
 	}
 
 	this->make_sequence(0,futureTurn,this->myMoney[0],newUnits);
+	this->alreadyMovedTo.clear();
 	for(unsigned int i=0;i<futureTurn.size();i++){
 		int max = -1;
 		int maxI;
 		for(unsigned int j=0;j<futureTurn[i].size();j++){ //TODO use a data structure for max search
-			if(futureTurn[i][j].second > max){
+			if(futureTurn[i][j].second > max && isFree(futureTurn[i][j].first->getPosX(),futureTurn[i][j].first->getPosY())){
 				maxI = j;
 				max = futureTurn[i][j].second;
 			}
@@ -155,7 +156,7 @@ void AI::play()
         // + cleanup work
         vector<Unit*>& toClean = newUnits[j].first;
         for(unsigned int k=0;k<toClean.size();k++){
-            delete toClean[k]; //leaves the base class in memory
+			delete toClean[k];
         }
     }
 
@@ -566,6 +567,13 @@ std::vector<std::vector<int> > AI::moveUnit(Unit * un)
 	return possibilities;
 }
 
+bool AI::isFree(const int x, const int y){
+	for(unsigned int i=0;i<this->alreadyMovedTo.size();i++){
+		if(this->alreadyMovedTo[i].first == x && this->alreadyMovedTo[i].second == y) return false;
+	}
+	return true;
+}
+
 int AI::rateAction(Unit * un, ValidMove * vm)
 {
 	char team = this->getActiveTeam();
@@ -660,6 +668,7 @@ std::vector<Unit *> AI::searchForUnits(int x, int y)
 void AI::executeAction(Unit * un, int x, int y, std::vector<std::vector<int> > attacks)
 {
 	cout<<"Chosen the best from "<<un->getPosX()<<" "<<un->getPosY()<<" to "<<x<<" "<<y<<", executing"<<endl;
+	this->alreadyMovedTo.push_back(make_pair(x,y));
 	Game::getInstance()->selectUnit(un);
 	//cout<<"Selected"<<endl;
 	Game::getInstance()->moveTo(x,y); //second unit causes a segfault in last-move size = 0

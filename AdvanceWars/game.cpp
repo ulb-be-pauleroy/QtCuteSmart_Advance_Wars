@@ -51,7 +51,7 @@ void Game::setupGame(const bool isHost){
 	if(isHost){
 		this->intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
 		this->setPath(":/Map/Images/Maps/Map.txt");
-		//if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
+		if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
 		//AI is still buggy, uncomment to set AI
 /*
 		Unit* un = new Infantry(5,5,1,'b');
@@ -344,7 +344,7 @@ void Game::move(int dir, bool net, bool justPassing)
 			}
 			x = this->selected_unit->getPosX();
 			y = this->selected_unit->getPosY();
-			this->map[x][y].push_back(*it); //possible conflict
+			this->map[x][y].push_back(this->selected_unit); //possible conflict
 			this->selected_x = x;
 			this->selected_y = y;
 		}else{
@@ -367,7 +367,7 @@ void Game::move(int dir, bool net, bool justPassing)
 					x = this->selected_unit->getPosX();
 					y = this->selected_unit->getPosY();
 					//cout<<(*(*it)).getType()<<endl;
-					this->map[x][y].push_back(*it); //possible conflict
+					this->map[x][y].push_back(this->selected_unit); //possible conflict
 					this->selected_x = x;
 					this->selected_y = y;
 					this->drawPossibleMoves();
@@ -398,7 +398,7 @@ void Game::moveTo(int x, int y)
 			break;
 		}
 	}*/
-
+	this->clearValidMoves();
 	if(ok){
 		//cout<< "moving"<<endl;
 		vector<int> directions = this->selected_unit->getDirections(x,y);
@@ -689,6 +689,7 @@ void Game::deleteUnit(Unit *un)
 }
 
 void Game::clearValidMoves(){
+	//cout<<"Cleaning time"<<endl;
 	for(int i = 0;i<XDIM;i++){
 		for(int j=0;j<YDIM;j++){
 			vector<GameObject*>::iterator it;
@@ -698,10 +699,11 @@ void Game::clearValidMoves(){
 				//cout<< (*it)->getType()<<endl;
 				if((*it)->getType() == "ValidMove"){
 						//(ValidMove*)(&(*it))){//dynamic_cast<ValidMove*>(&(*it))){//ValidMove(i,j) == *it){
-					//cout<< "ValidMove found "<<i<<" "<<j<<endl;
+					//cout<< "ValidMove "<<*it<<" found "<<i<<" "<<j<<endl;
 					delete (*it);
 					this->map[i][j].erase(it); // memory leak?
 					break;
+					//it = this->map[i][j].begin();
 				}
 			}
 		}
@@ -715,9 +717,10 @@ void Game::setWn(MainWindow *wn)
 
 void Game::drawPossibleMoves(){
 	//cout<<"Here"<<endl;
-	this->clearValidMoves();
+	//this->clearValidMoves();
 	//cout<<"Here2"<<endl;
 	vector<ValidMove*> moves = this->selected_unit->selected();
+	this->clearValidMoves();
 	//cout<<"Here3"<<endl;
 	/*
 	vector<vector<int> >::iterator it_mv;
@@ -908,11 +911,11 @@ bool Game::testEndOfGame()
 Unit* Game:: getSelected_unit(){
     return selected_unit;
 }
-
+/*
 int Game:: getMoney_orange(){
     return money_orange;
 }
 
 int Game::getMoney_blue(){
     return money_blue;
-}
+}*/

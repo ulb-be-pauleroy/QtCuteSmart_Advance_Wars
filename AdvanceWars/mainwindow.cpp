@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->game = NULL;
 	this->network = NULL;
     this->ui->pushButton->hide();
+	this->ui->pushButton_2->hide();
 }
 
 
@@ -126,6 +127,9 @@ void MainWindow::paintEvent(QPaintEvent *)
 
 		}
     }
+	ui->lcdNumber->display(0);//game->getSelected_unit()->getHealth());
+	ui->lcdNumber_3->display(game->getBalance('o'));
+	ui->lcdNumber_4->display(game->getBalance('b'));
 	//paintUnits(painter);
     //std::cout<<"Here5"<<std::endl;
 	}
@@ -140,30 +144,33 @@ void MainWindow::receiveGame(Game* gm)
     setFixedSize((this->blk_size*this->game->getIntMap().size())*4/3,this->blk_size*this->game->getIntMap()[1].size());
 	
     ui->label->setFont(QFont("Comic Sans MS", 14));
-    ui->label->setText("Point de vie:");
+	ui->label->setText("Health:");
 
     ui->label_2->setFont(QFont("Comic Sans MS", 14));
-    ui->label_2->setText("crédit Bleu:");
+	ui->label_2->setText("Money Bleu:");
 
     ui->label_3->setFont(QFont("Comic Sans MS", 14));
-    ui->label_3->setText("crédit Orange:");
+	ui->label_3->setText("Money Orange:");
 
     ui->lcdNumber->setSegmentStyle(QLCDNumber::Flat);
-    ui->lcdNumber->display(game->getSelected_unit()->getHealth());
+	ui->lcdNumber->display(0);//game->getSelected_unit()->getHealth());
+	// no unit is selected at game creation
 
     ui->lcdNumber_4->setSegmentStyle(QLCDNumber::Flat);
-    ui->lcdNumber_4->display(game->getMoney_blue());
+	ui->lcdNumber_4->display(game->getBalance('b'));
 
     ui->lcdNumber_3->setSegmentStyle(QLCDNumber::Flat);
-    ui->lcdNumber_3->display(game->getMoney_orange());
-
+	ui->lcdNumber_3->display(game->getBalance('o'));
+	//these functions already exist - getBalance()
+/*
     Unit* uniteselec = game->getSelected_unit();
 
     ui->pushButton->setFont(QFont("Comic Sans MS", 14));
     QObject::connect(ui->pushButton, SIGNAL(clicked()), uniteselec, SLOT(capture()));
 
     ui->pushButton_2->setFont(QFont("Comic Sans MS", 14));
-    QObject::connect(ui->pushButton_2, SIGNAL(clicked()), uniteselec, SLOT(attack()));
+	QObject::connect(ui->pushButton_2, SIGNAL(clicked()), uniteselec, SLOT(attack()));*/
+	//this doesnt work
 }
 
 void MainWindow::receiveNetwork(Network *net)

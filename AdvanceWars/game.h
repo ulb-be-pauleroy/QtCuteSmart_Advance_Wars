@@ -83,8 +83,8 @@ public:
     void setWn(MainWindow* wn );
 
 	Unit* getSelected_unit();
-    int getMoney_orange();
-    int getMoney_blue();
+	//int getMoney_orange();
+	//int getMoney_blue();
 
 
 private:

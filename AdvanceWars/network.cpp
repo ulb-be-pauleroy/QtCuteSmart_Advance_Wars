@@ -46,8 +46,8 @@ void Network::onNewConnection() {
 	connect(this->other, SIGNAL(readyRead()), this, SLOT(onData()));
 
 	Game* game = Game::getInstance();
-	game->setupGame();
 	game->recieveNetwork(this);
+    game->setupGame();
 	//action to be executed when a client connects
 	// = send him the map
 	this->win->receiveGame(game); //enables the gameplay as well
@@ -135,7 +135,7 @@ void Network::onDisconnected() {
 }
 
 void Network::onData() {
-	std::cout << "Incoming data !" << std::endl;
+    std::cout << "Incoming data ! nbytes = " << this->other->bytesAvailable() << std::endl;
 	if(this->currentSize == 0) {
 		if(this->other->bytesAvailable() < 4)
 			return;
@@ -145,10 +145,10 @@ void Network::onData() {
 	}
 
 	if(this->other->bytesAvailable() < this->currentSize)
-		return;
+        return;
 
 	QByteArray data = this->other->read(this->currentSize);
-	//std::cout << data.toStdString() << std::endl;
+    //std::cout << data.toStdString() << std::endl;
 	this->currentSize = 0;
 
 	QJsonDocument doc = QJsonDocument::fromJson(data);
@@ -273,6 +273,9 @@ void Network::onData() {
 
 		this->win->update();
 	}
+
+    if(this->other->bytesAvailable())
+        onData();
 }
 
 void Network::sendData(QString type, int x, int y, int data, int data2){
@@ -315,7 +318,7 @@ void Network::sendJson(const QJsonObject& obj) { //updated to reference
     out << (quint32) data.length();
     this->other->write(data);
 
-	std::cout << "Sending " << data.toStdString() << std::endl;
+    std::cout << "Sending " << data.length() << " bytes :" << data.toStdString() << std::endl;
 }
 
 int Network::getUnitType(const QString & name)
