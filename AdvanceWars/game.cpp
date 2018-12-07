@@ -904,3 +904,15 @@ bool Game::testEndOfGame()
 	}
 	return false;
 }
+
+Unit* Game:: getSelected_unit(){
+    return selected_unit;
+}
+
+int Game:: getMoney_orange(){
+    return money_orange;
+}
+
+int Game::getMoney_blue(){
+    return money_blue;
+}
