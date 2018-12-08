@@ -47,13 +47,12 @@ Game::Game()
 	this->orange_on_turn = true;
 }
 
-void Game::setupGame(int income, bool IA, int IAOptionconst, bool isHost){
+void Game::setupGame(int income, bool IA, int IAOption, bool isHost){
 	if(isHost){
         this->income = income;
 		this->intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
 		this->setPath(":/Map/Images/Maps/Map.txt");
         if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
-		//AI is still buggy, uncomment to set AI
 /*
 		Unit* un = new Infantry(5,5,1,'b');
 		this->addUnit(un,5,5,'b');
@@ -106,7 +105,7 @@ vector<vector<int> > & Game::getIntMap()
     return this->intMap;
 }
 
-void Game::recieveNetwork(Network *net)
+void Game::receiveNetwork(Network *net)
 {
 	this->network = net;
 }

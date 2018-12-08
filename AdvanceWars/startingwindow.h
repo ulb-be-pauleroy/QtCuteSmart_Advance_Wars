@@ -13,7 +13,8 @@ class StartingWindow : public QDialog
 
 public:
     bool IA;
-    int Income;
+    bool isHost;
+    int income;
     int IAOption;
 	explicit StartingWindow(QWidget *parent =0);
     ~StartingWindow();

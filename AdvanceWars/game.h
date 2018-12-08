@@ -43,13 +43,11 @@ public:
 
 	static Game* getInstance();
     void setPath(QString path);
-    void setupGame( int income, bool IA, int IAOptionconst,const bool isHost=true); //created a polymorphic function, first is called
-    void setupGame(const bool isHost = true);                                       //from starting window, second is called from Network,
-    void setIntMap(std::vector<std::vector<int> > & map);                           //will need to be adapted
-	//void makeIntMap(QString path);
-	//void verifyNumber(int& index);
+    void setupGame(int income, bool IA, int IAOption, const bool isHost=true); //created a polymorphic function, first is called
+    void setupGame(const bool isHost = true);                                  //from starting window, second is called from Network,
+    void setIntMap(std::vector<std::vector<int> > & map);                      //will need to be adapted
     std::vector<std::vector<int> > &getIntMap();
-	void recieveNetwork(Network* net);
+    void receiveNetwork(Network* net);
 	void setIncome(int inc);
 	int getIncome();
 	void networkAction(std::string type, int x, int y, int data, int data2);
@@ -59,8 +57,6 @@ public:
 	int getTerrainDefenseModifier(Unit& un, int x, int y);// const;
 	std::vector<Unit*>* getUnits(char pl);// const;
 	int getBalance(char pl) const;
-	//vector<Unit *>& getUnits(char);
-	//vector<Unit *>& getUnits_orange();
 	void pay(int qnt, char player);
 	GameObject* addGameObject(GameObject* go, int x, int y, const char team='\0');
 	Unit* addUnit(Unit* un, int x, int y, const char team, bool net=false);
@@ -78,14 +74,11 @@ public:
 	char getTeamOnTurn() const;
 	void endTurn(bool net=false);
     void changeIndex(Building* bl, char initialOwner);
-	//void buildTerrainMap();
 	int computeIncome(char);
 	void clearValidMoves();
     void setWn(MainWindow* wn );
 
 	Unit* getSelected_unit();
-	//int getMoney_orange();
-	//int getMoney_blue();
 
 
 private:

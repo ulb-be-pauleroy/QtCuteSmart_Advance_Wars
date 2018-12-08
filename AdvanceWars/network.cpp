@@ -46,7 +46,7 @@ void Network::onNewConnection() {
 	connect(this->other, SIGNAL(readyRead()), this, SLOT(onData()));
 
 	Game* game = Game::getInstance();
-	game->recieveNetwork(this);
+    game->receiveNetwork(this);
     game->setupGame();
 	//action to be executed when a client connects
 	// = send him the map
@@ -161,7 +161,7 @@ void Network::onData() {
 
 
 		Game* game = Game::getInstance();
-		game->recieveNetwork(this);
+        game->receiveNetwork(this);
 		if(!json["map"].isArray()){ //TODO array, parameter map num
 			std::vector<std::vector<int> > intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
 			game->setIntMap(intMap);

@@ -85,39 +85,6 @@
        </item>
       </layout>
      </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_8">
-       <item>
-        <widget class="QGroupBox" name="groupBox_4">
-         <property name="title">
-          <string>Network options:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_9">
-          <item>
-           <widget class="QRadioButton" name="radioButton_2">
-            <property name="text">
-             <string>Offline</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButton">
-            <property name="text">
-             <string>Online</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </item>
     </layout>
    </item>
    <item>
@@ -127,7 +94,7 @@
        <item>
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
-          <string>Game options:</string>
+          <string>Adversary options:</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -136,6 +103,9 @@
           <bool>false</bool>
          </property>
          <property name="checkable">
+          <bool>false</bool>
+         </property>
+         <property name="checked">
           <bool>false</bool>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_6">
