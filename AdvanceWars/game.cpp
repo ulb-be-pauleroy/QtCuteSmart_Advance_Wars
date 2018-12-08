@@ -29,6 +29,8 @@ void Game::setPath(QString path)
 	//this->intMap = MapBuilder::makeIntMap(path);
 	unsigned int x = intMap.size();
 	unsigned int y = intMap[0].size();
+    size_x = int(x);
+    size_y = int(y);
 	vector<vector<vector<GameObject*> > > mapPro(x, vector<vector<GameObject*> >(y,vector<GameObject*>()));
 	this->map = mapPro;
     MapBuilder::buildTerrainMap(this);
@@ -194,8 +196,8 @@ Unit* Game::buildUnit(int x, int y, int type,char team) // unit differentiator
 /*
 vector<GameObject*>* Game::getMapContent(){
 	vector<GameObject*>* vec = new vector<GameObject*>;
-	for(int i=0;i<XDIM;i++){
-		for(int j=0;j<YDIM;j++){
+    for(int i=0;i<size_x;i++){
+        for(int j=0;j<size_y;j++){
 			vector<GameObject*>& tile = this->map[i][j];
 			for(unsigned int k=0;k<tile.size();k++){ //we only collect terrain
 				if(!(tile[k]->getType().find("Unit") != string::npos)){
@@ -210,7 +212,7 @@ vector<GameObject*>* Game::getMapContent(){
 */
 vector<GameObject*>& Game::getObjectsOnPos(int x, int y)// const
 {
-	if(x>=0 && y>=0 && x<XDIM && y<YDIM){
+    if(x>=0 && y>=0 && x<size_x && y<size_y){
 			return this->map[x][y];
 		}else{
 			//vector<GameObject*> tl;// = vector<GameObject*>(); //TODO setup empty vector
@@ -373,7 +375,7 @@ void Game::move(int dir, bool net, bool justPassing)
 			this->selected_x = x;
 			this->selected_y = y;
 		}else{
-			if(newX>= 0 && newY>= 0 && newX<XDIM && newY<YDIM && !testObstacle(newX,newY)){
+            if(newX>= 0 && newY>= 0 && newX<size_x && newY<size_y && !testObstacle(newX,newY)){
 				if(this->selected_unit->move(dir,this->getTerrainMovementModifier(this->selected_unit, newX, newY))){
 
 					vector<GameObject*>::iterator it;
@@ -715,8 +717,8 @@ void Game::deleteUnit(Unit *un)
 
 void Game::clearValidMoves(){
 	//cout<<"Cleaning time"<<endl;
-	for(int i = 0;i<XDIM;i++){
-		for(int j=0;j<YDIM;j++){
+    for(int i = 0;i<size_x;i++){
+        for(int j=0;j<size_y;j++){
 			vector<GameObject*>::iterator it;
 			for(it=this->map[i][j].begin();it!=this->map[i][j].end();it++){
 				//cout<<"Here cycle "<<i<<" "<<j<<endl;

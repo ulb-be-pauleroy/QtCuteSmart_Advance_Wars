@@ -16,11 +16,13 @@ class Network;
 class AI;
 class MainWindow;
 
+extern int size_x;
+extern int size_y;
+
 class Game{
 
 	std::vector<std::vector<int> > intMap;
 	std::vector<std::vector<std::vector<GameObject *> > > map;
-    //vector<GameObject*> map[XDIM][YDIM];
 	int income;
 	std::vector<Unit*> units_orange;
 	int money_orange;

@@ -31,8 +31,6 @@ class Unit : public GameObject{
 public:
     Unit(int x=0, int y=0, int type =0, char team='\0');
 	virtual ~Unit() {}
-    //int getPosX();
-    //int getPosY();
     void attack(Unit & un, bool counter=false);
     int getHealth() const;
     void heal(int qnt);

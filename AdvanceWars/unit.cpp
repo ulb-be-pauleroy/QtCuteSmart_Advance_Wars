@@ -23,6 +23,9 @@ const int Unit::dmg_chart[11][11] = {{55,45,12,5,5,1,1,1,7,0,0},
 									{110,110,105,95,105,95,35,90,0,0,0}
 									};
 
+int size_x;
+int size_y;
+
 const int Unit::speed_chart[11] = {3,2,8,6,6,5,4,6,6,9,7};
 
 const int Unit::price_chart[11] = {1000,3000,4000,8000,7000,16000,28000,22000,9000,20000,22000};
@@ -231,7 +234,7 @@ void Unit::interactWith()
 }
 
 int Unit::getPosFromCoord(int x, int y) { //STATIC
-	int sy = YDIM; // for now
+    int sy = size_y; // for now
 	if(x<0 || y<0){
         cout<< x<<" "<<y <<endl;
 	}
@@ -239,7 +242,7 @@ int Unit::getPosFromCoord(int x, int y) { //STATIC
 }
 
 int* Unit::getCoordFromPos(int pos, int (&cr)[2]) { //static + int[]
-	int sy = YDIM; //for now
+    int sy = size_y; //for now
     cr[0] = pos/sy;
     cr[1] = pos%sy;
     return cr;
@@ -251,7 +254,7 @@ vector<Edge> Unit::findConnected(int pos){ // linkedlist
         int* coord = this->getCoordFromPos(pos, tb);
         int nextTo[4];
         //cout << "Hello2 " << coord<< " "<< coord << endl;
-		if(coord[0] != XDIM-1){
+        if(coord[0] != size_x-1){
 			nextTo[0] = this->getPosFromCoord(coord[0]+1, coord[1]);
 		}else{
 			nextTo[0] = -1;
@@ -262,7 +265,7 @@ vector<Edge> Unit::findConnected(int pos){ // linkedlist
         }else{
             nextTo[1] = -1;
         }
-		if(coord[1] != YDIM-1){
+        if(coord[1] != size_y-1){
 			nextTo[2] = this->getPosFromCoord(coord[0], coord[1]+1);
 		}else{
 			nextTo[2] = -1;
@@ -284,8 +287,9 @@ vector<Edge> Unit::findConnected(int pos){ // linkedlist
     }
 
 vector<int> Unit::dijkstra(){
-	int sx = XDIM;
-	int sy = YDIM;
+    int sx = size_x;
+    int sy = size_y;
+
 	int dist[sx*sy];// = new int[sx*sy];
 	for(int i=0;i<sx*sy;i++){ //Arrays.fill(dist, Integer.MAX_VALUE);
 		dist[i] = 10000; //=sth huge
@@ -346,8 +350,8 @@ vector<int> Unit::dijkstra(){
 }
 /*
 vector<int> Unit::bfs(){
-	int sx = XDIM;
-	int sy = YDIM;
+    int sx = size_x;
+    int sy = size_y;
     int dist[sx*sy];// = new int[sx*sy];
     for(int i=0;i<sx*sy;i++){ //Arrays.fill(dist, Integer.MAX_VALUE);
         dist[i] = 10000; //=sth huge
