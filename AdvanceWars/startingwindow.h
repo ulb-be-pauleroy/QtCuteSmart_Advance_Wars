@@ -12,11 +12,18 @@ class StartingWindow : public QDialog
     Q_OBJECT
 
 public:
+    bool IA;
+    int Income;
+    int IAOption;
 	explicit StartingWindow(QWidget *parent =0);
     ~StartingWindow();
 
 private:
     Ui::StartingWindow *ui;
+    void checkRadioButtons();
+
+private slots:
+    void launchGame();
 };
 
 #endif // STARTINGWINDOW_H

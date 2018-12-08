@@ -37,49 +37,86 @@
     </widget>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_4">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="title">
-        <string>Money per turn:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_5">
-        <item>
-         <widget class="QRadioButton" name="radioButton_7">
-          <property name="text">
-           <string>1000</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioButton_8">
-          <property name="text">
-           <string>1500</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioButton_9">
-          <property name="text">
-           <string>2500</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioButton_10">
-          <property name="text">
-           <string>2000</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Money per turn and per building:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QRadioButton" name="IncomeOption_1">
+            <property name="text">
+             <string>1000</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="IncomeOption_2">
+            <property name="text">
+             <string>1500</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="IncomeOption_3">
+            <property name="text">
+             <string>2000</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="IncomeOption_4">
+            <property name="text">
+             <string>2500</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_8">
+       <item>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
+          <string>Network options:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_9">
+          <item>
+           <widget class="QRadioButton" name="radioButton_2">
+            <property name="text">
+             <string>Offline</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButton">
+            <property name="text">
+             <string>Online</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
@@ -103,7 +140,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
-           <widget class="QRadioButton" name="radioButton_2">
+           <widget class="QRadioButton" name="GameOption_1">
             <property name="cursor">
              <cursorShape>ArrowCursor</cursorShape>
             </property>
@@ -116,14 +153,14 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton_3">
+           <widget class="QRadioButton" name="GameOption_2">
             <property name="text">
              <string>Player vs IA</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton">
+           <widget class="QRadioButton" name="GameOption_3">
             <property name="text">
              <string>IA vs IA</string>
             </property>
@@ -146,9 +183,9 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
-           <widget class="QRadioButton" name="radioButton_4">
+           <widget class="QRadioButton" name="IAOption_1">
             <property name="text">
-             <string>Greedy</string>
+             <string>Inactive</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -156,16 +193,19 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton_5">
+           <widget class="QRadioButton" name="IAOption_2">
             <property name="text">
-             <string>Inactive</string>
+             <string>Greedy</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton_6">
+           <widget class="QRadioButton" name="IAOption_3">
             <property name="text">
-             <string>Bullshit</string>
+             <string>Smart</string>
             </property>
            </widget>
           </item>

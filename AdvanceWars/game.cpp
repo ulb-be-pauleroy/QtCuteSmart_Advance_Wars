@@ -47,11 +47,12 @@ Game::Game()
 	this->orange_on_turn = true;
 }
 
-void Game::setupGame(const bool isHost){
+void Game::setupGame(int income, bool IA, int IAOptionconst, bool isHost){
 	if(isHost){
+        this->income = income;
 		this->intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
 		this->setPath(":/Map/Images/Maps/Map.txt");
-		if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
+        if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
 		//AI is still buggy, uncomment to set AI
 /*
 		Unit* un = new Infantry(5,5,1,'b');
@@ -68,7 +69,32 @@ void Game::setupGame(const bool isHost){
 
 	}else{
 		this->ai = new AI('b',&this->units_blue, this->buildings);
-	}
+    }
+}
+
+void Game::setupGame(const bool isHost)
+{
+    if(isHost){
+        this->intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
+        this->setPath(":/Map/Images/Maps/Map.txt");
+        if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
+        //AI is still buggy, uncomment to set AI
+/*
+        Unit* un = new Infantry(5,5,1,'b');
+        this->addUnit(un,5,5,'b');
+        un = new Infantry(5,8,0,'o');
+        this->addUnit(un,5,8,'o');
+        un = new Infantry(3,2,1,'o');
+        this->addUnit(un,3,2,'o');
+        this->selected_unit = this->units_orange[0];*/
+        this->selected_x = 1;
+        this->selected_y = 1;
+
+        this->setIncome(1000); //TODO
+
+    }else{
+        this->ai = new AI('b',&this->units_blue, this->buildings);
+    }
 }
 
 void Game::setIntMap(std::vector<std::vector<int> > & map){
