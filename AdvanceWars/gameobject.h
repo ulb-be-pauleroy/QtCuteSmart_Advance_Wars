@@ -5,6 +5,7 @@
 
 class GameObject
 {
+
 protected:
 	int posX;
 	int posY;

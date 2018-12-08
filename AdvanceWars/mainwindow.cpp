@@ -142,18 +142,9 @@ void MainWindow::receiveGame(Game* gm)
     this->loadImages();
     this->update();
     setFixedSize((this->blk_size*this->game->getIntMap().size())*4/3,this->blk_size*this->game->getIntMap()[1].size());
-	
-    ui->label->setFont(QFont("Comic Sans MS", 14));
-	ui->label->setText("Health:");
-
-    ui->label_2->setFont(QFont("Comic Sans MS", 14));
-	ui->label_2->setText("Money Bleu:");
-
-    ui->label_3->setFont(QFont("Comic Sans MS", 14));
-	ui->label_3->setText("Money Orange:");
 
     ui->lcdNumber->setSegmentStyle(QLCDNumber::Flat);
-	ui->lcdNumber->display(0);//game->getSelected_unit()->getHealth());
+    ui->lcdNumber->display(5);//game->getSelected_unit()->getHealth());
 	// no unit is selected at game creation
 
     ui->lcdNumber_4->setSegmentStyle(QLCDNumber::Flat);
@@ -161,16 +152,13 @@ void MainWindow::receiveGame(Game* gm)
 
     ui->lcdNumber_3->setSegmentStyle(QLCDNumber::Flat);
 	ui->lcdNumber_3->display(game->getBalance('o'));
-	//these functions already exist - getBalance()
-/*
-    Unit* uniteselec = game->getSelected_unit();
 
-    ui->pushButton->setFont(QFont("Comic Sans MS", 14));
+    /*Unit* uniteselec = game->getSelected_unit();
+
     QObject::connect(ui->pushButton, SIGNAL(clicked()), uniteselec, SLOT(capture()));
 
-    ui->pushButton_2->setFont(QFont("Comic Sans MS", 14));
-	QObject::connect(ui->pushButton_2, SIGNAL(clicked()), uniteselec, SLOT(attack()));*/
-	//this doesnt work
+    QObject::connect(ui->pushButton_2, SIGNAL(clicked()), uniteselec, SLOT(attack()));
+    //this doesnt work*/
 }
 
 void MainWindow::receiveNetwork(Network *net)

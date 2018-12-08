@@ -16,6 +16,8 @@ class Game; //used instead
 class Building;
 
 class Unit : public GameObject{
+
+
 	char team;
 	int type;
 	int speed;
@@ -28,10 +30,10 @@ class Unit : public GameObject{
 	std::vector<int> last;
 	int parent[XDIM*YDIM];
 
+
 public:
     Unit(int x=0, int y=0, int type =0, char team='\0');
 	virtual ~Unit() {}
-    void attack(Unit & un, bool counter=false);
     int getHealth() const;
     void heal(int qnt);
     int getPrice() const;
@@ -46,11 +48,12 @@ public:
     void newTurn();
     bool isCapturing();
     void setCapture(Building* building);
-
 	std::vector<ValidMove*> selected();
 	std::vector<int> getDirections(int,int);
     virtual std::string getType() const;
     void interactWith();
+    void attack(Unit & un, bool counter=false);
+
 private:
     int getPosFromCoord(int x, int y);
     int* getCoordFromPos(int pos, int (&cr)[2]);
@@ -65,6 +68,7 @@ private:
     const static int dmg_chart[11][11];
     const static int speed_chart[11];
     const static int price_chart[11];
+
 };
 
 #endif
