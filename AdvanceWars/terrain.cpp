@@ -19,7 +19,7 @@ const int Terrain::mov_mod[17][5] = {{1,1,1,2,1},
 								   {1,1,1,1,1},
 								   {1,1,1,1,1},
 								   {1,1,1,1,1},
-								   {1,1,1,1,1}
+								   {10000,10000,10000,10000,10000}
 								  }; // 10000 = sth huge
 			//TODO check for not implemented buildings
 

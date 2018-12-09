@@ -30,13 +30,14 @@ class Game{
 	int money_blue;
 	std::vector<Building*> buildings;
     bool orange_on_turn;
+	bool unitFusing;
     int selected_x;
     int selected_y;
     Unit* selected_unit;
 	Factory* selected_factory;
 	bool attacking;
 	Network* network;
-	AI* ai;
+	AI* ai[2];
 	static Game* instance;
 	std::vector<GameObject*> test;
     MainWindow* wn;
@@ -45,7 +46,7 @@ public:
 
 	static Game* getInstance();
     void setPath(QString path);
-    void setupGame(int income, bool IA, int IAOption, const bool isHost=true); //created a polymorphic function, first is called
+	void setupGame(int income, int AIcnt, int AIOption, const bool isHost=true); //created a polymorphic function, first is called
     void setupGame(const bool isHost = true);                                  //from starting window, second is called from Network,
     void setIntMap(std::vector<std::vector<int> > & map);                      //will need to be adapted
     std::vector<std::vector<int> > &getIntMap();

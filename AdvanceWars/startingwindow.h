@@ -12,10 +12,10 @@ class StartingWindow : public QDialog
     Q_OBJECT
 
 public:
-    bool IA;
+	int AIcnt;
     bool isHost;
     int income;
-    int IAOption;
+	int AIOption;
 	explicit StartingWindow(QWidget *parent =0);
     ~StartingWindow();
 

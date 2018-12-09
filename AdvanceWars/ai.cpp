@@ -30,10 +30,11 @@ const int AI::dmg_chart[11][11] = {{55,45,12,5,5,1,1,1,7,0,0},
 
 const int AI::unitCost[11] = {1000,3000,4000,8000,7000,16000,28000,22000,9000,20000,22000};
 
-AI::AI(char team, const std::vector<Unit *> * units, const std::vector<Building *>& buildings)
+AI::AI(char team, const std::vector<Building *>& buildings)
 {
 	this->setTeam(team);
-	this->myUnits = units;
+	//this->myUnits = units;
+
 
 	for(unsigned int i=0;i<buildings.size();i++){
 		if(Factory* fac = dynamic_cast<Factory*>(buildings[i])){
@@ -62,11 +63,12 @@ void AI::play()
 		}*/
 	//}
 
+	vector<Unit*>& myUnits = * Game::getInstance()->getUnits(this->myTeam);
 	vector<vector<pair<Unit*,int> > > futureTurn;
 	vector<vector<int> > attPos;
 	// no unit cooperation for now
-	for(unsigned int i=0;i<this->myUnits->size();i++){
-		Unit* un = this->myUnits->at(i); // [i] doesnt work, idk why
+	for(unsigned int i=0;i<myUnits.size();i++){
+		Unit* un = myUnits[i];
 		vector<vector<int> > poss = this->moveUnit(un);
 		vector<pair<Unit*,int> > futureUnits;
 
@@ -136,7 +138,8 @@ void AI::play()
 				max = futureTurn[i][j].second;
 			}
 		}
-		this->executeAction((*myUnits)[i],futureTurn[i][maxI].first->getPosX(),futureTurn[i][maxI].first->getPosY(),attPos);
+		if(max != -1) this->executeAction(myUnits[i],futureTurn[i][maxI].first->getPosX(),futureTurn[i][maxI].first->getPosY(),attPos);
+					// it can happen, that a unit only has one valid move that is already taken
 		for(unsigned int j=0;j<futureTurn[i].size();j++){
 			delete futureTurn[i][j].first; // no memory leak
 		}

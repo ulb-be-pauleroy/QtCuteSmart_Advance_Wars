@@ -9,10 +9,10 @@ StartingWindow::StartingWindow(QWidget *parent) :
     ui(new Ui::StartingWindow)
 {
     ui->setupUi(this);
-    this->IA = false;
+	this->AIcnt = 0;
     this->isHost = true;
     this->income = 1000;
-    this->IAOption = 0;
+	this->AIOption = 0;
     QObject::connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(launchGame()));
 }
 
@@ -30,13 +30,13 @@ void StartingWindow::checkRadioButtons()
     }
 
     if(! ui->GameOption_1->isChecked()){
-        if (ui->GameOption_2->isChecked()) this->IA = true;
-        else if (ui->GameOption_3->isChecked()) this->IA = true; //TODO IA vs IA is not implemented yet
+		if (ui->GameOption_2->isChecked()) this->AIcnt = 1;
+		else if (ui->GameOption_3->isChecked()) this->AIcnt = 2;
     }
 
     if (! ui->IAOption_1->isChecked()){
-        if (ui->IAOption_2->isChecked()) this->IAOption = 1;
-        if (ui->IAOption_3->isChecked()) this->IAOption = 2;
+		if (ui->IAOption_2->isChecked()) this->AIOption = 1;
+		if (ui->IAOption_3->isChecked()) this->AIOption = 2;
     }
 
 
@@ -49,7 +49,7 @@ void StartingWindow::launchGame()
     MainWindow* w = new MainWindow();
     w->show();
     Game* gm = Game::getInstance();
-    gm->setupGame(income, IA, IAOption, isHost);
+	gm->setupGame(income, AIcnt, AIOption, isHost);
     w->receiveGame(gm);
     this->hide(); //TODO should destruct itself
 }

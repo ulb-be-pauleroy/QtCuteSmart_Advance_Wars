@@ -16,9 +16,9 @@ int GameObject::getPosY()
 	return this->posY;
 }
 
-
+/*
 bool GameObject::operator==(GameObject const&) const
 { //this is a test, should go abstract
 	return false;
 }
-
+*/

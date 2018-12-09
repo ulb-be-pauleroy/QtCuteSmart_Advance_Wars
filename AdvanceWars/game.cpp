@@ -41,20 +41,23 @@ Game::Game()
 {
 	this->network = NULL;
     this->attacking = false;
-    this->ai = NULL;
+	this->ai[0] = NULL; this->ai[1] = NULL;
 	this->selected_unit = NULL;
 	this->selected_factory = NULL;
-	this->money_orange = 1000; //TODO
-	this->money_blue = 1000;
+	//this->money_orange = 1000; //TODO
+	//this->money_blue = 1000;
 	this->orange_on_turn = true;
 }
 
-void Game::setupGame(int income, bool IA, int IAOption, bool isHost){
+void Game::setupGame(int income, int AIcnt, int AIOption, bool isHost){
 	if(isHost){
-        this->income = income;
+		this->setIncome(income);
+		this->money_orange = this->income;
+		this->money_blue = this->income;
 		this->intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
 		this->setPath(":/Map/Images/Maps/Map.txt");
-        if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
+		if(AIcnt && !this->network) this->ai[0] = new AI('b', this->buildings);
+		if(AIcnt == 2 && !this->network) this->ai[1] = new AI('o', this->buildings);
 /*
 		Unit* un = new Infantry(5,5,1,'b');
 		this->addUnit(un,5,5,'b');
@@ -65,11 +68,8 @@ void Game::setupGame(int income, bool IA, int IAOption, bool isHost){
 		this->selected_unit = this->units_orange[0];*/
 		this->selected_x = 1;
 		this->selected_y = 1;
-
-		this->setIncome(1000); //TODO
-
 	}else{
-		this->ai = new AI('b',&this->units_blue, this->buildings);
+		this->ai[0] = new AI('b', this->buildings);
     }
 }
 
@@ -78,7 +78,7 @@ void Game::setupGame(const bool isHost)
     if(isHost){
         this->intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
         this->setPath(":/Map/Images/Maps/Map.txt");
-        if(!this->network) this->ai = new AI('b',&this->units_blue, this->buildings);
+		if(!this->network) this->ai[0] = new AI('b', this->buildings);
         //AI is still buggy, uncomment to set AI
 /*
         Unit* un = new Infantry(5,5,1,'b');
@@ -94,7 +94,7 @@ void Game::setupGame(const bool isHost)
         this->setIncome(1000); //TODO
 
     }else{
-        this->ai = new AI('b',&this->units_blue, this->buildings);
+		this->ai[0] = new AI('b', this->buildings);
     }
 }
 
@@ -371,10 +371,11 @@ void Game::move(int dir, bool net, bool justPassing)
 			}
 			x = this->selected_unit->getPosX();
 			y = this->selected_unit->getPosY();
-			this->map[x][y].push_back(this->selected_unit); //possible conflict
+			this->map[x][y].push_back(this->selected_unit);
 			this->selected_x = x;
 			this->selected_y = y;
 		}else{
+			this->unitFusing = false;
             if(newX>= 0 && newY>= 0 && newX<size_x && newY<size_y && !testObstacle(newX,newY)){
 				if(this->selected_unit->move(dir,this->getTerrainMovementModifier(this->selected_unit, newX, newY))){
 
@@ -386,7 +387,11 @@ void Game::move(int dir, bool net, bool justPassing)
 							this->map[x][y].erase(it);
 							//cout<<"Mov erase"<<endl;
 							if(this->network && !net){
-								this->network->sendData("move",x,y, newX, newY);
+								if(this->unitFusing){
+									this->network->sendData("move+fusion",x,y, newX, newY);
+								}else{
+									this->network->sendData("move",x,y, newX, newY);
+								}
 							}
 							break;
 						}
@@ -394,9 +399,10 @@ void Game::move(int dir, bool net, bool justPassing)
 					x = this->selected_unit->getPosX();
 					y = this->selected_unit->getPosY();
 					//cout<<(*(*it)).getType()<<endl;
-					this->map[x][y].push_back(this->selected_unit); //possible conflict
+					this->map[x][y].push_back(this->selected_unit);
 					this->selected_x = x;
 					this->selected_y = y;
+					this->unitFusing = false;
 					this->drawPossibleMoves();
 					this->wn->update();
 				}
@@ -470,7 +476,9 @@ bool Game::testObstacle(int x, int y){
 				vector<GameObject*>::iterator itr;
 				itr = find(this->map[x][y].begin(),this->map[x][y].end(),un);
 				cout<<*itr<<endl;
+				delete *itr;
 				this->map[x][y].erase(itr);
+				this->unitFusing = true;
 				return false;
 			}
 			cout<<"Obstacle"<<endl;
@@ -784,13 +792,13 @@ void Game::endTurn(bool net)
 {
     cout<< "End turn"<<endl;
 	this->selected_unit = NULL;
-	if(network && !net) this->network->sendData("endTurn");
 	vector<Unit*>::iterator it;
     if(this->orange_on_turn){
         for(it = this->units_orange.begin(); it!=this->units_orange.end();it++){
 			(*it)->newTurn();
 			this->testCaptureAndHealing(*it);
         }
+		if(network && !net) this->network->sendData("endTurn");
 		if(!testEndOfGame()){
 			this->orange_on_turn = false;
 			this->money_blue += this->computeIncome('b');
@@ -801,12 +809,8 @@ void Game::endTurn(bool net)
 					this->money_blue += 1000;
 				}
 			}*/
-			cout<<"Blue money: "<<this->money_blue<<endl;
-            if (this->ai != NULL){
-                this->ai->play();
-			}else{
-				//this->selectUnit(this->units_blue[0]); //TODO segfault
-			}
+			//cout<<"Blue money: "<<this->money_blue<<endl;
+			if(this->ai[0]) this->ai[0]->play();
 
 		}else{
 			cout<<"The game had ended: Orange wins!"<<endl;
@@ -816,6 +820,7 @@ void Game::endTurn(bool net)
 			(*it)->newTurn();
 			this->testCaptureAndHealing(*it);
         }
+		if(network && !net) this->network->sendData("endTurn");
 		if(!testEndOfGame()){
 			this->orange_on_turn = true;
 			this->money_orange += this->computeIncome('o');
@@ -828,7 +833,8 @@ void Game::endTurn(bool net)
             }*/
 
 			//this->selectUnit(this->units_orange[0]);
-			cout<<"Orange money: "<<this->money_orange<<endl;
+			//cout<<"Orange money: "<<this->money_orange<<endl;
+			if(this->ai[1]) this->ai[1]->play();
 		}else{
 			cout<<"The game had ended: Blue wins!"<<endl;
 		}
@@ -884,6 +890,7 @@ void Game::testCaptureAndHealing(Unit* un)
         if(bl != NULL) { // go->getType() == "building")
             char initialOwner = bl->getOwner();
             bl->capture(un);
+			if(this->network) this->network->sendData("capture",un->getPosX(),un->getPosY());
             if(bl->getOwner() == un->getTeam()){
                 bl->healUnit(un);
                 if (bl->getOwner() != initialOwner){

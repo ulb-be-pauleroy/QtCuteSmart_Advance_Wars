@@ -286,6 +286,12 @@ void Network::sendData(QString type, int x, int y, int data, int data2){
 		arr.append(data); arr.append(data2);  //data is newX and newY
 		//arr[0] = x; arr[1] = y; arr[2] = data; arr[3] = data2;
 		action["move"] = arr;
+	}else if(type == "move+fusion"){
+		QJsonArray arr;
+		arr.append(x); arr.append(y);
+		arr.append(data); arr.append(data2);
+		action["move"] = arr;
+		action["join"] = true;
 	}else if(type == "attack"){
 		QJsonArray arr;
 		arr.append(x); arr.append(y);
@@ -294,6 +300,12 @@ void Network::sendData(QString type, int x, int y, int data, int data2){
 		QJsonArray pos;
 		pos.append(data); pos.append(data2);
 		action["attack"] = pos;
+	}else if(type == "capture"){
+		QJsonArray arr;
+		arr.append(x); arr.append(y);
+		arr.append(x); arr.append(y);
+		action["move"] = arr;
+		action["capture"] = true;
 	}else if(type == "newunit"){
 		QJsonArray pos;
 		pos.append(x); pos.append(y);

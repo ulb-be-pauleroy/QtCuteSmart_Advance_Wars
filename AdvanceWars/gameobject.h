@@ -14,7 +14,7 @@ public:
 	GameObject(int x, int y);
 	int getPosX();
 	int getPosY();
-	virtual bool operator== (GameObject const& obj) const;// =0; // causes invalid abstract parameter
+	//virtual bool operator== (GameObject const& obj) const;// =0; // causes invalid abstract parameter
 	virtual std::string getType() const =0; //same error
 	//virtual void select();
 	virtual void interactWith() =0;
