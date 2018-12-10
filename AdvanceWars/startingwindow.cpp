@@ -14,6 +14,7 @@ StartingWindow::StartingWindow(QWidget *parent) :
     this->income = 1000;
 	this->AIOption = 0;
     QObject::connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(launchGame()));
+    this->fillIPComboBox();
 }
 
 StartingWindow::~StartingWindow()
@@ -42,10 +43,29 @@ void StartingWindow::checkRadioButtons()
 
 }
 
+void StartingWindow::fillIPComboBox()
+{
+    QList<QHostAddress> list = QNetworkInterface::allAddresses(); //
+    QList<QHostAddress>::iterator it;
+    this->ui->comboBox->addItem("Offline");
+    this->ui->comboBox->addItem("Local online gaming (fill the space below with other IP)");
+
+
+}
+
+void StartingWindow::checkNetworkOptions()
+{
+    if(this->ui->comboBox->currentText() != "Offline"){
+        this->network = true;
+        this->IPAdress = this->ui->lineEdit->text();
+    }
+}
+
 void StartingWindow::launchGame()
 {
     qDebug() << "j'ai lancé la fonction!";
     checkRadioButtons();
+    checkNetworkOptions();
     MainWindow* w = new MainWindow();
     w->show();
     Game* gm = Game::getInstance();

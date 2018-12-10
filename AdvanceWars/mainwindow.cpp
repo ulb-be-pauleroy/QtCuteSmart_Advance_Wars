@@ -185,7 +185,7 @@ void MainWindow::loadImages()
     osUnitImages.insert(std::pair<int, QImage* >(2, new QImage(":/Units/Images/Units/osrecon.gif")));
     osUnitImages.insert(std::pair<int, QImage* >(3, new QImage(":/Units/Images/Units/osanti-air.gif")));
     osUnitImages.insert(std::pair<int, QImage* >(4, new QImage(":/Units/Images/Units/ostank.gif")));
-    osUnitImages.insert(std::pair<int, QImage* >(5, new QImage(":/Units/Images/Units/osmd.tank.gif")));
+    osUnitImages.insert(std::pair<int, QImage* >(5, new QImage(":/Units/Images/Units/osmd-tank.gif")));
     osUnitImages.insert(std::pair<int, QImage* >(6, new QImage(":/Units/Images/Units/osmegatank.gif")));
     osUnitImages.insert(std::pair<int, QImage* >(7, new QImage(":/Units/Images/Units/osneotank.gif")));
     osUnitImages.insert(std::pair<int, QImage* >(8, new QImage(":/Units/Images/Units/osb-copter.gif")));
@@ -199,7 +199,7 @@ void MainWindow::loadImages()
     bmUnitImages.insert(std::pair<int, QImage* >(2, new QImage(":/Units/Images/Units/bmrecon.gif")));
     bmUnitImages.insert(std::pair<int, QImage* >(3, new QImage(":/Units/Images/Units/bmanti-air.gif")));
     bmUnitImages.insert(std::pair<int, QImage* >(4, new QImage(":/Units/Images/Units/bmtank.gif")));
-    bmUnitImages.insert(std::pair<int, QImage* >(5, new QImage(":/Units/Images/Units/bmmd.tank.gif")));
+    bmUnitImages.insert(std::pair<int, QImage* >(5, new QImage(":/Units/Images/Units/bmmd-tank.gif")));
     bmUnitImages.insert(std::pair<int, QImage* >(6, new QImage(":/Units/Images/Units/bmmegatank.gif")));
     bmUnitImages.insert(std::pair<int, QImage* >(7, new QImage(":/Units/Images/Units/bmneotank.gif")));
     bmUnitImages.insert(std::pair<int, QImage* >(8, new QImage(":/Units/Images/Units/bmb-copter.gif")));

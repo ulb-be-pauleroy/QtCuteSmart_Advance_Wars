@@ -12,6 +12,8 @@ class StartingWindow : public QDialog
     Q_OBJECT
 
 public:
+    bool network;
+    QString IPAdress;
 	int AIcnt;
     bool isHost;
     int income;
@@ -22,6 +24,8 @@ public:
 private:
     Ui::StartingWindow *ui;
     void checkRadioButtons();
+    void fillIPComboBox();
+    void checkNetworkOptions();
 
 private slots:
     void launchGame();

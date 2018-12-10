@@ -801,7 +801,7 @@ void Game::endTurn(bool net)
 		if(network && !net) this->network->sendData("endTurn");
 		if(!testEndOfGame()){
 			this->orange_on_turn = false;
-			this->money_blue += this->computeIncome('b');
+            this->money_orange += this->computeIncome('b');
 			/*
 			if(!this->units_blue.empty()) this->selected_unit = this->units_blue[0];
 			for(unsigned int i=0;i<this->buildings.size();i++){ //TODO rewrite airport
@@ -823,7 +823,7 @@ void Game::endTurn(bool net)
 		if(network && !net) this->network->sendData("endTurn");
 		if(!testEndOfGame()){
 			this->orange_on_turn = true;
-			this->money_orange += this->computeIncome('o');
+            this->money_blue += this->computeIncome('o');
 			/*
 			if(!this->units_orange.empty()) this->selected_unit = this->units_orange[0];
 			for(unsigned int i=0;i<this->buildings.size();i++){
