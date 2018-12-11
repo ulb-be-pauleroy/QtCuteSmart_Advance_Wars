@@ -14,6 +14,7 @@ public:
 	Building(int x, int y, char c);
 	//virtual void select() =0;
 	//void assingOwner(const char);
+    void setOwner(char);
     char getOwner();
 	virtual void healUnit(Unit*);
     void capture(Unit*un);

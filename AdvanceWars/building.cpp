@@ -8,6 +8,11 @@ Building::Building(int x, int y, char c) : GameObject(x,y)
 	this->owner = c;
     this->health = 20;
 }
+
+void Building::setOwner(char c)
+{
+    this->owner = c;
+}
 /*
 void Building::assingOwner(const char c)
 {

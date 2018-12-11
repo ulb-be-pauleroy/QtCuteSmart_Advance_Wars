@@ -858,7 +858,21 @@ void Game::changeIndex(Building *bl, char initialOwner) //changes index of build
     else if (bl->getOwner() == 'o' && initialOwner == '\0' ){
         this->intMap[bl->getPosX()][bl->getPosY()] += 4;
     }
-    qDebug() << this->intMap[bl->getPosX()][bl->getPosY()];
+    unsigned int x = this->buildings.size();
+    if (initialOwner == 'b'){
+        for (unsigned int i =0; i<x; i++){
+            if(bl->getPosX() == buildings[i]->getPosX() && bl->getPosY() == buildings[i]->getPosY()){
+                buildings[i]->setOwner('o');
+            }
+        }
+    }
+    else{
+        for (unsigned int i =0; i<x; i++){
+            if(bl->getPosX() == buildings[i]->getPosX() && bl->getPosY() == buildings[i]->getPosY()){
+                buildings[i]->setOwner('b');
+            }
+        }
+    }
 }
 
 int Game::computeIncome(char pl){
