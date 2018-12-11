@@ -627,7 +627,7 @@ void Game::cycleUnits(int dir)
     //cout << "size " << this->units.size() << " Add "<< &this->units[0] << " " <<&this->units[1]
     //     <<" "<< &this->units[2] << endl;
     if(this->orange_on_turn){
-		if(!this->selected_unit){
+        if(!this->selected_unit){
 			if(this->units_orange.size() != 0) this->selected_unit = this->units_orange[0];
 		}else{
 			for(it = this->units_orange.begin(); it!=this->units_orange.end();it++){
@@ -802,6 +802,12 @@ void Game::endTurn(bool net)
 		if(!testEndOfGame()){
 			this->orange_on_turn = false;
             this->money_orange += this->computeIncome('b');
+            if(this->units_blue.size() != 0){
+                this->selected_unit = this->units_blue[0];
+            }
+            else{
+                this->selected_unit = NULL;
+            }
 			/*
 			if(!this->units_blue.empty()) this->selected_unit = this->units_blue[0];
 			for(unsigned int i=0;i<this->buildings.size();i++){ //TODO rewrite airport
@@ -810,7 +816,7 @@ void Game::endTurn(bool net)
 				}
 			}*/
 			//cout<<"Blue money: "<<this->money_blue<<endl;
-			if(this->ai[0]) this->ai[0]->play();
+            if(this->ai[0]) this->ai[0]->play();
 
 		}else{
 			cout<<"The game had ended: Orange wins!"<<endl;
@@ -824,6 +830,12 @@ void Game::endTurn(bool net)
 		if(!testEndOfGame()){
 			this->orange_on_turn = true;
             this->money_blue += this->computeIncome('o');
+            if(this->units_orange.size() != 0){
+                this->selected_unit = this->units_orange[0];
+            }
+            else{
+                this->selected_unit = NULL;
+            }
 			/*
 			if(!this->units_orange.empty()) this->selected_unit = this->units_orange[0];
 			for(unsigned int i=0;i<this->buildings.size();i++){
@@ -833,7 +845,7 @@ void Game::endTurn(bool net)
             }*/
 
 			//this->selectUnit(this->units_orange[0]);
-			//cout<<"Orange money: "<<this->money_orange<<endl;
+            //cout<<"Orange money: "<<this->money_orange<<endl;
 			if(this->ai[1]) this->ai[1]->play();
 		}else{
 			cout<<"The game had ended: Blue wins!"<<endl;
