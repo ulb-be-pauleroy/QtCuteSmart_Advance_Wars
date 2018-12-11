@@ -30,9 +30,10 @@ const int AI::dmg_chart[11][11] = {{55,45,12,5,5,1,1,1,7,0,0},
 
 const int AI::unitCost[11] = {1000,3000,4000,8000,7000,16000,28000,22000,9000,20000,22000};
 
-AI::AI(char team, const std::vector<Building *>& buildings)
+AI::AI(int type, char team, const std::vector<Building *>& buildings)
 {
 	this->setTeam(team);
+    this->type = type;
 	//this->myUnits = units;
 
 
@@ -49,122 +50,123 @@ void AI::play()
 	this->meOnTurn = true;
 	this->myMoney[0] = Game::getInstance()->getBalance(this->myTeam);
 
-	std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > newUnits;
-	//for(unsigned int i=0;i<builtUnits.size();i++){
-		vector<Unit*> v;
-		v.push_back(NULL);
-		pair<vector<Unit*>, int> p(v,0);
-		std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases = this->makePurchases(this->myMoney[0],p); //make_pair(v,0));
-		newUnits.insert(newUnits.end(),purchases.begin(),purchases.end());
-		/*
-		std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > >::iterator it;
-		for(it = newUnits.begin();it!=newUnits.end();it++){ //TODO very buggy !! also in recursion !!
-			if((*it).second.first > this->myMoney) newUnits.erase(it);
-		}*/
-	//}
+    if(this->type != 0){
+        std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > newUnits;
+        //for(unsigned int i=0;i<builtUnits.size();i++){
+        vector<Unit*> v;
+        v.push_back(NULL);
+        pair<vector<Unit*>, int> p(v,0);
+        std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases = this->makePurchases(this->myMoney[0],p); //make_pair(v,0));
+        newUnits.insert(newUnits.end(),purchases.begin(),purchases.end());
+        /*
+        std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > >::iterator it;
+        for(it = newUnits.begin();it!=newUnits.end();it++){ //TODO very buggy !! also in recursion !!
+            if((*it).second.first > this->myMoney) newUnits.erase(it);
+        }*/
+        //}
 
-	vector<Unit*>& myUnits = * Game::getInstance()->getUnits(this->myTeam);
-	vector<vector<pair<Unit*,int> > > futureTurn;
-	vector<vector<int> > attPos;
-	// no unit cooperation for now
-	for(unsigned int i=0;i<myUnits.size();i++){
-		Unit* un = myUnits[i];
-		vector<vector<int> > poss = this->moveUnit(un);
-		vector<pair<Unit*,int> > futureUnits;
+        vector<Unit*>& myUnits = * Game::getInstance()->getUnits(this->myTeam);
+        vector<vector<pair<Unit*,int> > > futureTurn;
+        vector<vector<int> > attPos;
+        // no unit cooperation for now
+        for(unsigned int i=0;i<myUnits.size();i++){
+            Unit* un = myUnits[i];
+            vector<vector<int> > poss = this->moveUnit(un);
+            vector<pair<Unit*,int> > futureUnits;
 
-		//vector<QThread*> threads;
-		this->th_cnt =0;
-		this->th_done =0;
-		for(unsigned int j=0;j<poss.size();j++){
-			int rating = poss[j][2]; // rating on this turn
-			vector<Unit*> targets = this->targetsFromPos(poss[j][0],poss[j][1]);
-			if(!targets.empty()){ //tests attack
-				for(unsigned int k=0;k<targets.size();k++){
-					rating += this->rateAttack(un,targets[k]);
-					vector<int> v;// = {poss[j][0],poss[j][1],targets[k]->getPosX(),targets[k]->getPosY()};
-					v.push_back(poss[j][0]);
-					v.push_back(poss[j][1]);
-					v.push_back(targets[k]->getPosX());
-					v.push_back(targets[k]->getPosY());
-					attPos.push_back(v);
-				}
-			}
-			futureUnits.push_back(make_pair(this->buildUnit(poss[j][0],poss[j][1],un->getUnitType()),rating));
+            //vector<QThread*> threads;
+            this->th_cnt =0;
+            this->th_done =0;
+            for(unsigned int j=0;j<poss.size();j++){
+                int rating = poss[j][2]; // rating on this turn
+                vector<Unit*> targets = this->targetsFromPos(poss[j][0],poss[j][1]);
+                if(!targets.empty()){ //tests attack
+                    for(unsigned int k=0;k<targets.size();k++){
+                        rating += this->rateAttack(un,targets[k]);
+                        vector<int> v;// = {poss[j][0],poss[j][1],targets[k]->getPosX(),targets[k]->getPosY()};
+                        v.push_back(poss[j][0]);
+                        v.push_back(poss[j][1]);
+                        v.push_back(targets[k]->getPosX());
+                        v.push_back(targets[k]->getPosY());
+                        attPos.push_back(v);
+                    }
+                }
+                futureUnits.push_back(make_pair(this->buildUnit(poss[j][0],poss[j][1],un->getUnitType()),rating));
 
-			QThread* thread = new QThread;
-			AIWorker* worker = new AIWorker(futureUnits[j],this->myTeam,this->myMoney[0],newUnits); //TODO multithreading
-			worker->moveToThread(thread);
-			connect(worker, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
-			connect(thread, SIGNAL(started()), worker, SLOT(process()));
-			connect(worker, SIGNAL(finished()), thread, SLOT(quit()));
-			connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
-			connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-			connect(worker, SIGNAL(finished()), this, SLOT(threadEnd()));
-			//threads.push_back(thread);
-			this->th_cnt++;
-			//thread->start();
-		}
-		// TODO zero or one ?!
-		/*
-		this->playFutureTurn(0,futureUnits,this->myMoney,newUnits); // TODO create thread (max cca 160 for recon)
-		int max = -1;
-		int maxI;
-		for(unsigned int j=0;j<futureUnits.size();j++){ //TODO use a data structure for max search
-			if(futureUnits[j].second > max){
-				maxI = j;
-				max = futureUnits[j].second;
-			}
-		}
-
-		this->executeAction(un,futureUnits[maxI].first->getPosX(),futureUnits[maxI].first->getPosY(),attPos);
-		for(unsigned int j=0;j<futureUnits.size();j++){
-			delete futureUnits[j].first; // no memory leak
-		}/*
-		usleep(1000 *1e3);
-		while(this->th_cnt != this->th_done){
-			usleep(10 *1e3);
-		}*/
-		futureTurn.push_back(futureUnits);
-	}
-
-	this->make_sequence(0,futureTurn,this->myMoney[0],newUnits);
-	this->alreadyMovedTo.clear();
-	for(unsigned int i=0;i<futureTurn.size();i++){
-		int max = -1;
-		int maxI;
-		for(unsigned int j=0;j<futureTurn[i].size();j++){ //TODO use a data structure for max search
-			if(futureTurn[i][j].second > max && isFree(futureTurn[i][j].first->getPosX(),futureTurn[i][j].first->getPosY())){
-				maxI = j;
-				max = futureTurn[i][j].second;
-			}
-		}
-		if(max != -1) this->executeAction(myUnits[i],futureTurn[i][maxI].first->getPosX(),futureTurn[i][maxI].first->getPosY(),attPos);
-					// it can happen, that a unit only has one valid move that is already taken
-		for(unsigned int j=0;j<futureTurn[i].size();j++){
-			delete futureTurn[i][j].first; // no memory leak
-		}
-	}
-
-	// unit purchasing
-	int imax = -1;
-	int imaxI;
-	for(unsigned int j=0;j<newUnits.size();j++){ //TODO use a data structure for max search
-		if(newUnits[j].second.second > imax){
-			imaxI = j;
-			imax = newUnits[j].second.second;
+                QThread* thread = new QThread;
+                AIWorker* worker = new AIWorker(this->type,futureUnits[j],this->myTeam,this->myMoney[0],newUnits); //TODO multithreading
+                worker->moveToThread(thread);
+                connect(worker, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
+                connect(thread, SIGNAL(started()), worker, SLOT(process()));
+                connect(worker, SIGNAL(finished()), thread, SLOT(quit()));
+                connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+                connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+                connect(worker, SIGNAL(finished()), this, SLOT(threadEnd()));
+                //threads.push_back(thread);
+                this->th_cnt++;
+                //thread->start();
+            }
+            // TODO zero or one ?!
+            /*
+        this->playFutureTurn(0,futureUnits,this->myMoney,newUnits); // TODO create thread (max cca 160 for recon)
+        int max = -1;
+        int maxI;
+        for(unsigned int j=0;j<futureUnits.size();j++){ //TODO use a data structure for max search
+            if(futureUnits[j].second > max){
+                maxI = j;
+                max = futureUnits[j].second;
+            }
         }
-	}
-	this->buyUnits(newUnits[imaxI].first);
-    for(unsigned int j=0;j<newUnits.size();j++){
-        // + cleanup work
-        vector<Unit*>& toClean = newUnits[j].first;
-        for(unsigned int k=0;k<toClean.size();k++){
-			delete toClean[k];
+
+        this->executeAction(un,futureUnits[maxI].first->getPosX(),futureUnits[maxI].first->getPosY(),attPos);
+        for(unsigned int j=0;j<futureUnits.size();j++){
+            delete futureUnits[j].first; // no memory leak
+        }/*
+        usleep(1000 *1e3);
+        while(this->th_cnt != this->th_done){
+            usleep(10 *1e3);
+        }*/
+            futureTurn.push_back(futureUnits);
+        }
+
+        this->make_sequence(0,futureTurn,this->myMoney[0],newUnits);
+        this->alreadyMovedTo.clear();
+        for(unsigned int i=0;i<futureTurn.size();i++){
+            int max = -1;
+            int maxI;
+            for(unsigned int j=0;j<futureTurn[i].size();j++){ //TODO use a data structure for max search
+                if(futureTurn[i][j].second > max && isFree(futureTurn[i][j].first->getPosX(),futureTurn[i][j].first->getPosY())){
+                    maxI = j;
+                    max = futureTurn[i][j].second;
+                }
+            }
+            if(max != -1) this->executeAction(myUnits[i],futureTurn[i][maxI].first->getPosX(),futureTurn[i][maxI].first->getPosY(),attPos);
+            // it can happen, that a unit only has one valid move that is already taken
+            for(unsigned int j=0;j<futureTurn[i].size();j++){
+                delete futureTurn[i][j].first; // no memory leak
+            }
+        }
+
+        // unit purchasing
+        int imax = -1;
+        int imaxI;
+        for(unsigned int j=0;j<newUnits.size();j++){ //TODO use a data structure for max search
+            if(newUnits[j].second.second > imax){
+                imaxI = j;
+                imax = newUnits[j].second.second;
+            }
+        }
+        this->buyUnits(newUnits[imaxI].first);
+        for(unsigned int j=0;j<newUnits.size();j++){
+            // + cleanup work
+            vector<Unit*>& toClean = newUnits[j].first;
+            for(unsigned int k=0;k<toClean.size();k++){
+                delete toClean[k];
+            }
         }
     }
-
-	cout<<"AI ending turn"<<endl;
-	Game::getInstance()->endTurn();
+    cout<<"AI ending turn"<<endl;
+    Game::getInstance()->endTurn();
 }
 
 void AI::make_sequence(int depth, std::vector<std::vector<std::pair<Unit *, int> > > & units, int money, std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > &builtUnits){
@@ -235,7 +237,7 @@ void AI::make_sequence(int depth, std::vector<std::vector<std::pair<Unit *, int>
 				(enemyCases[depth])[i][j].second -= enemyRating;
 			}
 		}
-	}
+    }
 
 	//TODO unit purchase ratings
 }

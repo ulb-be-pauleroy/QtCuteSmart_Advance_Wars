@@ -13,6 +13,7 @@ class AI : public QObject
 
 	char myTeam;
 	char enemyTeam;
+    int type;
 	//const std::vector<Unit*>* myUnits;
 	std::vector<Factory*> factories;
 
@@ -34,7 +35,7 @@ class AI : public QObject
 	int th_done;
 
 public:
-	AI(char, const std::vector<Building*>&);
+    AI(int type, char, const std::vector<Building*>&);
 	virtual ~AI() {} //memory leak
 	void play();
 

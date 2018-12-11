@@ -12,7 +12,7 @@ class AIWorker : public AI
 	int money;
 
 public:
-	explicit AIWorker(std::pair<Unit*,int>, char,int,std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > >);
+    explicit AIWorker(int type, std::pair<Unit*,int>, char,int,std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > >);
 
 public slots:
 	void process();

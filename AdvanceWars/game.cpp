@@ -44,8 +44,6 @@ Game::Game()
 	this->ai[0] = NULL; this->ai[1] = NULL;
 	this->selected_unit = NULL;
 	this->selected_factory = NULL;
-	//this->money_orange = 1000; //TODO
-	//this->money_blue = 1000;
 	this->orange_on_turn = true;
 }
 
@@ -56,20 +54,12 @@ void Game::setupGame(int income, int AIcnt, int AIOption, bool isHost){
 		this->money_blue = this->income;
 		this->intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
 		this->setPath(":/Map/Images/Maps/Map.txt");
-		if(AIcnt && !this->network) this->ai[0] = new AI('b', this->buildings);
-		if(AIcnt == 2 && !this->network) this->ai[1] = new AI('o', this->buildings);
-/*
-		Unit* un = new Infantry(5,5,1,'b');
-		this->addUnit(un,5,5,'b');
-		un = new Infantry(5,8,0,'o');
-		this->addUnit(un,5,8,'o');
-		un = new Infantry(3,2,1,'o');
-		this->addUnit(un,3,2,'o');
-		this->selected_unit = this->units_orange[0];*/
+        if(AIcnt && !this->network) this->ai[0] = new AI(AIOption,'b', this->buildings);
+        if(AIcnt == 2 && !this->network) this->ai[1] = new AI(1,'o', this->buildings);
 		this->selected_x = 1;
 		this->selected_y = 1;
 	}else{
-		this->ai[0] = new AI('b', this->buildings);
+        this->ai[0] = new AI(1,'b', this->buildings);
     }
 }
 
@@ -78,7 +68,7 @@ void Game::setupGame(const bool isHost)
     if(isHost){
         this->intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
         this->setPath(":/Map/Images/Maps/Map.txt");
-		if(!this->network) this->ai[0] = new AI('b', this->buildings);
+        if(!this->network) this->ai[0] = new AI(1,'b', this->buildings);
         //AI is still buggy, uncomment to set AI
 /*
         Unit* un = new Infantry(5,5,1,'b');
@@ -94,7 +84,7 @@ void Game::setupGame(const bool isHost)
         this->setIncome(1000); //TODO
 
     }else{
-		this->ai[0] = new AI('b', this->buildings);
+        this->ai[0] = new AI(1,'b', this->buildings);
     }
 }
 
@@ -957,11 +947,3 @@ bool Game::testEndOfGame()
 Unit* Game:: getSelected_unit(){
     return selected_unit;
 }
-/*
-int Game:: getMoney_orange(){
-    return money_orange;
-}
-
-int Game::getMoney_blue(){
-    return money_blue;
-}*/

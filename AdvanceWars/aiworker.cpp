@@ -1,7 +1,7 @@
 #include "aiworker.h"
 #include <iostream>
 
-AIWorker::AIWorker(std::pair<Unit *, int> unit_case, char team, int mon, std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > newUn) : AI(team,std::vector<Building*>())
+AIWorker::AIWorker(int type, std::pair<Unit *, int> unit_case, char team, int mon, std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > newUn) : AI(type, team,std::vector<Building*>())
 {	// TODO multithreading that works
 	this->work = unit_case;
 	this->money = mon;
