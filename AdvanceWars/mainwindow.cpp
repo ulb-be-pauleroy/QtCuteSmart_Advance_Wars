@@ -14,6 +14,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->network = NULL;
     this->ui->pushButton->hide();
 	this->ui->pushButton_2->hide();
+    //QObject::connect(&tim, SIGNAL(timeout()), this, SLOT(refresh()));
+    //tim.start(50);
+
+
 }
 
 
@@ -214,5 +218,11 @@ void MainWindow::reloadImage(int x, int y)
     qDebug() << this->game->getIntMap()[x][y];
     this->update();
     qDebug() << "j'ai sélectionné une nouvelle image!";
+}
+
+void MainWindow::refresh()
+{
+    this->update();
+    qDebug() << "j'ai dessiné";
 }
 

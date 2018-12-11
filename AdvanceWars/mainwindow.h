@@ -16,6 +16,7 @@ class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
+    QTimer tim;
 	Game* game;
 	int blk_size;
 	Network* network;
@@ -35,6 +36,8 @@ public:
 	void receiveNetwork(Network* net);
     void loadImages();
     void reloadImage(int x, int y);
+private slots:
+    void refresh();
 
 private:
 	Ui::MainWindow *ui;

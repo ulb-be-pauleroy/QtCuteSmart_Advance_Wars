@@ -394,7 +394,7 @@ void Game::move(int dir, bool net, bool justPassing)
 					this->selected_y = y;
 					this->unitFusing = false;
 					this->drawPossibleMoves();
-					this->wn->update();
+                    this->wn->update();
 				}
 			}
 		}
@@ -412,21 +412,15 @@ void Game::moveTo(int x, int y)
 				break;
 			}
 		}
-	}/*
-	vector<vector<int> >::iterator it_mv;
-	for(it_mv = moves.begin(); it_mv!=moves.end();it_mv++){
-		vector<int> coord = *it_mv;
-		if(coord[0]==x && coord[1]==y){
-			ok=true;
-			break;
-		}
-	}*/
+    }
 	this->clearValidMoves();
 	if(ok){
 		//cout<< "moving"<<endl;
 		vector<int> directions = this->selected_unit->getDirections(x,y);
 		for(unsigned int i=directions.size();i>1;i--){ // parse in reverse
 			this->move(directions[i-1],false,true);
+            //QThread::msleep(500);
+
 		}
 		this->move(directions[0],false,false);
 		/*
@@ -845,7 +839,7 @@ void Game::endTurn(bool net)
 }
 
 void Game::changeIndex(Building *bl, char initialOwner) //changes index of building when owner changes
-{
+{                                                       //and owner in buildings vector in order to compute income properly
     if(bl->getOwner() == 'b' && initialOwner == 'o' ){
         this->intMap[bl->getPosX()][bl->getPosY()] += 5;
     }
