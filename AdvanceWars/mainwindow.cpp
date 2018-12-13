@@ -24,7 +24,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-	delete ui;
+    delete ui;
+}
+
+void MainWindow::drawGamePannel(QPainter painter)
+{
+
 }
 
 
@@ -57,17 +62,19 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 }
 
 void MainWindow::mousePressEvent(QMouseEvent* event){
-	if(!this->network || (this->network->getTeam() == game->getTeamOnTurn())){
-	int x = event->x();
-	int y = event->y();
-	//std::cout<<x<<" "<<y<<" "<< event->button() <<std::endl;
-	// 1 for left click, 2 for right click, 4 for middle click
-	if(event->button()==1){
-		this->game->click(x/this->blk_size,y/this->blk_size);
-	}else if(event->button()==2){
-		this->game->moveTo(x/this->blk_size,y/this->blk_size);
-	}
-    this->update();
+    if (!this->network || this->network->getTeam() == game->getTeamOnTurn()) {
+        if(! isAnimating) {
+            int x = event->x();
+            int y = event->y();
+            //std::cout<<x<<" "<<y<<" "<< event->button() <<std::endl;
+            // 1 for left click, 2 for right click, 4 for middle click
+            if(event->button() == 1) {
+                this->game->click(x/this->blk_size, y/this->blk_size);
+            } else if(event->button() == 2) {
+                this->game->moveTo(x/this->blk_size, y/this->blk_size);
+            }
+            this->update();
+        }
 	}
 }
 
@@ -131,7 +138,12 @@ void MainWindow::paintEvent(QPaintEvent *)
 
 		}
     }
-	ui->lcdNumber->display(0);//game->getSelected_unit()->getHealth());
+    if(game->getSelected_unit() == NULL){
+        ui->lcdNumber->display(0);
+    }
+    else{
+        ui->lcdNumber->display(game->getSelected_unit()->getHealth());
+    }
 	ui->lcdNumber_3->display(game->getBalance('o'));
 	ui->lcdNumber_4->display(game->getBalance('b'));
 	//paintUnits(painter);
@@ -145,7 +157,7 @@ void MainWindow::receiveGame(Game* gm)
     gm->setWn(this);
     this->loadImages();
     this->update();
-    setFixedSize((this->blk_size*this->game->getIntMap().size())*4/3,this->blk_size*this->game->getIntMap()[1].size());
+    setFixedSize((this->blk_size*this->game->getIntMap().size())+400,this->blk_size*this->game->getIntMap()[1].size());
 
     ui->lcdNumber->setSegmentStyle(QLCDNumber::Flat);
     ui->lcdNumber->display(5);//game->getSelected_unit()->getHealth());

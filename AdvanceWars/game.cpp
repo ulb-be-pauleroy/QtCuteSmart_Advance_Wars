@@ -26,7 +26,6 @@ Game *Game::getInstance(){
 
 void Game::setPath(QString path)
 {
-	//this->intMap = MapBuilder::makeIntMap(path);
 	unsigned int x = intMap.size();
 	unsigned int y = intMap[0].size();
     size_x = int(x);
@@ -69,15 +68,7 @@ void Game::setupGame(const bool isHost)
         this->intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
         this->setPath(":/Map/Images/Maps/Map.txt");
         if(!this->network) this->ai[0] = new AI(1,'b', this->buildings);
-        //AI is still buggy, uncomment to set AI
-/*
-        Unit* un = new Infantry(5,5,1,'b');
-        this->addUnit(un,5,5,'b');
-        un = new Infantry(5,8,0,'o');
-        this->addUnit(un,5,8,'o');
-        un = new Infantry(3,2,1,'o');
-        this->addUnit(un,3,2,'o');
-        this->selected_unit = this->units_orange[0];*/
+
         this->selected_x = 1;
         this->selected_y = 1;
 
@@ -401,44 +392,37 @@ void Game::move(int dir, bool net, bool justPassing)
 	}
 }
 
-void Game::moveTo(int x, int y)
+bool Game::moveTo(int x, int y)
 {
 	bool ok = false;
 	if(this->selected_unit){
 		vector<ValidMove*> moves = this->selected_unit->selected();
-		for(unsigned int i=0;i<moves.size();i++){
-			if(moves[i]->getPosX()==x && moves[i]->getPosY()==y){
-				ok=true;
+        for(unsigned int i = 0; i < moves.size(); i++){
+            if(moves[i]->getPosX() == x && moves[i]->getPosY() == y){
+                ok = true;
 				break;
 			}
 		}
     }
 	this->clearValidMoves();
-	if(ok){
-		//cout<< "moving"<<endl;
-		vector<int> directions = this->selected_unit->getDirections(x,y);
-		for(unsigned int i=directions.size();i>1;i--){ // parse in reverse
-			this->move(directions[i-1],false,true);
-            //QThread::msleep(500);
+    if (ok) {
+        currentDirections = this->selected_unit->getDirections(x, y);
+        auto& directions = currentDirections;
+        currentI = directions.size();
+        /*QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(onTimerStart()));
+        timer.start();
+        return true;*/
+
+        for(unsigned int i = directions.size(); i > 1; i--){ // parse in reverse
+            this->move(directions[i-1], false, true);
+            this->wn->update();
+            QThread::msleep(1500);
 
 		}
 		this->move(directions[0],false,false);
-		/*
-		while(this->selected_unit->getPosX() != x){
-			if(this->selected_unit->getPosX() > x){
-				this->move(2);
-			}else{
-				this->move(3);
-			}
-		}
-		while(this->selected_unit->getPosY() != y){
-			if(this->selected_unit->getPosY() > y){
-				this->move(0);
-			}else{
-				this->move(1);
-			}
-		}*/
+
 	}
+    return true;
 }
 
 bool Game::testObstacle(int x, int y){
@@ -515,12 +499,11 @@ void Game::attack(int dir)
 
 void Game::click(int x, int y)
 {
-
 	if(!this->map[x][y].empty()){
 		//for(GameObject& go : this->map[x][y]){ //just dont use range-based, doesnt work, wild pointers
 		vector<GameObject*>::iterator itr;
 		vector<GameObject*>& tile = this->map[x][y]; //to prevent concurrentModificationException
-		for(itr = tile.begin();itr!=tile.end();itr++){
+        for(itr = tile.begin(); itr != tile.end(); itr++){
 			if(Factory* fac = dynamic_cast<Factory*>(*itr)){
 				if((fac->getOwner() == 'o' && this->orange_on_turn)
 					|| (fac->getOwner()=='b' && !this->orange_on_turn)){ //tests for selecting enemy fac
@@ -949,7 +932,18 @@ bool Game::testEndOfGame()
 			return ended;
 		}
 	}
-	return false;
+    return false;
+}
+
+void Game::onTimerStart()
+{
+    this->move(currentDirections[currentI-1], false, true);
+    this->wn->update();
+
+    if (currentI == 0) {
+        timer.stop();
+    }
+    currentI--;
 }
 
 Unit* Game:: getSelected_unit(){

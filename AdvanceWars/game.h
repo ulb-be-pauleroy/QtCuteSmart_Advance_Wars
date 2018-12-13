@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <QString>
+#include <QTimer>
 //#include "network.h"
 #include "gameobject.h"
 #include "validmove.h"
@@ -21,6 +22,8 @@ extern int size_y;
 
 class Game{
 
+
+    QTimer timer;
 	std::vector<std::vector<int> > intMap;
 	std::vector<std::vector<std::vector<GameObject *> > > map;
 	int income;
@@ -64,7 +67,7 @@ public:
 	GameObject* addGameObject(GameObject* go, int x, int y, const char team='\0');
 	Unit* addUnit(Unit* un, int x, int y, const char team, bool net=false);
 	void move(int dir, bool net=false, bool justPassing=false);
-	void moveTo(int x, int y);
+    bool moveTo(int x, int y);
 	void setAttack();
 	void attack(int dir);
 	void click(int x, int y);
@@ -90,7 +93,12 @@ private:
 	bool testObstacle(int x, int y);
     void drawPossibleMoves();
 	void testCaptureAndHealing(Unit*);
-	bool testEndOfGame();
+    bool testEndOfGame();
+    std::vector<int> currentDirections;
+    unsigned int currentI = 0;
+
+public slots:
+    void onTimerStart();
 };
 
 #endif // GAME_H
