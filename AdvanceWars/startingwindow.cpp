@@ -48,7 +48,7 @@ void StartingWindow::fillIPComboBox()
     QList<QHostAddress> list = QNetworkInterface::allAddresses(); //
     QList<QHostAddress>::iterator it;
     this->ui->comboBox->addItem("Offline");
-    this->ui->comboBox->addItem("Local online gaming (fill the space below with other IP)");
+	this->ui->comboBox->addItem("LAN gaming (fill the space below with other IP)");
 
 
 }
@@ -57,8 +57,10 @@ void StartingWindow::checkNetworkOptions()
 {
     if(this->ui->comboBox->currentText() != "Offline"){
         this->network = true;
-        this->IPAdress = this->ui->lineEdit->text();
-    }
+		this->IPAddress = this->ui->lineEdit->text();
+	}else{
+		this->network = false;
+	}
 }
 
 void StartingWindow::launchGame()
@@ -68,8 +70,15 @@ void StartingWindow::launchGame()
     checkNetworkOptions();
     MainWindow* w = new MainWindow();
     w->show();
-    Game* gm = Game::getInstance();
-	gm->setupGame(income, AIcnt, AIOption, isHost);
-    w->receiveGame(gm);
+
+	if(this->network){
+		if(this->IPAddress == "Please enter IP adress here") this->IPAddress = "127.0.0.1";
+		qDebug() << "Connecting to: "<<this->IPAddress;
+		Network* net = new Network(this->IPAddress,w);
+	}else{
+		Game* gm = Game::getInstance();
+		gm->setupGame(income,true, AIcnt, AIOption, isHost);
+		w->receiveGame(gm);
+	}
     this->hide(); //TODO should destruct itself
 }

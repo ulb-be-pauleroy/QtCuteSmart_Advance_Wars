@@ -13,7 +13,7 @@ class StartingWindow : public QDialog
 
 public:
     bool network;
-    QString IPAdress;
+	QString IPAddress;
 	int AIcnt;
     bool isHost;
     int income;

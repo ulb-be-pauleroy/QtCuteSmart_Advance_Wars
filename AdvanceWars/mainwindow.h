@@ -23,7 +23,7 @@ class MainWindow : public QMainWindow
     std::vector<std::vector<QImage*> > imageMap;
     std::map<int, QImage*> osUnitImages ;
     std::map<int, QImage*> bmUnitImages ;
-    bool isAnimating = false;
+	bool isAnimating;
 
 public:
 	explicit MainWindow(QWidget *parent = 0);

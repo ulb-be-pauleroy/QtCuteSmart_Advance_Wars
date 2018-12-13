@@ -11,3 +11,4 @@ StartingWindows -- English please :)
 les boutons ne compilent pas
 segfault a getHealth dans MainWindow
 AI vs AI n affiche rien a l'écran
+NetWork est vraiment buggé

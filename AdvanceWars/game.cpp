@@ -43,14 +43,15 @@ Game::Game()
 	this->ai[0] = NULL; this->ai[1] = NULL;
 	this->selected_unit = NULL;
 	this->selected_factory = NULL;
-	this->orange_on_turn = true;
+	this->currentI = 0;
 }
 
-void Game::setupGame(int income, int AIcnt, int AIOption, bool isHost){
+void Game::setupGame(int income, bool orangeBegins, int AIcnt, int AIOption, bool isHost){
+	this->orange_on_turn = orangeBegins;
+	this->setIncome(income);
+	this->money_orange = this->income;
+	this->money_blue = this->income;
 	if(isHost){
-		this->setIncome(income);
-		this->money_orange = this->income;
-		this->money_blue = this->income;
 		this->intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
 		this->setPath(":/Map/Images/Maps/Map.txt");
         if(AIcnt && !this->network) this->ai[0] = new AI(AIOption,'b', this->buildings);
@@ -73,6 +74,8 @@ void Game::setupGame(const bool isHost)
         this->selected_y = 1;
 
         this->setIncome(1000); //TODO
+		this->money_orange = this->income;
+		this->money_blue = this->income;
 
     }else{
         this->ai[0] = new AI(1,'b', this->buildings);
@@ -111,6 +114,7 @@ void Game::networkAction(string type, int x, int y, int data, int data2)
 			if(tile[i]->getType().find("Unit") != string::npos){
 				Unit* temp = this->selected_unit;
 				this->selected_unit = dynamic_cast<Unit*>(tile[i]);
+				this->moveTo(data,data2,true);/*
 				int delX = data - x;
 				int delY = data2 - y;
 				if(delX > 0 && delY == 0){ // right
@@ -121,7 +125,7 @@ void Game::networkAction(string type, int x, int y, int data, int data2)
 					this->move(1,true);
 				}else if(delX == 0 && delY < 0){ //up
 					this->move(0,true);
-				}
+				}*/
 				this->selected_unit = temp;
 				this->clearValidMoves();
 			}
@@ -172,6 +176,7 @@ Unit* Game::buildUnit(int x, int y, int type,char team) // unit differentiator
 		default:
 			un = NULL; //error
 	}
+	if(un) this->pay(un->getPrice(),team);
 	return un;
 }
 /*
@@ -392,7 +397,7 @@ void Game::move(int dir, bool net, bool justPassing)
 	}
 }
 
-bool Game::moveTo(int x, int y)
+bool Game::moveTo(int x, int y, bool net)
 {
 	bool ok = false;
 	if(this->selected_unit){
@@ -407,19 +412,32 @@ bool Game::moveTo(int x, int y)
 	this->clearValidMoves();
     if (ok) {
         currentDirections = this->selected_unit->getDirections(x, y);
-        auto& directions = currentDirections;
+		vector<int>& directions = currentDirections;
         currentI = directions.size();
         /*QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(onTimerStart()));
         timer.start();
         return true;*/
+		if(!net){
+			this->unitFusing = false;
+			testObstacle(x,y); // unit fusion test
+			if(this->network){
+				if(this->unitFusing){
+					this->network->sendData("move+fusion",this->selected_unit->getPosX(),this->selected_unit->getPosY(),x,y);
+				}else{
+					this->network->sendData("move",this->selected_unit->getPosX(),this->selected_unit->getPosY(),x,y);
+				}
+			}
+			this->unitFusing = false;
+		}
 
         for(unsigned int i = directions.size(); i > 1; i--){ // parse in reverse
-            this->move(directions[i-1], false, true);
+			this->move(directions[i-1], true, true);
             this->wn->update();
-            QThread::msleep(1500);
+			//QThread::msleep(1500);
 
 		}
-		this->move(directions[0],false,false);
+		this->move(directions[0],true,false);
+		// network order was already sent
 
 	}
     return true;
@@ -502,7 +520,7 @@ void Game::click(int x, int y)
 	if(!this->map[x][y].empty()){
 		//for(GameObject& go : this->map[x][y]){ //just dont use range-based, doesnt work, wild pointers
 		vector<GameObject*>::iterator itr;
-		vector<GameObject*>& tile = this->map[x][y]; //to prevent concurrentModificationException
+		vector<GameObject*> tile = this->map[x][y]; //to prevent concurrentModificationException
         for(itr = tile.begin(); itr != tile.end(); itr++){
 			if(Factory* fac = dynamic_cast<Factory*>(*itr)){
 				if((fac->getOwner() == 'o' && this->orange_on_turn)
@@ -543,19 +561,21 @@ void Game::selectUnit(Unit* un){
 		this->drawPossibleMoves();
     }else if(this->orange_on_turn && find(this->units_blue.begin(),this->units_blue.end(),un) != this->units_blue.end()){
         //attacking a blue unit
-		int x = un->getPosX();
-		int y = un->getPosY();
-		int delX = x - this->selected_unit->getPosX();
-		int delY = y - this->selected_unit->getPosY();
-		delX = abs(delX);
-		delY = abs(delY);
-		if((delX ==0 && delY ==1) || (delX == 1 && delY == 0)){
-			cout<<"Ok, units are near to attack"<<endl;
-			this->selected_unit->attack(*un);
-            if( this->network){
-                this->network->sendData("attack",this->selected_unit->getPosX(),this->selected_unit->getPosY(),x,y);
-            }
+		if(this->selected_unit){
+			int x = un->getPosX();
+			int y = un->getPosY();
+			int delX = x - this->selected_unit->getPosX();
+			int delY = y - this->selected_unit->getPosY();
+			delX = abs(delX);
+			delY = abs(delY);
+			if((delX ==0 && delY ==1) || (delX == 1 && delY == 0)){
+				cout<<"Ok, units are near to attack"<<endl;
+				this->selected_unit->attack(*un);
+				if( this->network){
+					this->network->sendData("attack",this->selected_unit->getPosX(),this->selected_unit->getPosY(),x,y);
+				}
 
+			}
 		}/*
         for(unsigned int i=0;i<this->map[x][y].size();i++){
 			//program the movement to!!
@@ -566,13 +586,18 @@ void Game::selectUnit(Unit* un){
 		}*/
     }else if(!this->orange_on_turn && find(this->units_orange.begin(),this->units_orange.end(),un) != this->units_orange.end()){
         //attacking an orange unit
-		int x = un->getPosX();
-		int y = un->getPosY();
-		int delX = abs(x - this->selected_unit->getPosX());
-		int delY = abs(y - this->selected_unit->getPosY());
-		if((delX ==0 && delY ==1) || (delX == 1 && delY == 0)){
-			cout<<"Ok, units are near to attack"<<endl;
-			this->selected_unit->attack(*un);
+		if(this->selected_unit){
+			int x = un->getPosX();
+			int y = un->getPosY();
+			int delX = abs(x - this->selected_unit->getPosX());
+			int delY = abs(y - this->selected_unit->getPosY());
+			if((delX ==0 && delY ==1) || (delX == 1 && delY == 0)){
+				cout<<"Ok, units are near to attack"<<endl;
+				this->selected_unit->attack(*un);
+				if( this->network){
+					this->network->sendData("attack",this->selected_unit->getPosX(),this->selected_unit->getPosY(),x,y);
+				}
+			}
 		}/*
         for(unsigned int i=0;i<this->map[x][y].size();i++){
             if(this->map[x][y][i]->getType() =="ValidMove"){
@@ -883,7 +908,7 @@ void Game::testCaptureAndHealing(Unit* un)
         if(bl != NULL) { // go->getType() == "building")
             char initialOwner = bl->getOwner();
             bl->capture(un);
-			if(this->network) this->network->sendData("capture",un->getPosX(),un->getPosY());
+			//if(this->network) this->network->sendData("capture",un->getPosX(),un->getPosY());
             if(bl->getOwner() == un->getTeam()){
                 bl->healUnit(un);
                 if (bl->getOwner() != initialOwner){

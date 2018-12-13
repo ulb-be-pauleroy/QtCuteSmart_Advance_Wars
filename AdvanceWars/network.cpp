@@ -14,7 +14,7 @@
 
 //using namespace std;
 
-Network::Network(MainWindow *wn, QObject *parent) : QObject(parent)
+Network::Network(QString hostIP, MainWindow *wn, QObject *parent) : QObject(parent)
 {
 	this->isConfigured = false;
 	this->currentSize = 0;
@@ -27,7 +27,7 @@ Network::Network(MainWindow *wn, QObject *parent) : QObject(parent)
 		std::cout << "I am a client" << std::endl;
 		this->other = new QTcpSocket();
 		QObject::connect(this->other, SIGNAL(connected()), this, SLOT(onConnected()));
-		this->other->connectToHost("127.0.0.1", 8123);
+		this->other->connectToHost(hostIP, 8123);
 		QObject::connect(this->other, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
 		//emit this->other->connected();
 	} else {
@@ -47,7 +47,7 @@ void Network::onNewConnection() {
 
 	Game* game = Game::getInstance();
     game->receiveNetwork(this);
-    game->setupGame();
+	game->setupGame(1000,true,0,1);
 	//action to be executed when a client connects
 	// = send him the map
 	this->win->receiveGame(game); //enables the gameplay as well
@@ -119,7 +119,7 @@ void Network::onNewConnection() {
 	config["map"] = 25087;//map;	//TODO input choice
 	config["firstplayer"] = 5;
 	config["secondplayer"] = 10;
-	config["youplay"] = "firstplayer";
+	config["youplay"] = "secondplayer";
 	config["units"] = units;
 
 	this->sendJson(config);
@@ -216,23 +216,34 @@ void Network::onData() {
 			}*/
 
 		}
-		game->setupGame(false);
+
+		switch(json[json["youplay"].toString()].toInt()){
+			case 1: case 3: case 5: case 6: case 9: this->team = 'o'; break;
+			case 2: case 4: case 7: case 8: case 10: this->team = 'b'; break;
+		}
+		bool iBegin = false;
+		if(json["youplay"] == "firstplayer") iBegin = true;
+		if((iBegin && this->team == 'b') || (!iBegin && this->team == 'o')){
+			game->setupGame(json["income"].toInt(),false,0,1,false); //TODO AI settings
+		}else{
+			game->setupGame(json["income"].toInt(),true,0,1,false);
+		}
 
 		QJsonArray units = json["units"].toArray();
 		for(int i=0;i<units.size();i++){
 			QJsonObject unit = units[i].toObject();
+			int country;
+			switch(unit["country"].toInt()){
+				case 1: case 3: case 5: case 6: case 9: country = 1; break;
+				case 2: case 4: case 7: case 8: case 10: country = 2; break;
+			}
 			game->networkAction("newunit",unit["x"].toInt(),unit["y"].toInt(),
-						this->getUnitType(unit["type"].toString()),unit["country"].toInt()); //TODO country
+						this->getUnitType(unit["type"].toString()),country);
 		}
 
-		game->setIncome(json["income"].toInt());
+		//game->setIncome(json["income"].toInt());
 
 		this->win->receiveGame(game); //enables the gameplay as well
-		if(json["country"].toInt() == 1){ //TODO country
-			this->team = 'o';
-		}else{
-			this->team = 'b';
-		}
 		this->isConfigured = true;
 	} else {
 		//normal gameplay
@@ -244,7 +255,13 @@ void Network::onData() {
 */
 		if(keys[0] == "move"){
 			QJsonArray arr = json[keys[0]].toArray();
-			Game::getInstance()->networkAction("move",arr[0].toInt(),arr[1].toInt(),arr[2].toInt(),arr[3].toInt());
+			int x = arr[0].toInt();
+			int y = arr[1].toInt();
+			int newX = arr[2].toInt();
+			int newY = arr[3].toInt();
+			if(x != newX || y != newY){
+				Game::getInstance()->networkAction("move",arr[0].toInt(),arr[1].toInt(),arr[2].toInt(),arr[3].toInt());
+			}
 			if(keys.size() >1 && keys[1] == "attack"){
 				QJsonArray vic = json[keys[1]].toArray();
 				Game::getInstance()->networkAction("attack",arr[0].toInt(),arr[1].toInt(),vic[0].toInt(),vic[1].toInt());

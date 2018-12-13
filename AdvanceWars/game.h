@@ -49,7 +49,7 @@ public:
 
 	static Game* getInstance();
     void setPath(QString path);
-	void setupGame(int income, int AIcnt, int AIOption, const bool isHost=true); //created a polymorphic function, first is called
+	void setupGame(int income, bool orangeBegins, int AIcnt, int AIOption, const bool isHost=true); //created a polymorphic function, first is called
     void setupGame(const bool isHost = true);                                  //from starting window, second is called from Network,
     void setIntMap(std::vector<std::vector<int> > & map);                      //will need to be adapted
     std::vector<std::vector<int> > &getIntMap();
@@ -67,7 +67,7 @@ public:
 	GameObject* addGameObject(GameObject* go, int x, int y, const char team='\0');
 	Unit* addUnit(Unit* un, int x, int y, const char team, bool net=false);
 	void move(int dir, bool net=false, bool justPassing=false);
-    bool moveTo(int x, int y);
+	bool moveTo(int x, int y, bool net=false);
 	void setAttack();
 	void attack(int dir);
 	void click(int x, int y);
@@ -95,7 +95,7 @@ private:
 	void testCaptureAndHealing(Unit*);
     bool testEndOfGame();
     std::vector<int> currentDirections;
-    unsigned int currentI = 0;
+	unsigned int currentI;
 
 public slots:
     void onTimerStart();

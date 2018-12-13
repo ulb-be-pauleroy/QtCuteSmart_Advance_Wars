@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->ui->pushButton_2->hide();
     //QObject::connect(&tim, SIGNAL(timeout()), this, SLOT(refresh()));
     //tim.start(50);
-
+	this->isAnimating = false;
 
 }
 
@@ -102,8 +102,8 @@ void MainWindow::paintEvent(QPaintEvent *)
     col2.setAlpha(100);
 
 	if(this->game){
-    for(int i = 0; i < this->game->getIntMap().size() ; i++){
-        for(int j = 0; j < this->game->getIntMap()[i].size() ; j++){
+	for(unsigned int i = 0; i < this->game->getIntMap().size() ; i++){
+		for(unsigned int j = 0; j < this->game->getIntMap()[i].size() ; j++){
 			QImage img = imageMap[i][j]->scaledToWidth(blk_size);
 			int x = int(i) * blk_size;
 			int r = img.height()-img.width();

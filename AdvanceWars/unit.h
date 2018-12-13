@@ -4,7 +4,6 @@
 //each time a sub-class object is created
 
 #include<vector>
-//#include<list>
 #include "edge.h"
 #include "validmove.h"
 #include "gameobject.h"
@@ -26,7 +25,7 @@ class Unit : public GameObject{
 	int price;
     Building* capturing;
 
-    std::vector<Edge> ee[XDIM * YDIM]; //static + still hardcoded
+	std::vector<Edge> ee[XDIM * YDIM]; // TODO static + still hardcoded
 	std::vector<int> last;
 	int parent[XDIM*YDIM];
 
@@ -39,7 +38,7 @@ public:
     int getPrice() const;
     int getUnitType() const;
     char getTeam() const;
-    void sufferDamage(int & dmg);
+	bool sufferDamage(int & dmg);
     void die();
     virtual bool move(int dir, int terrainMod);
     //bool operator== (Unit& un) const;

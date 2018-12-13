@@ -54,9 +54,9 @@ void Unit::attack(Unit & un, bool counter){
 				Game::getInstance()->getTerrainDefenseModifier(un, un.getPosX(),un.getPosY()))/100;
 		cout << dmg << endl;
 		int dm = (int)(dmg/10 +0.5); //should do the rounding
-		un.sufferDamage(dm);
+		bool died = un.sufferDamage(dm);
 		this->endTurn();
-		if(!counter){
+		if(!counter && !died){
 			un.attack(*this, true); // to prevent infinite loop
 		}
 	}
@@ -89,12 +89,14 @@ char Unit::getTeam() const
 	return this->team;
 }
 
-void Unit::sufferDamage(int & dmg){
+bool Unit::sufferDamage(int & dmg){
     cout<< this << " got "<< dmg <<" damage!"<<endl;
     this->health -= dmg;
     if(this->health <=0){
 		this->die();
+		return true;
     }
+	return false;
 }
 
 void Unit::die()
