@@ -25,9 +25,11 @@ class Unit : public GameObject{
 	int price;
     Building* capturing;
 
-	std::vector<Edge> ee[XDIM * YDIM]; // TODO static + still hardcoded
+	//std::vector<Edge> ee[XDIM * YDIM]; // TODO static + still hardcoded
+	std::vector<std::vector<Edge> > ee;
 	std::vector<int> last;
-	int parent[XDIM*YDIM];
+	//int parent[XDIM*YDIM];
+	std::vector<int> parent;
 
 
 public:

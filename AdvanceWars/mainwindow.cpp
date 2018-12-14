@@ -132,6 +132,10 @@ void MainWindow::paintEvent(QPaintEvent *)
                         QImage im = bmUnitImages[un->getUnitType()]->scaledToWidth(blk_size);
                         painter.drawImage(QPoint(i*blk_size, j*blk_size), im);
                     }
+                    if(un->getHealth() != 10){
+                        painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size/10,QColor(Qt::red));
+                        painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size*(float)un->getHealth()/10,this->blk_size/10,QColor(Qt::green));
+                    }
 
 				}
 			}

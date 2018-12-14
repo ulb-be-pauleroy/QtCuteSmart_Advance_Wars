@@ -517,18 +517,19 @@ void Game::attack(int dir)
 
 void Game::click(int x, int y)
 {
-	if(!this->map[x][y].empty()){
+	if(x <= size_x && y <= size_y && !this->map[x][y].empty()){
 		//for(GameObject& go : this->map[x][y]){ //just dont use range-based, doesnt work, wild pointers
-		vector<GameObject*>::iterator itr;
-		vector<GameObject*> tile = this->map[x][y]; //to prevent concurrentModificationException
-        for(itr = tile.begin(); itr != tile.end(); itr++){
-			if(Factory* fac = dynamic_cast<Factory*>(*itr)){
+        //vector<GameObject*>::iterator itr;
+        vector<GameObject*>& tile = this->map[x][y]; //to prevent concurrentModificationException
+        for(unsigned int i=0;i<tile.size();i++){
+        //for(itr = tile.begin(); itr != tile.end(); itr++){
+            if(Factory* fac = dynamic_cast<Factory*>(tile[i])){
 				if((fac->getOwner() == 'o' && this->orange_on_turn)
 					|| (fac->getOwner()=='b' && !this->orange_on_turn)){ //tests for selecting enemy fac
 						this->selected_factory = fac;
 				}
 			}
-			(*itr)->interactWith();
+            (tile[i])->interactWith();
 		/*
 		if(go->getType() == "Factory" || go->getType() == "City"){
 			go->select();
@@ -783,6 +784,7 @@ char Game::getTeamOnTurn() const
 void Game::endTurn(bool net)
 {
     cout<< "End turn"<<endl;
+    QCoreApplication::processEvents();
 	this->selected_unit = NULL;
 	vector<Unit*>::iterator it;
     if(this->orange_on_turn){
@@ -793,7 +795,11 @@ void Game::endTurn(bool net)
 		if(network && !net) this->network->sendData("endTurn");
 		if(!testEndOfGame()){
 			this->orange_on_turn = false;
-            this->money_orange += this->computeIncome('b');
+			/*
+			for(it = this->units_blue.begin(); it!=this->units_blue.end();it++){
+						(*it)->newTurn();
+			}*/
+            this->money_orange += this->computeIncome('o');
             if(this->units_blue.size() != 0){
                 this->selected_unit = this->units_blue[0];
             }
@@ -821,7 +827,11 @@ void Game::endTurn(bool net)
 		if(network && !net) this->network->sendData("endTurn");
 		if(!testEndOfGame()){
 			this->orange_on_turn = true;
-            this->money_blue += this->computeIncome('o');
+			/*
+			for(it = this->units_orange.begin(); it!=this->units_orange.end();it++){
+				(*it)->newTurn();
+			}*/
+            this->money_blue += this->computeIncome('b');
             if(this->units_orange.size() != 0){
                 this->selected_unit = this->units_orange[0];
             }
@@ -860,6 +870,7 @@ void Game::changeIndex(Building *bl, char initialOwner) //changes index of build
     else if (bl->getOwner() == 'o' && initialOwner == '\0' ){
         this->intMap[bl->getPosX()][bl->getPosY()] += 4;
     }
+    /*
     unsigned int x = this->buildings.size();
     if (initialOwner == 'b'){
         for (unsigned int i =0; i<x; i++){
@@ -874,7 +885,7 @@ void Game::changeIndex(Building *bl, char initialOwner) //changes index of build
                 buildings[i]->setOwner('b');
             }
         }
-    }
+    }*/
 }
 
 int Game::computeIncome(char pl){
@@ -907,7 +918,7 @@ void Game::testCaptureAndHealing(Unit* un)
         //cout << city << endl;
         if(bl != NULL) { // go->getType() == "building")
             char initialOwner = bl->getOwner();
-            bl->capture(un);
+            if(bl->getOwner() != un->getTeam()) bl->capture(un);
 			//if(this->network) this->network->sendData("capture",un->getPosX(),un->getPosY());
             if(bl->getOwner() == un->getTeam()){
                 bl->healUnit(un);

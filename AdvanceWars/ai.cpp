@@ -58,11 +58,6 @@ void AI::play()
         pair<vector<Unit*>, int> p(v,0);
         std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases = this->makePurchases(this->myMoney[0],p); //make_pair(v,0));
         newUnits.insert(newUnits.end(),purchases.begin(),purchases.end());
-        /*
-        std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > >::iterator it;
-        for(it = newUnits.begin();it!=newUnits.end();it++){ //TODO very buggy !! also in recursion !!
-            if((*it).second.first > this->myMoney) newUnits.erase(it);
-        }*/
         //}
 
         vector<Unit*>& myUnits = * Game::getInstance()->getUnits(this->myTeam);
@@ -106,7 +101,6 @@ void AI::play()
                 this->th_cnt++;
                 //thread->start();
             }
-            // TODO zero or one ?!
             /*
         this->playFutureTurn(0,futureUnits,this->myMoney,newUnits); // TODO create thread (max cca 160 for recon)
         int max = -1;
@@ -182,7 +176,7 @@ void AI::make_sequence(int depth, std::vector<std::vector<std::pair<Unit *, int>
 	}
 	this->meOnTurn = !this->meOnTurn;
 	//launch enemy turn
-	if(this->meOnTurn && depth < MAXDEPTH){ // my depth is the same as enemy-s TODO check
+	if(this->meOnTurn && depth < MAXDEPTH){ // my depth is the same as enemy-s
 		for(unsigned int i=0;i<this->myCases[depth-1].size();i++){
 			this->playFutureTurn(depth,(this->myCases[depth-1])[i],this->myMoney[depth]+Game::getInstance()->computeIncome(this->myTeam),this->myBuildCases[depth]);
 		}
@@ -219,7 +213,7 @@ void AI::make_sequence(int depth, std::vector<std::vector<std::pair<Unit *, int>
 			}
 		}
 	}else if(!this->meOnTurn && depth > 0){
-        int enemyRating; //TODO myCases[1][0] not accessible -> segfault
+		int enemyRating;
 		for(unsigned int i=0;i<myCases[depth].size();i++){
 			int imax = -1;
 			int imaxI;
@@ -239,7 +233,6 @@ void AI::make_sequence(int depth, std::vector<std::vector<std::pair<Unit *, int>
 		}
     }
 
-	//TODO unit purchase ratings
 }
 
 void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units, int money, std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > &builtUnits)
@@ -248,7 +241,7 @@ void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units,
 	std::vector<std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > > newUnits;
 	std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > passUnits;
 	for(unsigned int i=0;i<builtUnits.size();i++){
-		int balance = money - builtUnits[i].second.first;// + Game::getInstance()->computeIncome(this->team); //TODO set team
+		int balance = money - builtUnits[i].second.first;
 		//if(balance > 0){
 			pair<vector<Unit*>,int> p = make_pair(builtUnits[i].first,builtUnits[i].second.second); //int is rating
 			std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases;
@@ -386,7 +379,7 @@ void AI::choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >& poss){
 			if(0 == rand()%3){ //maybe try different values
 				if(pos != maxI[0] && pos != maxI[1] && pos != maxI[2]){
 					vector<pair<Unit*,int> >::iterator itr = poss.begin() + pos;
-					delete poss[pos].first; //TODO memory leak
+					delete poss[pos].first; //no memory leak
 					poss.erase(itr);
 				}
 				/*
@@ -414,7 +407,7 @@ void AI::choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >& poss){
 
 std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > AI::makePurchases(int money, std::pair<std::vector<Unit *>, int> & buildCase)
 {	 //TODO make use of input
-	std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > result; //TODO internal variable
+	std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > result;
 	result.push_back(make_pair(vector<Unit*>(),make_pair(money,0))); //can always build nothing
 
 	char team = this->getActiveTeam();
@@ -439,40 +432,6 @@ std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > AI::makePurch
     this->generatePurchasePossibilities(money,fac_cnt,air_cnt,cs);
 	//TODO misses no builts
 
-	/*
-	int newCase[this->factories.size()]; //TODO more cases
-	int totalRating;
-	for(unsigned int i=0;i<this->factories.size();i++){
-		newCase[i] = -1; // default = no build
-		int rating = -1;
-		if(Airport* air = dynamic_cast<Airport*>(this->factories[i])){
-			for(int j=8;j<11;j++){
-				int newR = this->ratePurchase(j,money);
-				if(newR > rating){
-					newCase[i] = j;
-					rating = newR;
-				}
-			}
-		}else{
-			for(int j=0;j<8;j++){
-				int newR = this->ratePurchase(j,money);
-				if(newR > rating){
-					newCase[i] = j;
-					rating = newR;
-				}
-			}
-		}
-		totalRating += rating;
-	}
-	int cost = 0;
-	vector<Unit*> units;
-	for(unsigned int i=0;i<this->factories.size();i++){
-		int x = this->factories[i]->getPosX();
-		int y = this->factories[i]->getPosY();
-		units.push_back(this->buildUnit(x,y,newCase[i]));
-		cost += units[i]->getPrice();
-	}
-	result.push_back(make_pair(units,make_pair(cost,totalRating)));*/
 	char enemy;
 	if(!this->meOnTurn){
 		enemy = this->myTeam;
@@ -586,17 +545,19 @@ int AI::rateAction(Unit * un, ValidMove * vm)
 	int rating = 0;
 	vector<GameObject*>& tile = Game::getInstance()->getObjectsOnPos(vm->getPosX(),vm->getPosY());
 	for(unsigned int i=0;i<tile.size();i++){
-		if(Building* bld = dynamic_cast<Building*>(tile[i])){ // TODO verify capture and healing logic
+		if(Building* bld = dynamic_cast<Building*>(tile[i])){
+            rating += 20;
 			if(bld->getOwner() == un->getTeam()){
 				if(un->getHealth() != 10){
-					rating += 3;	//unit can heal
+                    rating += 50;	//unit can heal
 				}
 			}else{
 				if(un->getType() == "InfantryUnit"){
-					rating += 2*un->getHealth();	//building capture + also depends on health
+					rating += 5*un->getHealth();	//building capture + also depends on health
 					if(un->getPosX() == vm->getPosX() && un->getPosY() == vm->getPosY()){
-						rating += 10; // continuing capture
+                        rating += 30; // continuing capture
 					}
+					if(bld->getOwner() != '\0') rating += 20; //capturing enemy building
 				}
 			}
 			break;
@@ -619,8 +580,8 @@ int AI::ratePurchase(int type, int money, const std::vector<int> & enemyUnits)
 	//Unit* un = this->buildUnit(0,0,type);
 	if(this->unitCost[type] > money){
 		return 0;
-	}else if(enemyUnits.size() == 0){ //TODO when AI opening game
-		const int ratings[11] = {3,1,3,4,6,5,4,5,6,2,2};
+	}else if(enemyUnits.size() == 0){ //when AI opening game
+		const int ratings[11] = {3,1,5,4,6,5,4,5,6,2,2}; // random numbers
 		return ratings[type];
 	}else{
 		int rating =0;
@@ -633,7 +594,7 @@ int AI::ratePurchase(int type, int money, const std::vector<int> & enemyUnits)
 
 int AI::rateAttack(Unit * un, Unit * target)
 {
-	int rating = this->dmg_chart[un->getUnitType()][target->getUnitType()] /4; //TODO try different values
+    int rating = this->dmg_chart[un->getUnitType()][target->getUnitType()] /1; //TODO try different values
 	if(un->getUnitType() >= target->getUnitType()){
 		rating += 5;
 	}
@@ -704,7 +665,6 @@ void AI::buyUnits(std::vector<Unit *> units)
 	for(unsigned int i=0;i<units.size();i++){
 		Game::getInstance()->click(units[i]->getPosX(),units[i]->getPosY());
         Game::getInstance()->buyUnit(units[i]->getUnitType()+1); // setup to use keyboard
-        //TODO might not work with airunits
 	}
 }
 

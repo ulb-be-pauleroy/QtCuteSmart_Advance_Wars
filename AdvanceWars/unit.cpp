@@ -42,20 +42,24 @@ Unit::Unit(int x, int y, int type, char team) : GameObject(x,y){
     if(team != 'o' && team != 'b'){
 		cout<< "Error: Team does not exist! "<<team<<endl;
 	}
+	vector<int> v(size_x*size_y);
+	this->parent = v;
+	vector<vector<Edge> > ve(size_x*size_y, vector<Edge>());
+	this->ee = ve;
 }
 
 void Unit::attack(Unit & un, bool counter){
     // TODO verify the formula
 	//Damage = B * A_HP / 10 * (100 - D_TR * D_HP) / 100
 	//rounding: 1/3 -> 0	1/2, 3/4, 5/4 -> 1		7/4, 9/4 -> 2
-	if(this->moves_left > 0){
+	if(this->moves_left > 0 || counter){
 		double dmg = (double)Unit::dmg_chart[this->type][un.getUnitType()] *
 				this->getHealth()/10 * (100 - un.getHealth() *
 				Game::getInstance()->getTerrainDefenseModifier(un, un.getPosX(),un.getPosY()))/100;
 		cout << dmg << endl;
 		int dm = (int)(dmg/10 +0.5); //should do the rounding
 		bool died = un.sufferDamage(dm);
-		this->endTurn();
+		if(!counter) this->endTurn();
 		if(!counter && !died){
 			un.attack(*this, true); // to prevent infinite loop
 		}

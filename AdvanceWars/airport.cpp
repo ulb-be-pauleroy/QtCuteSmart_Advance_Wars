@@ -23,13 +23,14 @@ void Airport::buy(int type)
 	std::cout<<"Buying unit"<<std::endl;
 	Unit* un = NULL;
 	switch(type){
-		case 1:
+		//9, 10 and 11 for AI
+		case 1: case 9:
 			un = new AirUnit(this->posX, this->posY, 8, this->owner); //b-copter
 			break;
-		case 2:
+		case 2: case 10:
 			un = new AirUnit(this->posX, this->posY, 9, this->owner); //fighter
 			break;
-		case 3:
+		case 3: case 11:
 			un = new AirUnit(this->posX, this->posY, 10, this->owner); //bomber
 			break;
 		default:
@@ -39,6 +40,7 @@ void Airport::buy(int type)
 		int price = un->getPrice();
 		if(price <= Game::getInstance()->getBalance(this->owner)){
 			Game::getInstance()->addUnit(un, this->posX,this->posY,this->owner);
+			un->endTurn();
 			Game::getInstance()->pay(un->getPrice(), this->owner);
 		}else{
 			std::cout<<"Not enough money"<<std::endl;
