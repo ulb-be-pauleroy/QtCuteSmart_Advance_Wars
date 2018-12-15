@@ -62,7 +62,7 @@ void Game::setupGame(int income, bool orangeBegins, int AIcnt, int AIOption, boo
         this->ai[0] = new AI(1,'b', this->buildings);
     }
 }
-
+/*
 void Game::setupGame(const bool isHost)
 {
     if(isHost){
@@ -80,6 +80,21 @@ void Game::setupGame(const bool isHost)
     }else{
         this->ai[0] = new AI(1,'b', this->buildings);
     }
+}
+*/
+
+Game::~Game(){
+	cout<< "Deleting game"<<endl;
+	for(int i=0;i<size_x;i++){
+		for(int j=0;j<size_y;j++){
+			vector<GameObject*>& tile = this->map[i][j];
+			for(unsigned int k =0;k<tile.size();k++){
+				delete tile[k];
+			}
+		}
+	}
+	if(ai[0]) delete ai[0];
+	if(ai[1]) delete ai[1];
 }
 
 void Game::setIntMap(std::vector<std::vector<int> > & map){

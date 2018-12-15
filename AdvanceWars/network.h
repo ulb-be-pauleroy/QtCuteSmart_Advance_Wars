@@ -20,7 +20,7 @@ class Network : public QObject
 
 public:
 	explicit Network(QString, MainWindow* wn, QObject *parent = 0);
-	virtual ~Network() {}
+	virtual ~Network();
 	void sendData(QString type, int x=0, int y=0, int data=0, int data2=0);
 	char getTeam() const;
 

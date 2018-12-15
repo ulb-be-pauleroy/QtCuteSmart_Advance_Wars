@@ -36,6 +36,12 @@ Network::Network(QString hostIP, MainWindow *wn, QObject *parent) : QObject(pare
 	QObject::connect(this->server, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
 }
 
+Network::~Network(){
+	delete this->server;
+	if(this->other) delete this->other;
+	delete Game::getInstance();
+}
+
 void Network::onNewConnection() {
 	std::cout << "A new client is connecting !" << std::endl;
 	this->other = this->server->nextPendingConnection();

@@ -63,6 +63,7 @@ void Factory::buy(int type)
 				Game::getInstance()->pay(un->getPrice(), this->owner);
 			}else{
 				std::cout<<"Not enough money"<<std::endl;
+				delete un; //causes segfault, idk why
 			}
 		}
 	}

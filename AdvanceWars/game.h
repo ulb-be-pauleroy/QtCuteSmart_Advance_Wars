@@ -45,11 +45,12 @@ class Game{
     MainWindow* wn;
 
 public:
+	~Game();
 
 	static Game* getInstance();
     void setPath(QString path);
 	void setupGame(int income, bool orangeBegins, int AIcnt, int AIOption, const bool isHost=true); //created a polymorphic function, first is called
-    void setupGame(const bool isHost = true);                                  //from starting window, second is called from Network,
+	//void setupGame(const bool isHost = true);                                  //from starting window, second is called from Network,
     void setIntMap(std::vector<std::vector<int> > & map);                      //will need to be adapted
     std::vector<std::vector<int> > &getIntMap();
     void receiveNetwork(Network* net);
