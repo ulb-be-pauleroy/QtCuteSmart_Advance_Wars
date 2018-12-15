@@ -13,31 +13,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->game = NULL;
 	this->network = NULL;
 	this->isAnimating = false;
-    QSignalMapper* mapper = new QSignalMapper(this);
-    connect(ui->InfantryButton, SIGNAL(clicked()), mapper, SLOT(map()));
-    connect(ui->BazookaButton, SIGNAL(clicked()), mapper, SLOT(map()));
-    connect(ui->ReconButton, SIGNAL(clicked()), mapper, SLOT(map()));
-    connect(ui->AntiAirButton, SIGNAL(clicked()), mapper, SLOT(map()));
-    connect(ui->TankButton, SIGNAL(clicked()), mapper, SLOT(map()));
-    connect(ui->MdTankButton, SIGNAL(clicked()), mapper, SLOT(map()));
-    connect(ui->MegaTankButton, SIGNAL(clicked()), mapper, SLOT(map()));
-    connect(ui->NeoTankButton, SIGNAL(clicked()), mapper, SLOT(map()));
-    connect(ui->TCopterButton, SIGNAL(clicked()), mapper, SLOT(map()));
-    connect(ui->FighterButton, SIGNAL(clicked()), mapper, SLOT(map()));
-    connect(ui->BomberButton, SIGNAL(clicked()), mapper, SLOT(map()));
-
-    mapper->setMapping(ui->InfantryButton, 1);
-    mapper->setMapping(ui->BazookaButton, 2);
-    mapper->setMapping(ui->ReconButton, 3);
-    mapper->setMapping(ui->AntiAirButton, 4);
-    mapper->setMapping(ui->TankButton, 5);
-    mapper->setMapping(ui->MdTankButton, 6);
-    mapper->setMapping(ui->MegaTankButton, 7);
-    mapper->setMapping(ui->NeoTankButton, 8);
-    mapper->setMapping(ui->TCopterButton, 1);
-    mapper->setMapping(ui->FighterButton, 2);
-    mapper->setMapping(ui->BomberButton, 3);
-    connect(mapper, SIGNAL(mapped(int)), this, SLOT(UnitButtonPushed(int)));
+    setButtons();
+    ui->UnitCostLayout->hide();
 
 }
 
@@ -58,13 +35,13 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 {
 	if(!this->network || (this->network->getTeam() == game->getTeamOnTurn())){
 	switch(event->key()){
-		case Qt::Key_Up: game->move(0); break;
-		case Qt::Key_Down: game->move(1); break;
-		case Qt::Key_Left: game->move(2); break;
-		case Qt::Key_Right: game->move(3); break;
+        case Qt::Key_Z: game->move(0); break;
+        case Qt::Key_S: game->move(1); break;
+        case Qt::Key_Q: game->move(2); break;
+        case Qt::Key_D: game->move(3); break;
 		case Qt::Key_A: game->setAttack(); break;
 		case Qt::Key_Tab: game->cycleUnits(1); break;
-		case Qt::Key_Space: game->endTurn(); break;
+        case Qt::Key_T: game->endTurn(); break;
 
 		case Qt::Key_1: game->buyUnit(1); break;
 		case Qt::Key_2: game->buyUnit(2); break;
@@ -178,9 +155,7 @@ void MainWindow::receiveGame(Game* gm)
     unsigned int y = this->blk_size*this->game->getIntMap()[1].size();
     setFixedSize(x+500, y);
     ui->InfoLayout->setGeometry(x, 0, 500, y/4);
-    ui->UnitCostLayout_2->setGeometry(x, 3*y/4, 500, y/4);
-
-
+    ui->UnitCostLayout_2->setGeometry(x, y/2, 500, y/2);
 
     ui->HealthPointsCounter->display(0);
     ui->BlueMoneyCounter->display(game->getBalance('b'));
@@ -240,6 +215,46 @@ void MainWindow::reloadImage(int x, int y)
     qDebug() << this->game->getIntMap()[x][y];
     this->update();
     qDebug() << "j'ai sélectionné une nouvelle image!";
+}
+
+void MainWindow::setButtons()
+{
+    QSignalMapper* mapper = new QSignalMapper(this);
+    connect(ui->InfantryButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    ui->InfantryButton->setIcon(QIcon(":/Units/Images/Units/osinfantry.gif"));
+    connect(ui->BazookaButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    ui->BazookaButton->setIcon(QIcon(":/Units/Images/Units/osmech.gif"));
+    connect(ui->ReconButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    ui->ReconButton->setIcon(QIcon(":/Units/Images/Units/osrecon.gif"));
+    connect(ui->AntiAirButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    ui->AntiAirButton->setIcon(QIcon(":/Units/Images/Units/osanti-air.gif"));
+    connect(ui->TankButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    ui->TankButton->setIcon(QIcon(":/Units/Images/Units/ostank.gif"));
+    connect(ui->MdTankButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    ui->MdTankButton->setIcon(QIcon(":/Units/Images/Units/osmd-tank.gif"));
+    connect(ui->MegaTankButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    ui->MegaTankButton->setIcon(QIcon(":/Units/Images/Units/osmegatank.gif"));
+    connect(ui->NeoTankButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    ui->NeoTankButton->setIcon(QIcon(":/Units/Images/Units/osneotank.gif"));
+    connect(ui->TCopterButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    ui->TCopterButton->setIcon(QIcon(":/Units/Images/Units/osb-copter.gif"));
+    connect(ui->FighterButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    ui->FighterButton->setIcon(QIcon(":/Units/Images/Units/osfighter.gif"));
+    connect(ui->BomberButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    ui->BomberButton->setIcon(QIcon(":/Units/Images/Units/osbomber.gif"));
+
+    mapper->setMapping(ui->InfantryButton, 1);
+    mapper->setMapping(ui->BazookaButton, 2);
+    mapper->setMapping(ui->ReconButton, 3);
+    mapper->setMapping(ui->AntiAirButton, 4);
+    mapper->setMapping(ui->TankButton, 5);
+    mapper->setMapping(ui->MdTankButton, 6);
+    mapper->setMapping(ui->MegaTankButton, 7);
+    mapper->setMapping(ui->NeoTankButton, 8);
+    mapper->setMapping(ui->TCopterButton, 1);
+    mapper->setMapping(ui->FighterButton, 2);
+    mapper->setMapping(ui->BomberButton, 3);
+    connect(mapper, SIGNAL(mapped(int)), this, SLOT(UnitButtonPushed(int)));
 }
 
 void MainWindow::UnitButtonPushed(int a)

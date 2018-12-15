@@ -37,6 +37,7 @@ public:
 	void receiveNetwork(Network* net);
     void loadImages();
     void reloadImage(int x, int y);
+    void setButtons();
 
 public slots:
     void UnitButtonPushed(int a);
