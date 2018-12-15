@@ -35,7 +35,7 @@ class AI : public QObject
 
 public:
     AI(int type, char, const std::vector<Building*>&);
-	virtual ~AI() {} //memory leak
+	virtual ~AI() {} //memory leak if game killed while thinking
 	void play();
 
 public slots:

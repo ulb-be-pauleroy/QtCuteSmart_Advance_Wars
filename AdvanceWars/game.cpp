@@ -24,7 +24,7 @@ Game *Game::getInstance(){
     return Game::instance;
 }
 
-void Game::setPath(QString path)
+void Game::setPath()
 {
 	unsigned int x = intMap.size();
 	unsigned int y = intMap[0].size();
@@ -53,13 +53,13 @@ void Game::setupGame(int income, bool orangeBegins, int AIcnt, int AIOption, boo
 	this->money_blue = this->income;
 	if(isHost){
 		this->intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
-		this->setPath(":/Map/Images/Maps/Map.txt");
+		this->setPath();
         if(AIcnt && !this->network) this->ai[0] = new AI(AIOption,'b', this->buildings);
-        if(AIcnt == 2 && !this->network) this->ai[1] = new AI(1,'o', this->buildings);
-		this->selected_x = 1;
-		this->selected_y = 1;
+		if(AIcnt == 2 && !this->network) this->ai[1] = new AI(AIOption,'o', this->buildings);
+		//this->selected_x = 1;
+		//this->selected_y = 1;
 	}else{
-        this->ai[0] = new AI(1,'b', this->buildings);
+		if(AIcnt) this->ai[0] = new AI(AIOption,'b', this->buildings);
     }
 }
 /*
@@ -330,8 +330,8 @@ void Game::move(int dir, bool net, bool justPassing)
 			x = this->selected_unit->getPosX();
 			y = this->selected_unit->getPosY();
 			this->map[x][y].push_back(this->selected_unit);
-			this->selected_x = x;
-			this->selected_y = y;
+			//this->selected_x = x;
+			//this->selected_y = y;
 		}else{
 			this->unitFusing = false;
             if(newX>= 0 && newY>= 0 && newX<size_x && newY<size_y && !testObstacle(newX,newY)){
@@ -356,8 +356,8 @@ void Game::move(int dir, bool net, bool justPassing)
 					x = this->selected_unit->getPosX();
 					y = this->selected_unit->getPosY();
 					this->map[x][y].push_back(this->selected_unit);
-					this->selected_x = x;
-					this->selected_y = y;
+					//this->selected_x = x;
+					//this->selected_y = y;
 					this->unitFusing = false;
 					this->drawPossibleMoves();
                     this->wn->update();
@@ -507,13 +507,13 @@ void Game::buyUnit(int type)
 void Game::selectUnit(Unit* un){
 	if(this->orange_on_turn && find(this->units_orange.begin(),this->units_orange.end(),un) != this->units_orange.end()){
 		this->selected_unit = un;
-		this->selected_x = this->selected_unit->getPosX();
-		this->selected_y = this->selected_unit->getPosY();
+		//this->selected_x = this->selected_unit->getPosX();
+		//this->selected_y = this->selected_unit->getPosY();
 		this->drawPossibleMoves();
 	}else if(!this->orange_on_turn && find(this->units_blue.begin(),this->units_blue.end(),un) != this->units_blue.end()){
 		this->selected_unit = un;
-		this->selected_x = this->selected_unit->getPosX();
-		this->selected_y = this->selected_unit->getPosY();
+		//this->selected_x = this->selected_unit->getPosX();
+		//this->selected_y = this->selected_unit->getPosY();
 		this->drawPossibleMoves();
     }else if(this->orange_on_turn && find(this->units_blue.begin(),this->units_blue.end(),un) != this->units_blue.end()){
         //attacking a blue unit
@@ -606,8 +606,8 @@ void Game::cycleUnits(int dir)
     }
 	if((this->orange_on_turn && this->units_orange.size() != 0) || (!this->orange_on_turn && this->units_blue.size() != 0)){
 		this->selected_unit = *it;
-		this->selected_x = this->selected_unit->getPosX();
-		this->selected_y = this->selected_unit->getPosY();
+		//this->selected_x = this->selected_unit->getPosX();
+		//this->selected_y = this->selected_unit->getPosY();
 		//cout << this->selected_unit << endl;
 		this->drawPossibleMoves();
 	}
@@ -683,7 +683,7 @@ void Game::drawPossibleMoves(){
 		this->map[vm->getPosX()][vm->getPosY()].push_back(vm);
 	}
 }
-
+/*
 int Game::getSelectedX(){
     return this->selected_x;
 }
@@ -691,7 +691,7 @@ int Game::getSelectedX(){
 int Game::getSelectedY(){
     return this->selected_y;
 }
-
+*/
 char Game::getTeamOnTurn() const
 {
 	if(this->orange_on_turn){

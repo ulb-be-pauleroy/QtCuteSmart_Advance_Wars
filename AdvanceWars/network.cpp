@@ -117,7 +117,7 @@ void Network::onData() {
 		if(!json["map"].isArray()){ //TODO array, parameter map num
 			std::vector<std::vector<int> > intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
 			game->setIntMap(intMap);
-			game->setPath(":/Map/Images/Maps/Map.txt");
+			game->setPath();
 		}else{
 			std::vector<std::vector<int> > intMap;
 			QJsonArray map = json["map"].toArray();
@@ -129,7 +129,7 @@ void Network::onData() {
 				}
 			}
 			game->setIntMap(intMap);
-			game->setPath(":/Map/Images/Maps/Map.txt");
+			game->setPath();
 
 		}
 

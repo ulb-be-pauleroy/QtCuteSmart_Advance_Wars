@@ -10,6 +10,6 @@ Network: transmission client->server peut ne pas passer (deadlock si endturn) - 
 StartingWindows -- English please :)
 les boutons ne compilent pas
 segfault a getHealth dans MainWindow
-AI vs AI n affiche rien a l'écran
+AI vs AI n affiche rien a l'écran - fixed
 NetWork est vraiment buggé
 seulement des Infantry peuvent capturer? pas des Bazooka?
