@@ -13,6 +13,31 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->game = NULL;
 	this->network = NULL;
 	this->isAnimating = false;
+    QSignalMapper* mapper = new QSignalMapper(this);
+    connect(ui->InfantryButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    connect(ui->BazookaButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    connect(ui->ReconButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    connect(ui->AntiAirButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    connect(ui->TankButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    connect(ui->MdTankButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    connect(ui->MegaTankButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    connect(ui->NeoTankButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    connect(ui->TCopterButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    connect(ui->FighterButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    connect(ui->BomberButton, SIGNAL(clicked()), mapper, SLOT(map()));
+
+    mapper->setMapping(ui->InfantryButton, 1);
+    mapper->setMapping(ui->BazookaButton, 2);
+    mapper->setMapping(ui->ReconButton, 3);
+    mapper->setMapping(ui->AntiAirButton, 4);
+    mapper->setMapping(ui->TankButton, 5);
+    mapper->setMapping(ui->MdTankButton, 6);
+    mapper->setMapping(ui->MegaTankButton, 7);
+    mapper->setMapping(ui->NeoTankButton, 8);
+    mapper->setMapping(ui->TCopterButton, 1);
+    mapper->setMapping(ui->FighterButton, 2);
+    mapper->setMapping(ui->BomberButton, 3);
+    connect(mapper, SIGNAL(mapped(int)), this, SLOT(UnitButtonPushed(int)));
 
 }
 
@@ -151,8 +176,9 @@ void MainWindow::receiveGame(Game* gm)
     this->update();
     unsigned int x = this->blk_size*this->game->getIntMap().size();
     unsigned int y = this->blk_size*this->game->getIntMap()[1].size();
-    setFixedSize(x+400, y);
-    ui->widget->setGeometry(x, 0, 400, y);
+    setFixedSize(x+500, y);
+    ui->InfoLayout->setGeometry(x, 0, 500, y/4);
+    ui->UnitCostLayout_2->setGeometry(x, 3*y/4, 500, y/4);
 
 
 
@@ -216,9 +242,8 @@ void MainWindow::reloadImage(int x, int y)
     qDebug() << "j'ai sélectionné une nouvelle image!";
 }
 
-void MainWindow::refresh()
+void MainWindow::UnitButtonPushed(int a)
 {
-    this->update();
-    qDebug() << "j'ai dessiné";
+    this->game->buyUnit(a);
 }
 

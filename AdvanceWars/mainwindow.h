@@ -37,8 +37,9 @@ public:
 	void receiveNetwork(Network* net);
     void loadImages();
     void reloadImage(int x, int y);
-private slots:
-    void refresh();
+
+public slots:
+    void UnitButtonPushed(int a);
 
 private:
 	Ui::MainWindow *ui;
