@@ -149,10 +149,10 @@ void Game::networkAction(string type, int x, int y, int data, int data2)
 				break;
 			}
 		}
-		tile = this->map[data][data2];
-		for(unsigned int i=0; i<tile.size();i++){
-			if(tile[i]->getType().find("Unit") != string::npos){
-				victim = dynamic_cast<Unit*>(tile[i]);
+		vector<GameObject*>& tile2 = this->map[data][data2];
+		for(unsigned int i=0; i<tile2.size();i++){
+			if(tile2[i]->getType().find("Unit") != string::npos){
+				victim = dynamic_cast<Unit*>(tile2[i]);
 				break;
 			}
 		}

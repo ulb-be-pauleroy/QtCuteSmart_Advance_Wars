@@ -81,6 +81,7 @@ void StartingWindow::launchGame()
 		if(this->IPAddress == "Please enter IP adress here") this->IPAddress = "127.0.0.1";
 		qDebug() << "Connecting to: "<<this->IPAddress;
 		net = new Network(this->IPAddress,w);
+		net->setGameParameters(income, AIcnt, AIOption);
 	}else{
 		Game* gm = Game::getInstance();
 		gm->setupGame(income,true, AIcnt, AIOption, isHost);
