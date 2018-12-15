@@ -12,8 +12,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->blk_size = 50;
 	this->game = NULL;
 	this->network = NULL;
-    this->ui->pushButton->hide();
-	this->ui->pushButton_2->hide();
 	this->isAnimating = false;
 
 }
@@ -135,13 +133,13 @@ void MainWindow::paintEvent(QPaintEvent *)
 		}
     }
     if(game->getSelected_unit() == NULL){
-        ui->lcdNumber->display(0);
+        ui->HealthPointsCounter->display(0);
     }
     else{
-        ui->lcdNumber->display(game->getSelected_unit()->getHealth());
+        ui->HealthPointsCounter->display(game->getSelected_unit()->getHealth());
     }
-	ui->lcdNumber_3->display(game->getBalance('o'));
-	ui->lcdNumber_4->display(game->getBalance('b'));
+    ui->OrangeMoneyCounter->display(game->getBalance('o'));
+    ui->BlueMoneyCounter->display(game->getBalance('b'));
 	}
 }
 
@@ -151,16 +149,16 @@ void MainWindow::receiveGame(Game* gm)
     gm->setWn(this);
     this->loadImages();
     this->update();
-    setFixedSize((this->blk_size*this->game->getIntMap().size())+400,this->blk_size*this->game->getIntMap()[1].size());
+    unsigned int x = this->blk_size*this->game->getIntMap().size();
+    unsigned int y = this->blk_size*this->game->getIntMap()[1].size();
+    setFixedSize(x+400, y);
+    ui->widget->setGeometry(x, 0, 400, y);
 
-    ui->lcdNumber->setSegmentStyle(QLCDNumber::Flat);
-    ui->lcdNumber->display(5);
 
-    ui->lcdNumber_4->setSegmentStyle(QLCDNumber::Flat);
-	ui->lcdNumber_4->display(game->getBalance('b'));
 
-    ui->lcdNumber_3->setSegmentStyle(QLCDNumber::Flat);
-	ui->lcdNumber_3->display(game->getBalance('o'));
+    ui->HealthPointsCounter->display(0);
+    ui->BlueMoneyCounter->display(game->getBalance('b'));
+    ui->OrangeMoneyCounter->display(game->getBalance('o'));
 
 }
 
