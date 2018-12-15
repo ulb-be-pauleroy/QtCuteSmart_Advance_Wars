@@ -63,7 +63,12 @@ void Unit::attack(Unit & un, bool counter){
 		if(!counter && !died){
 			un.attack(*this, true); // to prevent infinite loop
 		}
-	}
+    }
+}
+
+int Unit::getMovesLeft()
+{
+    return this->moves_left;
 }
 
 int Unit::getHealth() const{

@@ -54,6 +54,7 @@ public:
     virtual std::string getType() const;
     void interactWith();
     void attack(Unit & un, bool counter=false);
+    int getMovesLeft();
 
 private:
     int getPosFromCoord(int x, int y);

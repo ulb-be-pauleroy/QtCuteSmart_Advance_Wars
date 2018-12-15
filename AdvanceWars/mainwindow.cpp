@@ -93,56 +93,58 @@ void MainWindow::paintEvent(QPaintEvent *)
     col1.setAlpha(100);
     col2.setAlpha(100);
 
-	if(this->game){
-	for(unsigned int i = 0; i < this->game->getIntMap().size() ; i++){
-		for(unsigned int j = 0; j < this->game->getIntMap()[i].size() ; j++){
-			QImage img = imageMap[i][j]->scaledToWidth(blk_size);
-			int x = int(i) * blk_size;
-			int r = img.height()-img.width();
-			int y = int(j) * blk_size - r;
+    if(this->game){
+        for(unsigned int i = 0; i < this->game->getIntMap().size() ; i++){
+            for(unsigned int j = 0; j < this->game->getIntMap()[i].size() ; j++){
+                QImage img = imageMap[i][j]->scaledToWidth(blk_size);
+                int x = int(i) * blk_size;
+                int r = img.height()-img.width();
+                int y = int(j) * blk_size - r;
 
-			painter.drawImage(QPoint(x, y), img );
+                painter.drawImage(QPoint(x, y), img );
 
-			std::vector<GameObject*> obj_onPos = this->game->getObjectsOnPos(i,j);
-			std::vector<GameObject*>::iterator it;
+                std::vector<GameObject*> obj_onPos = this->game->getObjectsOnPos(i,j);
+                std::vector<GameObject*>::iterator it;
 
-			for(it=obj_onPos.begin();it!=obj_onPos.end();it++){
-				GameObject* go = *it;
-				if(dynamic_cast<ValidMove*>(go)){
-					if(dynamic_cast<ValidMove*>(go)->isLast()){
-						painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,col2);
-					}else{
-						painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,col1);
-					}
-				}
-				else if(Unit* un = dynamic_cast<Unit*>(go)){
-                    if(un->getTeam() == 'o'){
-                        QImage im = osUnitImages[un->getUnitType()]->scaledToWidth(blk_size);
-                        painter.drawImage(QPoint(i*blk_size, j*blk_size), im);
+                for(it=obj_onPos.begin();it!=obj_onPos.end();it++){
+                    GameObject* go = *it;
+                    if(dynamic_cast<ValidMove*>(go)){
+                        if(dynamic_cast<ValidMove*>(go)->isLast()){
+                            painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,col2);
+                        }else{
+                            painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size-2,col1);
+                        }
                     }
-                    else{
-                        QImage im = bmUnitImages[un->getUnitType()]->scaledToWidth(blk_size);
-                        painter.drawImage(QPoint(i*blk_size, j*blk_size), im);
-                    }
-                    if(un->getHealth() != 10){
-                        painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size/10,QColor(Qt::red));
-                        painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size*(float)un->getHealth()/10,this->blk_size/10,QColor(Qt::green));
-                    }
+                    else if(Unit* un = dynamic_cast<Unit*>(go)){
+                        if(un->getTeam() == 'o'){
+                            QImage im = osUnitImages[un->getUnitType()]->scaledToWidth(blk_size);
+                            painter.drawImage(QPoint(i*blk_size, j*blk_size), im);
+                        }
+                        else{
+                            QImage im = bmUnitImages[un->getUnitType()]->scaledToWidth(blk_size);
+                            painter.drawImage(QPoint(i*blk_size, j*blk_size), im);
+                        }
+                        if(un->getHealth() != 10){
+                            painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size-2,this->blk_size/10,QColor(Qt::red));
+                            painter.fillRect(this->blk_size*i,this->blk_size*j,this->blk_size*(float)un->getHealth()/10,this->blk_size/10,QColor(Qt::green));
+                        }
 
-				}
-			}
-
-		}
+                    }
+                }
+            }
+        }
+        displayUnitInfo();
+        ui->OrangeMoneyCounter->display(game->getBalance('o'));
+        ui->BlueMoneyCounter->display(game->getBalance('b'));
+        if (game->getTeamOnTurn() == 'b'){
+            ui->TurnLabel->setStyleSheet("QLabel { color : blue; }");
+            ui->TurnLabel->setText("BLUE MOON") ;
+        }
+        else if(game->getTeamOnTurn() == 'o') {
+            ui->TurnLabel->setStyleSheet("QLabel { color : orange; }");
+            ui->TurnLabel->setText("Orange STAR");
+        }
     }
-    if(game->getSelected_unit() == NULL){
-        ui->HealthPointsCounter->display(0);
-    }
-    else{
-        ui->HealthPointsCounter->display(game->getSelected_unit()->getHealth());
-    }
-    ui->OrangeMoneyCounter->display(game->getBalance('o'));
-    ui->BlueMoneyCounter->display(game->getBalance('b'));
-	}
 }
 
 void MainWindow::receiveGame(Game* gm)
@@ -154,9 +156,9 @@ void MainWindow::receiveGame(Game* gm)
     unsigned int x = this->blk_size*this->game->getIntMap().size();
     unsigned int y = this->blk_size*this->game->getIntMap()[1].size();
     setFixedSize(x+500, y);
-    ui->InfoLayout->setGeometry(x, 0, 500, y/4);
+    ui->InfoLayout->setGeometry(x, 0, 500, y/8);
+    ui->UnitInfoLayout->setGeometry(x, y/8, 500, 3*y/8);
     ui->UnitCostLayout_2->setGeometry(x, y/2, 500, y/2);
-
     ui->HealthPointsCounter->display(0);
     ui->BlueMoneyCounter->display(game->getBalance('b'));
     ui->OrangeMoneyCounter->display(game->getBalance('o'));
@@ -255,6 +257,30 @@ void MainWindow::setButtons()
     mapper->setMapping(ui->FighterButton, 2);
     mapper->setMapping(ui->BomberButton, 3);
     connect(mapper, SIGNAL(mapped(int)), this, SLOT(UnitButtonPushed(int)));
+}
+
+void MainWindow::displayUnitInfo()
+{
+    Unit* un = this->game->getSelected_unit();
+    if(un){
+        ui->HealthPointsCounter->display(un->getHealth());
+        ui->MovementPointsCounter->display(un->getMovesLeft());
+        QPixmap unitPix;
+        int w = ui->UnitImage->width();
+        int h = ui->UnitImage->height();
+        if(un->getTeam() == 'b'){
+            ui->UnitImage->setPixmap(unitPix.fromImage(*bmUnitImages[un->getUnitType()]).scaled(w,h,Qt::KeepAspectRatio));
+        }
+        else{
+            ui->UnitImage->setPixmap(unitPix.fromImage(*osUnitImages[un->getUnitType()]).scaled(w,h,Qt::KeepAspectRatio));
+        }
+    }
+    else{
+        ui->UnitImage->setPixmap(QPixmap());
+        ui->HealthPointsCounter->display(0);
+    }
+
+
 }
 
 void MainWindow::UnitButtonPushed(int a)

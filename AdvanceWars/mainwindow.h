@@ -38,6 +38,7 @@ public:
     void loadImages();
     void reloadImage(int x, int y);
     void setButtons();
+    void displayUnitInfo();
 
 public slots:
     void UnitButtonPushed(int a);
