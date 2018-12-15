@@ -26,19 +26,10 @@ std::vector<std::vector<int> > MapBuilder::makeIntMap(QString path)
 	s=s1.readAll();
 	QStringList list1 = s.split(QRegExp("\n|\r\n|\r"));
 	vector<QStringList> list2;
-	//for (QString x : list1){
 	for(int i=0;i<list1.size();i++){
 		QString x = list1[i];
 		list2.push_back(x.split(","));
 	}
-	//list2.pop_back();
-   /* vector<QStringList>::iterator it2;
-	for(it2 = list2.begin(); it2 != list2.end(); it2++){
-		for(it1 = it2->begin(); it1 != it2->end(); it1++){
-			qDebug() << *it1;
-		}
-	   qDebug() << "fin de ligne";
-	}*/
 	unsigned int x = list2.size();
 	unsigned int y = list2[0].size();
 	//qDebug() << x; qDebug() << y ;
@@ -100,12 +91,9 @@ void MapBuilder::verifyNumber(int& index)
 
 void MapBuilder::buildTerrainMap(Game* game)
 {
-	//Game* game = Game::getInstance();
 	vector<vector<int> > intMap = game->getIntMap();
 	unsigned int x = intMap.size();
 	unsigned int y = intMap[0].size();
-	//vector<vector<vector<GameObject*> > > mapPro(x, vector<vector<GameObject*> >(y,vector<GameObject*>()));
-	//this->map = mapPro;
 	for(unsigned int i = 0; i != x; i++ ){
 		for (unsigned int j = 0; j != y; j++){
 			switch(intMap[i][j]){
@@ -145,7 +133,6 @@ void MapBuilder::buildTerrainMap(Game* game)
 			 }
 		}
 	}
- //qDebug() << "jai fini les objets!";
-	//return mapPro;
+
 }
 

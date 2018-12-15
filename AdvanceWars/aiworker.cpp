@@ -13,19 +13,7 @@ void AIWorker::process()
 {
 	std::vector<std::pair<Unit*,int> > dat;
 	dat.push_back(this->work);
-/*
-	std::vector<Unit*>* enemyUnits = Game::getInstance()->getUnits('o'); //TODO parameter
-	std::vector<std::pair<Unit*,int> > futureEnemyUnits;
-	for(unsigned int i=0;i<enemyUnits->size();i++){
-		Unit* en_un = enemyUnits->at(i); //TODO
-		futureEnemyUnits.push_back(std::make_pair(this->buildUnit(en_un->getPosX(),en_un->getPosY(),en_un->getUnitType(),en_un->getTeam()),0));
-		//vector<vector<int> > en_poss = this->moveUnit(enemyUnits->at(i));
-	}
-	this->playFutureTurn(1,'o',dat,futureEnemyUnits);
-*/
-	//std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > builtUnits;
 	this->playFutureTurn(1,dat,this->money,this->units);
-	//std::cout<<"Jobs done"<<std::endl;
 	emit finished();
 }
 

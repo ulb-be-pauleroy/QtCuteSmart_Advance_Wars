@@ -13,12 +13,7 @@ void Building::setOwner(char c)
 {
     this->owner = c;
 }
-/*
-void Building::assingOwner(const char c)
-{
-    this->owner = c;
-}
-*/
+
 char Building::getOwner()
 {
 	return this->owner;
@@ -27,7 +22,6 @@ char Building::getOwner()
 void Building::healUnit(Unit * un)
 {
 	if(un->getType() != "AirUnit" && un->getTeam() == this->owner && un->getHealth() != 10){
-		//cost = un->getPrice()/10;
 		Game::getInstance()->pay(un->getPrice()/10, un->getTeam());
 		un->heal(2);
     }

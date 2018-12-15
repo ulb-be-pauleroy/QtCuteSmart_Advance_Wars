@@ -52,13 +52,11 @@ void AI::play()
 
     if(this->type != 0){
         std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > newUnits;
-        //for(unsigned int i=0;i<builtUnits.size();i++){
         vector<Unit*> v;
         v.push_back(NULL);
         pair<vector<Unit*>, int> p(v,0);
         std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases = this->makePurchases(this->myMoney[0],p); //make_pair(v,0));
         newUnits.insert(newUnits.end(),purchases.begin(),purchases.end());
-        //}
 
         vector<Unit*>& myUnits = * Game::getInstance()->getUnits(this->myTeam);
         vector<vector<pair<Unit*,int> > > futureTurn;
@@ -69,7 +67,6 @@ void AI::play()
             vector<vector<int> > poss = this->moveUnit(un);
             vector<pair<Unit*,int> > futureUnits;
 
-            //vector<QThread*> threads;
             this->th_cnt =0;
             this->th_done =0;
             for(unsigned int j=0;j<poss.size();j++){
@@ -97,29 +94,8 @@ void AI::play()
                 connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
                 connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
                 connect(worker, SIGNAL(finished()), this, SLOT(threadEnd()));
-                //threads.push_back(thread);
                 this->th_cnt++;
-                //thread->start();
             }
-            /*
-        this->playFutureTurn(0,futureUnits,this->myMoney,newUnits); // TODO create thread (max cca 160 for recon)
-        int max = -1;
-        int maxI;
-        for(unsigned int j=0;j<futureUnits.size();j++){ //TODO use a data structure for max search
-            if(futureUnits[j].second > max){
-                maxI = j;
-                max = futureUnits[j].second;
-            }
-        }
-
-        this->executeAction(un,futureUnits[maxI].first->getPosX(),futureUnits[maxI].first->getPosY(),attPos);
-        for(unsigned int j=0;j<futureUnits.size();j++){
-            delete futureUnits[j].first; // no memory leak
-        }/*
-        usleep(1000 *1e3);
-        while(this->th_cnt != this->th_done){
-            usleep(10 *1e3);
-        }*/
             futureTurn.push_back(futureUnits);
         }
 
@@ -240,105 +216,76 @@ void AI::playFutureTurn(int depth, std::vector<std::pair<Unit *, int> > & units,
 	// case : list of units, total cost, total rating
 	std::vector<std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > > newUnits;
 	std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > passUnits;
-	for(unsigned int i=0;i<builtUnits.size();i++){
-		int balance = money - builtUnits[i].second.first;
-		//if(balance > 0){
-			pair<vector<Unit*>,int> p = make_pair(builtUnits[i].first,builtUnits[i].second.second); //int is rating
-			std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases;
-			purchases = this->makePurchases(balance,p);
-			passUnits.insert(passUnits.end(),purchases.begin(),purchases.end());
-			newUnits.push_back(purchases);
-		//}
+    for(unsigned int i = 0; i < builtUnits.size(); i++){
+        int balance = money - builtUnits[i].second.first;
+        pair<vector<Unit*>,int> p = make_pair(builtUnits[i].first, builtUnits[i].second.second); //int is rating
+        std::vector<std::pair<std::vector<Unit *>, std::pair<int, int> > > purchases;
+        purchases = this->makePurchases(balance,p);
+        passUnits.insert(passUnits.end(),purchases.begin(),purchases.end());
+        newUnits.push_back(purchases);
+
 
 	}
 	//TODO money math is probably wrong
 	//TODO unit building recursion is overkill
 
-	vector<vector<pair<Unit*,int> > > futureTurn;
-	for(unsigned int i=0;i<units.size();i++){ // generating possibilities for every unit
-		Unit* un = units[i].first;
-		vector<vector<int> > poss = this->moveUnit(un);
-		//int rating = units[i].second + pos[2]; // rating before this turn + rating on this turn
-		//if(depth < MAXDEPTH){
-			vector<pair<Unit*,int> > futureUnits;
-			for(unsigned int j=0;j<poss.size();j++){
-				int rating = units[i].second + poss[j][2]; // rating before this turn + rating on this turn
-				vector<Unit*> targets = this->targetsFromPos(poss[j][0],poss[j][1]);
-				if(!targets.empty()){ //tests attack
-					for(unsigned int k=0;k<targets.size();k++){
-						rating += this->rateAttack(un,targets[k]);
-					}
-				}
-				futureUnits.push_back(make_pair(this->buildUnit(poss[j][0],poss[j][1],un->getUnitType()),rating));
-			}
-			this->choosePossibilitiesToExplore(futureUnits);
-			futureTurn.push_back(futureUnits);
-			//this->playFutureTurn(depth+1,futureUnits,money +Game::getInstance()->computeIncome(this->team),passUnits);
-/*
-			// overwrite the ratings when taking into account future moves (choosing the best for each unit)
-			int max = -1;
-			int maxI;
-			for(unsigned int j=0;j<futureUnits.size();j++){ //TODO use a data structure for max search
-				if(futureUnits[j].second > max){
-					maxI = j;
-					max = futureUnits[j].second;
-				}
-			}
-			units[i].second = futureUnits[maxI].second;
-			for(unsigned int j=0;j<futureUnits.size();j++){
-				delete futureUnits[j].first; // no memory leak
-			}
-		}else{	// updates the ratings with the best possibility as final depth
-			int max = -1;
-			int maxI;
-			for(unsigned int j=0;j<poss.size();j++){ //TODO use a data structure for max search
-				if(poss[j][2] > max){
-					maxI = j;
-					max = poss[j][2];
-				}
-			}
-			units[i].second += poss[maxI][2];
-		}*/
+    vector<vector<pair<Unit*,int> > > futureTurn;
+    for(unsigned int i=0;i<units.size();i++){ // generating possibilities for every unit
+        Unit* un = units[i].first;
+        vector<vector<int> > poss = this->moveUnit(un);
+        vector<pair<Unit*,int> > futureUnits;
+        for(unsigned int j=0;j<poss.size();j++){
+            int rating = units[i].second + poss[j][2]; // rating before this turn + rating on this turn
+            vector<Unit*> targets = this->targetsFromPos(poss[j][0],poss[j][1]);
+            if(!targets.empty()){ //tests attack
+                for(unsigned int k=0;k<targets.size();k++){
+                    rating += this->rateAttack(un,targets[k]);
+                }
+            }
+            futureUnits.push_back(make_pair(this->buildUnit(poss[j][0], poss[j][1],un->getUnitType()), rating));
+        }
+        this->choosePossibilitiesToExplore(futureUnits);
+        futureTurn.push_back(futureUnits);
 
-	}
-	//modify ratings of variable units
+    }
+    //modify ratings of variable units
 
-	char team = this->getActiveTeam();
-	this->make_sequence(depth,futureTurn,money +Game::getInstance()->computeIncome(team),passUnits);
-	for(unsigned int i=0;i<futureTurn.size();i++){
-		// chooses the best possibility
-		int max = -1;
-		int maxI;
-		for(unsigned int j=0;j<futureTurn[i].size();j++){ //TODO use a data structure for max search
-			if(futureTurn[i][j].second > max){
-				maxI = j;
-				max = futureTurn[i][j].second;
-			}
-		}
-		units[i].second = futureTurn[i][maxI].second;
-		for(unsigned int j=0;j<futureTurn[i].size();j++){
-			delete futureTurn[i][j].first; // no memory leak
-		}
-	}
+    char team = this->getActiveTeam();
+    this->make_sequence(depth,futureTurn,money +Game::getInstance()->computeIncome(team),passUnits);
+    for(unsigned int i=0;i<futureTurn.size();i++){
+        // chooses the best possibility
+        int max = -1;
+        int maxI;
+        for(unsigned int j=0;j<futureTurn[i].size();j++){ //TODO use a data structure for max search
+            if(futureTurn[i][j].second > max){
+                maxI = j;
+                max = futureTurn[i][j].second;
+            }
+        }
+        units[i].second = futureTurn[i][maxI].second;
+        for(unsigned int j=0;j<futureTurn[i].size();j++){
+            delete futureTurn[i][j].first; // no memory leak
+        }
+    }
 
 
-	//updates the unit building with the best possibility
-	for(unsigned int i=0;i<builtUnits.size();i++){
-		int umax = -1;
-		int umaxI;
-		for(unsigned int j=0;j<newUnits[i].size();j++){ //TODO use a data structure for max search
-			if(newUnits[i][j].second.second > umax){
-				umaxI = j;
-				umax = newUnits[i][j].second.second;
-			}
-			// + cleanup work
-			vector<Unit*>& toClean = newUnits[i][j].first;
-			for(unsigned int k=0;k<toClean.size();k++){
+    //updates the unit building with the best possibility
+    for(unsigned int i=0;i<builtUnits.size();i++){
+        int umax = -1;
+        int umaxI;
+        for(unsigned int j=0;j<newUnits[i].size();j++){ //TODO use a data structure for max search
+            if(newUnits[i][j].second.second > umax){
+                umaxI = j;
+                umax = newUnits[i][j].second.second;
+            }
+            // + cleanup work
+            vector<Unit*>& toClean = newUnits[i][j].first;
+            for(unsigned int k=0;k<toClean.size();k++){
                 delete toClean[k]; //leaves the base class in memory
-			}
-		}
-		builtUnits[i].second.second += newUnits[i][umaxI].second.second;
-	}
+            }
+        }
+        builtUnits[i].second.second += newUnits[i][umaxI].second.second;
+    }
 }
 
 void AI::choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >& poss){
@@ -348,29 +295,22 @@ void AI::choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >& poss){
 		unsigned int newSize = poss.size() * reduction;
 
 		int maxVal[3]; maxVal[0] = -1; maxVal[1] = -1; maxVal[2] = -1;
-		//int maxValCnt[3];
-		unsigned int maxI[3];
-		int minI = 0;
-		for(unsigned int i=0;i<poss.size();i++){
-			if(poss[i].second > maxVal[minI]){
-				maxVal[minI] = poss[i].second;
-				//maxValCnt[minI] =1;
-				maxI[minI] = i;
-				int min = 10000;
-				for(int j=0;j<3;j++){
-					if(maxVal[j] < min){
-						min = maxVal[j];
-						minI = j;
-					}
-				}
-			}else{/*
-				for(int j=0;j<3;j++){
-					if(poss[i].second = maxVal[j]){
-						maxValCnt[j]++;
-					}
-				}*/
-			}
-		}
+        unsigned int maxI[3];
+        int minI = 0;
+        for(unsigned int i=0;i<poss.size();i++){
+            if(poss[i].second > maxVal[minI]){
+                maxVal[minI] = poss[i].second;
+                //maxValCnt[minI] =1;
+                maxI[minI] = i;
+                int min = 10000;
+                for(int j=0;j<3;j++){
+                    if(maxVal[j] < min){
+                        min = maxVal[j];
+                        minI = j;
+                    }
+                }
+            }
+        }
 
 		vector<pair<Unit*,int> >::iterator it;
 		it = poss.begin();
@@ -382,25 +322,9 @@ void AI::choosePossibilitiesToExplore(std::vector<std::pair<Unit*,int> >& poss){
 					delete poss[pos].first; //no memory leak
 					poss.erase(itr);
 				}
-				/*
-				bool notMax = true;
-				for(unsigned int i=0;i<3;i++){
-					if((*it).first->getPosX() == poss[maxI[i]].first->getPosX() && (*it).first->getPosY() == poss[maxI[i]].first->getPosY()){
-						notMax = false; break;
-					}
-				}
-				if(notMax){
-					//delete (*it).first; //TODO memory leak
-					poss.erase(it);
-				//}*/
 			}
 			pos++;
 			if(pos >= poss.size()) pos = 0;
-			/*
-			it++;
-			if(it == poss.end()){
-				it = poss.begin();
-			}*/
 		}
 	}
 }
@@ -527,7 +451,6 @@ std::vector<std::vector<int> > AI::moveUnit(Unit * un)
 		possibilities.push_back(v);
 		delete moves[i];
 	}
-	//cout<< "All move possibilities rated "<<moves.size()<<" "<<results.size()<<endl;
 	return possibilities;
 }
 
@@ -577,7 +500,6 @@ int AI::rateAction(Unit * un, ValidMove * vm)
 
 int AI::ratePurchase(int type, int money, const std::vector<int> & enemyUnits)
 {
-	//Unit* un = this->buildUnit(0,0,type);
 	if(this->unitCost[type] > money){
 		return 0;
 	}else if(enemyUnits.size() == 0){ //when AI opening game

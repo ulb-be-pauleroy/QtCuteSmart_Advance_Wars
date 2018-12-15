@@ -127,23 +127,7 @@ bool Unit::move(int dir, int terrainMod){
     }
     return false;
 }
-/*
-bool Unit::operator==(Unit & un) const
-{
-    //cout << this << " " << &un << endl;
-	return this == &un;
-}
 
-bool Unit::operator==(GameObject &obj) const
-{
-	Unit* un = dynamic_cast<Unit*>(&obj); // use pointers
-	if(un != 0){ // downcast successfull
-		return this->operator==(*un);
-	}else{
-		return false;
-	}
-}
-*/
 void Unit::endTurn()
 {
 	this->moves_left = 0;
@@ -167,9 +151,6 @@ void Unit::setCapture(Building *building)
 
 
 std::vector<ValidMove *> Unit::selected(){ //int[] (int* should do)
-    //cout << "A unit is selected, returning possible moves." << endl;
-    //cout<<this->posX<<" "<<this->posY<<endl;
-    //vector<int> input = this->bfs();
     vector<int> input = this->dijkstra();
 	vector<ValidMove*> res;
     vector<int>::iterator it;
@@ -189,10 +170,6 @@ std::vector<ValidMove *> Unit::selected(){ //int[] (int* should do)
 		}else{
 			res.push_back(new ValidMove(*p,*(p+1),false));
 		}
-		/*
-        v.push_back(*p);
-        v.push_back(*(p+1));
-		res.push_back(v);*/
     }
     return res;
 }
@@ -200,14 +177,14 @@ std::vector<ValidMove *> Unit::selected(){ //int[] (int* should do)
 vector<int> Unit::getDirections(int x, int y){
 	this->dijkstra();
 	vector<int> directions;
-	int me = this->getPosFromCoord(this->posX,this->posY);
-	int target = this->getPosFromCoord(x,y);
+    int me = this->getPosFromCoord(this->posX, this->posY);
+    int target = this->getPosFromCoord(x, y);
 	while(target != me){
 		int prt = this->parent[target];
 		int tb[2];
-		int* nw = this->getCoordFromPos(target,tb);
+        int* nw = this->getCoordFromPos(target, tb);
 		int tb2[2];
-		int* old = this->getCoordFromPos(prt,tb2);
+        int* old = this->getCoordFromPos(prt, tb2);
 		int delX = *nw - *old;
 		int delY = *(nw+1) - *(old+1);
 		if(delX == 0){
@@ -230,7 +207,6 @@ vector<int> Unit::getDirections(int x, int y){
 
 string Unit::getType() const
 {
-	//cout<< "un"<<endl;
 	return "Unit";
 }
 
@@ -240,7 +216,7 @@ void Unit::interactWith()
 }
 
 int Unit::getPosFromCoord(int x, int y) { //STATIC
-    int sy = size_y; // for now
+    int sy = size_y;
 	if(x<0 || y<0){
         cout<< x<<" "<<y <<endl;
 	}
@@ -248,18 +224,16 @@ int Unit::getPosFromCoord(int x, int y) { //STATIC
 }
 
 int* Unit::getCoordFromPos(int pos, int (&cr)[2]) { //static + int[]
-    int sy = size_y; //for now
+    int sy = size_y;
     cr[0] = pos/sy;
     cr[1] = pos%sy;
     return cr;
 }
 
 vector<Edge> Unit::findConnected(int pos){ // linkedlist
-        //cout << "Hello" << endl;
         int tb[2];
         int* coord = this->getCoordFromPos(pos, tb);
         int nextTo[4];
-        //cout << "Hello2 " << coord<< " "<< coord << endl;
         if(coord[0] != size_x-1){
 			nextTo[0] = this->getPosFromCoord(coord[0]+1, coord[1]);
 		}else{
@@ -288,7 +262,6 @@ vector<Edge> Unit::findConnected(int pos){ // linkedlist
 				res.push_back(Edge(nextTo[i],Game::getInstance()->getTerrainMovementModifier(this,cr[0],cr[1])));
             }
         }
-        //cout<< "hello2.5 "<<res[0].getTo()<<endl;
         return res;
     }
 
@@ -313,32 +286,23 @@ vector<int> Unit::dijkstra(){
 		int a = pq.top();
 		pq.pop();
 		this->ee[a] = findConnected(a);
-		//cout<< a <<" "<<endl;// this->ee[a] << endl;
-		//cout<< "hello3 "<< this->ee[a].end() - this->ee[a].begin() <<" "
-		//    << this->ee[a][0].getTo() <<endl;
 		vector<Edge>::iterator it;
 		for(it = this->ee[a].begin(); it!=this->ee[a].end();it++/*Edge& e : this->ee[a]*/) {
 			Edge& e = *it;
 			int distOfEnd = dist[a]+e.getDist();
 			//cout<< "hello3.5" <<endl;
 			if(distOfEnd < dist[e.getTo()]) { //same huge thing
-				//cout<< "hello3.65" <<endl;
 				dist[e.getTo()] = distOfEnd;
 				this->parent[e.getTo()] = a; // we found a shorter path, the parent is now a
-				//cout<< "hello3.75" <<endl;
 				if(dist[e.getTo()] <= this->moves_left){ // = I can move there this turn <= ?
-					pq.push(e.getTo());
-					//cout<< "hello4" <<endl;
+                    pq.push(e.getTo());
 					vector<int>::iterator yet;
 					yet = find(ok.begin(),ok.end(),e.getTo());
 					if(yet == ok.end()){ // tests if we didnt add it already
 						ok.push_back(e.getTo()); // we collect this
 					}
 
-					//ok.push_back(e.getTo()); // we collect this
-
 					if(dist[e.getTo()] - this->moves_left >= 0){
-						//cout << "This is a last move."<<endl;
 						this->last.push_back(e.getTo());
 					}else{
 						vector<int>::iterator notLast;
@@ -349,51 +313,7 @@ vector<int> Unit::dijkstra(){
 					}
 				}
 			}
-			//cout<< "loop end" <<endl;
 		}
 	}
 	return ok;
 }
-/*
-vector<int> Unit::bfs(){
-    int sx = size_x;
-    int sy = size_y;
-    int dist[sx*sy];// = new int[sx*sy];
-    for(int i=0;i<sx*sy;i++){ //Arrays.fill(dist, Integer.MAX_VALUE);
-        dist[i] = 10000; //=sth huge
-    }
-    queue<int> q;// = new LinkedList<Integer>();
-    vector<int> ok;
-    int me = this->getPosFromCoord(this->posX, this->posY);
-    q.push(me);
-	dist[me] = 0;
-    //cout<<"in bfs"<<endl;
-
-    while(!q.empty()) {
-        int a = q.front();
-        q.pop();
-        this->ee[a] = findConnected(a);
-        //cout<< a <<" "<<endl;// this->ee[a] << endl;
-        //cout<< "hello3 "<< this->ee[a].end() - this->ee[a].begin() <<" "
-        //    << this->ee[a][0].getTo() <<endl;
-        vector<Edge>::iterator it;
-		for(it = this->ee[a].begin(); it!=this->ee[a].end();it++) {
-            Edge& e = *it;
-            //cout<< "hello3.5" <<endl;
-            if(dist[e.getTo()] == 10000) { //same huge thing
-                //cout<< "hello3.65" <<endl;
-				dist[e.getTo()] = dist[a] + 1;
-                //cout<< "hello3.75" <<endl;
-                if(dist[e.getTo()] <= this->moves_left){ // = I can move there this turn <= ?
-                    q.push(e.getTo());
-                    //cout<< "hello4" <<endl;
-                    ok.push_back(e.getTo()); // we collect this
-				}
-			}
-            //cout<< "loop end" <<endl;
-		}
-	}
-    //cout<< "hello5" <<endl;
-	return ok;
-}
-			*/

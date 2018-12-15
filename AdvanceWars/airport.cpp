@@ -44,7 +44,6 @@ void Airport::buy(int type)
 			Game::getInstance()->pay(un->getPrice(), this->owner);
 		}else{
 			std::cout<<"Not enough money"<<std::endl;
-			//delete un; //causes segfault, idk why
 		}
 	}
 }
@@ -52,7 +51,6 @@ void Airport::buy(int type)
 void Airport::healUnit(Unit * un)
 {
 	if(un->getType() == "AirUnit" && un->getTeam() == this->owner && un->getHealth() != 10){
-		//cost = un->getPrice()/10;
 		Game::getInstance()->pay(un->getPrice()/10, un->getTeam());
 		un->heal(2);
 	}

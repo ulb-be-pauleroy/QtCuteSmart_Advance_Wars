@@ -14,8 +14,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->network = NULL;
     this->ui->pushButton->hide();
 	this->ui->pushButton_2->hide();
-    //QObject::connect(&tim, SIGNAL(timeout()), this, SLOT(refresh()));
-    //tim.start(50);
 	this->isAnimating = false;
 
 }
@@ -41,7 +39,6 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 		case Qt::Key_Down: game->move(1); break;
 		case Qt::Key_Left: game->move(2); break;
 		case Qt::Key_Right: game->move(3); break;
-		//case Qt::Key_N: game->addUnit(1,1,'o'); break;
 		case Qt::Key_A: game->setAttack(); break;
 		case Qt::Key_Tab: game->cycleUnits(1); break;
 		case Qt::Key_Space: game->endTurn(); break;
@@ -66,8 +63,6 @@ void MainWindow::mousePressEvent(QMouseEvent* event){
         if(! isAnimating) {
             int x = event->x();
             int y = event->y();
-            //std::cout<<x<<" "<<y<<" "<< event->button() <<std::endl;
-            // 1 for left click, 2 for right click, 4 for middle click
             if(event->button() == 1) {
                 this->game->click(x/this->blk_size, y/this->blk_size);
             } else if(event->button() == 2) {
@@ -79,8 +74,7 @@ void MainWindow::mousePressEvent(QMouseEvent* event){
 }
 
 void MainWindow::wheelEvent(QWheelEvent * event){
-	//std::cout<<event->delta()<<std::endl;
-	// +-120 for scrolling up or down
+
 	if(!this->network || (this->network->getTeam() == game->getTeamOnTurn())){
 	if(event->delta() > 0){
 		this->game->cycleUnits(-1);
@@ -94,8 +88,6 @@ void MainWindow::wheelEvent(QWheelEvent * event){
 void MainWindow::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-	//paintMap(painter);
-	//paintUnits(painter);
     QColor col1(Qt::cyan);
     QColor col2(Qt::red);
     col1.setAlpha(100);
@@ -150,8 +142,6 @@ void MainWindow::paintEvent(QPaintEvent *)
     }
 	ui->lcdNumber_3->display(game->getBalance('o'));
 	ui->lcdNumber_4->display(game->getBalance('b'));
-	//paintUnits(painter);
-    //std::cout<<"Here5"<<std::endl;
 	}
 }
 
@@ -164,8 +154,7 @@ void MainWindow::receiveGame(Game* gm)
     setFixedSize((this->blk_size*this->game->getIntMap().size())+400,this->blk_size*this->game->getIntMap()[1].size());
 
     ui->lcdNumber->setSegmentStyle(QLCDNumber::Flat);
-    ui->lcdNumber->display(5);//game->getSelected_unit()->getHealth());
-	// no unit is selected at game creation
+    ui->lcdNumber->display(5);
 
     ui->lcdNumber_4->setSegmentStyle(QLCDNumber::Flat);
 	ui->lcdNumber_4->display(game->getBalance('b'));
@@ -173,12 +162,6 @@ void MainWindow::receiveGame(Game* gm)
     ui->lcdNumber_3->setSegmentStyle(QLCDNumber::Flat);
 	ui->lcdNumber_3->display(game->getBalance('o'));
 
-    /*Unit* uniteselec = game->getSelected_unit();
-
-    QObject::connect(ui->pushButton, SIGNAL(clicked()), uniteselec, SLOT(capture()));
-
-    QObject::connect(ui->pushButton_2, SIGNAL(clicked()), uniteselec, SLOT(attack()));
-    //this doesnt work*/
 }
 
 void MainWindow::receiveNetwork(Network *net)
@@ -191,7 +174,6 @@ void MainWindow::loadImages()
     std::vector<std::vector<QImage*> > imageMap(this->game->getIntMap().size());
     unsigned int x = this->game->getIntMap().size();
     this->imageMap = imageMap;
-    //std::vector<std::vector<int> >::iterator it1;
     std::vector<int>::iterator it2;
     for (unsigned int i = 0 ; i != x; i++){
         for (it2 = this->game->getIntMap()[i].begin(); it2 != this->game->getIntMap()[i].end(); it2++){

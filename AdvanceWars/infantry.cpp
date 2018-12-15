@@ -13,7 +13,6 @@ std::string Infantry::getType() const
 
 bool Infantry::move(int dir, int terrainMod)
 {
-    //std::cout<<"Moving "<<this->capturing<<std::endl;
 	bool ok = Unit::move(dir, terrainMod);
     if(this->capturing != 0 && ok){
         this->capturing->abandonCapture();

@@ -114,18 +114,7 @@ void Game::networkAction(string type, int x, int y, int data, int data2)
 			if(tile[i]->getType().find("Unit") != string::npos){
 				Unit* temp = this->selected_unit;
 				this->selected_unit = dynamic_cast<Unit*>(tile[i]);
-				this->moveTo(data,data2,true);/*
-				int delX = data - x;
-				int delY = data2 - y;
-				if(delX > 0 && delY == 0){ // right
-					this->move(3,true);
-				}else if(delX < 0 && delY == 0){ // left
-					this->move(2,true);
-				}else if(delX == 0 && delY > 0){ //down
-					this->move(1,true);
-				}else if(delX == 0 && delY < 0){ //up
-					this->move(0,true);
-				}*/
+                this->moveTo(data,data2,true);
 				this->selected_unit = temp;
 				this->clearValidMoves();
 			}
@@ -179,23 +168,7 @@ Unit* Game::buildUnit(int x, int y, int type,char team) // unit differentiator
 	if(un) this->pay(un->getPrice(),team);
 	return un;
 }
-/*
-vector<GameObject*>* Game::getMapContent(){
-	vector<GameObject*>* vec = new vector<GameObject*>;
-    for(int i=0;i<size_x;i++){
-        for(int j=0;j<size_y;j++){
-			vector<GameObject*>& tile = this->map[i][j];
-			for(unsigned int k=0;k<tile.size();k++){ //we only collect terrain
-				if(!(tile[k]->getType().find("Unit") != string::npos)){
-					//cout<<"Network request processing"<<endl;
-					vec->push_back(tile[k]);
-				}
-			}
-		}
-	}
-	return vec;
-}
-*/
+
 vector<GameObject*>& Game::getObjectsOnPos(int x, int y)// const
 {
     if(x>=0 && y>=0 && x<size_x && y<size_y){
@@ -259,22 +232,7 @@ int Game::getBalance(char pl) const
 		return -1; //error
     }
 }
-/*
-vector<Unit *>& Game::getUnits(char pl)
-{
-	if(pl == 'o'){
-		return this->units_orange;
-	}else{
-		return this->units_blue;
-	}
-}
-*/
-/*
-vector<Unit *>& Game::getUnits_orange()
-{
-    return this->units_orange;
-}
-*/
+
 void Game::pay(int qnt, char player)
 {
 	if(player == 'o'){
@@ -314,7 +272,6 @@ GameObject* Game::addGameObject(GameObject* go, int x, int y, const char team){
 
 Unit* Game::addUnit(Unit* un, int x, int y, const char team, bool net)
 {
-	//Unit* un = new Unit(x,y,team);
     if(team == 'o'){
 		this->map[x][y].push_back(un);
 		this->units_orange.push_back(un);
@@ -367,8 +324,7 @@ void Game::move(int dir, bool net, bool justPassing)
 
 					vector<GameObject*>::iterator it;
 					for(it=this->map[x][y].begin();it!=this->map[x][y].end();it++){
-						//cout<< "Cycle"<<endl;
-						//cout<< this->selected_unit<< " "<<*it<<endl;
+
 						if(this->selected_unit == (*it)){
 							this->map[x][y].erase(it);
 							//cout<<"Mov erase"<<endl;
@@ -384,7 +340,6 @@ void Game::move(int dir, bool net, bool justPassing)
 					}
 					x = this->selected_unit->getPosX();
 					y = this->selected_unit->getPosY();
-					//cout<<(*(*it)).getType()<<endl;
 					this->map[x][y].push_back(this->selected_unit);
 					this->selected_x = x;
 					this->selected_y = y;
@@ -414,9 +369,6 @@ bool Game::moveTo(int x, int y, bool net)
         currentDirections = this->selected_unit->getDirections(x, y);
 		vector<int>& directions = currentDirections;
         currentI = directions.size();
-        /*QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(onTimerStart()));
-        timer.start();
-        return true;*/
 		if(!net){
 			this->unitFusing = false;
 			testObstacle(x,y); // unit fusion test
@@ -433,18 +385,16 @@ bool Game::moveTo(int x, int y, bool net)
         for(unsigned int i = directions.size(); i > 1; i--){ // parse in reverse
 			this->move(directions[i-1], true, true);
             this->wn->update();
-			//QThread::msleep(1500);
 
 		}
 		this->move(directions[0],true,false);
-		// network order was already sent
 
 	}
     return true;
 }
 
 bool Game::testObstacle(int x, int y){
-	for(unsigned int i=0;i<this->map[x][y].size();i++){
+    for(unsigned int i = 0; i < this->map[x][y].size(); i++){
 		if(this->map[x][y][i]->getType().find("Unit") != string::npos){// == "Unit"){
 			Unit* un = dynamic_cast<Unit*>(this->map[x][y][i]);
 			char team = un->getTeam();
@@ -518,11 +468,8 @@ void Game::attack(int dir)
 void Game::click(int x, int y)
 {
 	if(x <= size_x && y <= size_y && !this->map[x][y].empty()){
-		//for(GameObject& go : this->map[x][y]){ //just dont use range-based, doesnt work, wild pointers
-        //vector<GameObject*>::iterator itr;
         vector<GameObject*>& tile = this->map[x][y]; //to prevent concurrentModificationException
         for(unsigned int i=0;i<tile.size();i++){
-        //for(itr = tile.begin(); itr != tile.end(); itr++){
             if(Factory* fac = dynamic_cast<Factory*>(tile[i])){
 				if((fac->getOwner() == 'o' && this->orange_on_turn)
 					|| (fac->getOwner()=='b' && !this->orange_on_turn)){ //tests for selecting enemy fac
@@ -530,10 +477,6 @@ void Game::click(int x, int y)
 				}
 			}
             (tile[i])->interactWith();
-		/*
-		if(go->getType() == "Factory" || go->getType() == "City"){
-			go->select();
-		}*/
 		}
 	}
 }
@@ -548,17 +491,14 @@ void Game::buyUnit(int type)
 
 void Game::selectUnit(Unit* un){
 	if(this->orange_on_turn && find(this->units_orange.begin(),this->units_orange.end(),un) != this->units_orange.end()){
-		//find(this->units_orange.begin(),this->units_orange.end(),un);
 		this->selected_unit = un;
 		this->selected_x = this->selected_unit->getPosX();
 		this->selected_y = this->selected_unit->getPosY();
-		//cout << this->selected_unit << endl;
 		this->drawPossibleMoves();
 	}else if(!this->orange_on_turn && find(this->units_blue.begin(),this->units_blue.end(),un) != this->units_blue.end()){
 		this->selected_unit = un;
 		this->selected_x = this->selected_unit->getPosX();
 		this->selected_y = this->selected_unit->getPosY();
-		//cout << this->selected_unit << endl;
 		this->drawPossibleMoves();
     }else if(this->orange_on_turn && find(this->units_blue.begin(),this->units_blue.end(),un) != this->units_blue.end()){
         //attacking a blue unit
@@ -577,14 +517,7 @@ void Game::selectUnit(Unit* un){
 				}
 
 			}
-		}/*
-        for(unsigned int i=0;i<this->map[x][y].size();i++){
-			//program the movement to!!
-            if(this->map[x][y][i]->getType() =="ValidMove"){
-				this->selected_unit->attack(*un);
-                break;
-            }
-		}*/
+        }
     }else if(!this->orange_on_turn && find(this->units_orange.begin(),this->units_orange.end(),un) != this->units_orange.end()){
         //attacking an orange unit
 		if(this->selected_unit){
@@ -599,13 +532,7 @@ void Game::selectUnit(Unit* un){
 					this->network->sendData("attack",this->selected_unit->getPosX(),this->selected_unit->getPosY(),x,y);
 				}
 			}
-		}/*
-        for(unsigned int i=0;i<this->map[x][y].size();i++){
-            if(this->map[x][y][i]->getType() =="ValidMove"){
-				this->selected_unit->attack(*un);
-                break;
-            }
-		}*/
+        }
 	}else{
 		cout<< "Error when selecting unit, the unit seems to not exist."<<endl;
 		//also when not selecting your unit
@@ -617,8 +544,6 @@ void Game::cycleUnits(int dir)
 {   //-1 and 1 (backwards/forwards)
 	//segfault when no units
 	vector<Unit*>::iterator it;
-    //cout << "size " << this->units.size() << " Add "<< &this->units[0] << " " <<&this->units[1]
-    //     <<" "<< &this->units[2] << endl;
     if(this->orange_on_turn){
         if(!this->selected_unit){
 			if(this->units_orange.size() != 0) this->selected_unit = this->units_orange[0];
@@ -637,7 +562,6 @@ void Game::cycleUnits(int dir)
 							it = this->units_orange.end()-1;
 						}
 					}
-					//cout << "Hello" << endl;
 					break;
 				}
 			}
@@ -660,7 +584,6 @@ void Game::cycleUnits(int dir)
 							it = this->units_blue.end()-1;
 						}
 					}
-					//cout << "Hello" << endl;
 					break;
 				}
 			}
@@ -722,16 +645,10 @@ void Game::clearValidMoves(){
         for(int j=0;j<size_y;j++){
 			vector<GameObject*>::iterator it;
 			for(it=this->map[i][j].begin();it!=this->map[i][j].end();it++){
-				//cout<<"Here cycle "<<i<<" "<<j<<endl;
-				//cout<<(ValidMove*)(&(*it))<<endl; //dyn cast needs RTTI
-				//cout<< (*it)->getType()<<endl;
 				if((*it)->getType() == "ValidMove"){
-						//(ValidMove*)(&(*it))){//dynamic_cast<ValidMove*>(&(*it))){//ValidMove(i,j) == *it){
-					//cout<< "ValidMove "<<*it<<" found "<<i<<" "<<j<<endl;
 					delete (*it);
 					this->map[i][j].erase(it); // memory leak?
 					break;
-					//it = this->map[i][j].begin();
 				}
 			}
 		}
@@ -744,24 +661,12 @@ void Game::setWn(MainWindow *wn)
 }
 
 void Game::drawPossibleMoves(){
-	//cout<<"Here"<<endl;
-	//this->clearValidMoves();
-	//cout<<"Here2"<<endl;
 	vector<ValidMove*> moves = this->selected_unit->selected();
 	this->clearValidMoves();
-	//cout<<"Here3"<<endl;
-	/*
-	vector<vector<int> >::iterator it_mv;
-	for(it_mv = moves.begin(); it_mv!=moves.end();it_mv++){
-		vector<int> coord = *it_mv;
-		this->map[coord[0]][coord[1]].push_back(new ValidMove(coord[0],coord[1],false));
-		//possible memory leak here
-	}*/
 	for(unsigned int i=0;i<moves.size();i++){
 		ValidMove* vm = moves[i];
 		this->map[vm->getPosX()][vm->getPosY()].push_back(vm);
 	}
-	//cout<<"Here4"<<endl;
 }
 
 int Game::getSelectedX(){
@@ -788,17 +693,13 @@ void Game::endTurn(bool net)
 	this->selected_unit = NULL;
 	vector<Unit*>::iterator it;
     if(this->orange_on_turn){
-        for(it = this->units_orange.begin(); it!=this->units_orange.end();it++){
+        for(it = this->units_orange.begin(); it != this->units_orange.end(); it++){
 			(*it)->newTurn();
 			this->testCaptureAndHealing(*it);
         }
 		if(network && !net) this->network->sendData("endTurn");
 		if(!testEndOfGame()){
 			this->orange_on_turn = false;
-			/*
-			for(it = this->units_blue.begin(); it!=this->units_blue.end();it++){
-						(*it)->newTurn();
-			}*/
             this->money_orange += this->computeIncome('o');
             if(this->units_blue.size() != 0){
                 this->selected_unit = this->units_blue[0];
@@ -806,14 +707,6 @@ void Game::endTurn(bool net)
             else{
                 this->selected_unit = NULL;
             }
-			/*
-			if(!this->units_blue.empty()) this->selected_unit = this->units_blue[0];
-			for(unsigned int i=0;i<this->buildings.size();i++){ //TODO rewrite airport
-				if(this->buildings[i]->getType() != "Airport" && this->buildings[i]->getOwner() =='b'){
-					this->money_blue += 1000;
-				}
-			}*/
-			//cout<<"Blue money: "<<this->money_blue<<endl;
             if(this->ai[0]) this->ai[0]->play();
 
 		}else{
@@ -827,10 +720,6 @@ void Game::endTurn(bool net)
 		if(network && !net) this->network->sendData("endTurn");
 		if(!testEndOfGame()){
 			this->orange_on_turn = true;
-			/*
-			for(it = this->units_orange.begin(); it!=this->units_orange.end();it++){
-				(*it)->newTurn();
-			}*/
             this->money_blue += this->computeIncome('b');
             if(this->units_orange.size() != 0){
                 this->selected_unit = this->units_orange[0];
@@ -838,16 +727,6 @@ void Game::endTurn(bool net)
             else{
                 this->selected_unit = NULL;
             }
-			/*
-			if(!this->units_orange.empty()) this->selected_unit = this->units_orange[0];
-			for(unsigned int i=0;i<this->buildings.size();i++){
-				if(this->buildings[i]->getType() != "Airport" && this->buildings[i]->getOwner() =='o'){
-					this->money_orange += 1000;
-				}
-            }*/
-
-			//this->selectUnit(this->units_orange[0]);
-            //cout<<"Orange money: "<<this->money_orange<<endl;
 			if(this->ai[1]) this->ai[1]->play();
 		}else{
 			cout<<"The game had ended: Blue wins!"<<endl;
@@ -870,22 +749,6 @@ void Game::changeIndex(Building *bl, char initialOwner) //changes index of build
     else if (bl->getOwner() == 'o' && initialOwner == '\0' ){
         this->intMap[bl->getPosX()][bl->getPosY()] += 4;
     }
-    /*
-    unsigned int x = this->buildings.size();
-    if (initialOwner == 'b'){
-        for (unsigned int i =0; i<x; i++){
-            if(bl->getPosX() == buildings[i]->getPosX() && bl->getPosY() == buildings[i]->getPosY()){
-                buildings[i]->setOwner('o');
-            }
-        }
-    }
-    else{
-        for (unsigned int i =0; i<x; i++){
-            if(bl->getPosX() == buildings[i]->getPosX() && bl->getPosY() == buildings[i]->getPosY()){
-                buildings[i]->setOwner('b');
-            }
-        }
-    }*/
 }
 
 int Game::computeIncome(char pl){
@@ -915,11 +778,9 @@ void Game::testCaptureAndHealing(Unit* un)
 	for(itr = tl.begin();itr!=tl.end();itr++){
 		GameObject* go = *itr;
         Building* bl = dynamic_cast<Building*>(go);
-        //cout << city << endl;
         if(bl != NULL) { // go->getType() == "building")
             char initialOwner = bl->getOwner();
             if(bl->getOwner() != un->getTeam()) bl->capture(un);
-			//if(this->network) this->network->sendData("capture",un->getPosX(),un->getPosY());
             if(bl->getOwner() == un->getTeam()){
                 bl->healUnit(un);
                 if (bl->getOwner() != initialOwner){
@@ -971,16 +832,6 @@ bool Game::testEndOfGame()
     return false;
 }
 
-void Game::onTimerStart()
-{
-    this->move(currentDirections[currentI-1], false, true);
-    this->wn->update();
-
-    if (currentI == 0) {
-        timer.stop();
-    }
-    currentI--;
-}
 
 Unit* Game:: getSelected_unit(){
     return selected_unit;

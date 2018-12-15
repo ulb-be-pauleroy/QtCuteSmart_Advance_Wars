@@ -13,7 +13,6 @@ bool ValidMove::isLast()
 
 bool ValidMove::operator==(GameObject & obj) const
 {
-	//std::cout<<"VM"<<std::endl;
 	ValidMove* vm = dynamic_cast<ValidMove*>(&obj); // use pointers
 	if(vm != 0){ // downcast successfull
 		std::cout<<"VM "<<posX<<" "<<vm->getPosX()<<" "<<posY<<" "<<vm->getPosY()<<std::endl;

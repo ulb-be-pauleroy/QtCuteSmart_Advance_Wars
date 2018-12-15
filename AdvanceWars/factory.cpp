@@ -11,10 +11,6 @@ Factory::Factory(int x, int y, char c) : Building(x,y,c)
 void Factory::interactWith()
 {
 	std::cout<<"This is a factory, you can build units here."<<std::endl;
-	//Unit* un = Game::getInstance()->addUnit(this->posX,this->posY,this->owner);
-	//Game::getInstance()->pay(un->getPrice(), this->owner);
-
-	//std::cout<<"Creating unit"<<std::endl;
 
 }
 
@@ -67,7 +63,6 @@ void Factory::buy(int type)
 				Game::getInstance()->pay(un->getPrice(), this->owner);
 			}else{
 				std::cout<<"Not enough money"<<std::endl;
-				//delete un; //causes segfault, idk why
 			}
 		}
 	}

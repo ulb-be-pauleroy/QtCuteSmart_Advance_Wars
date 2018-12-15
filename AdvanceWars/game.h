@@ -23,7 +23,6 @@ extern int size_y;
 class Game{
 
 
-    QTimer timer;
 	std::vector<std::vector<int> > intMap;
 	std::vector<std::vector<std::vector<GameObject *> > > map;
 	int income;
@@ -95,10 +94,8 @@ private:
 	void testCaptureAndHealing(Unit*);
     bool testEndOfGame();
     std::vector<int> currentDirections;
-	unsigned int currentI;
+    unsigned int currentI;
 
-public slots:
-    void onTimerStart();
 };
 
 #endif // GAME_H

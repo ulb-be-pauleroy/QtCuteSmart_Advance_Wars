@@ -14,7 +14,6 @@ class AI : public QObject
 	char myTeam;
 	char enemyTeam;
     int type;
-	//const std::vector<Unit*>* myUnits;
 	std::vector<Factory*> factories;
 
 	static const int unitCost[];
