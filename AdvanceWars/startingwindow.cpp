@@ -1,5 +1,4 @@
 #include "game.h"
-#include "mainwindow.h"
 #include "startingwindow.h"
 #include "ui_startingwindow.h"
 #include <QDebug>
@@ -22,6 +21,13 @@ StartingWindow::StartingWindow(QWidget *parent) :
 StartingWindow::~StartingWindow()
 {
     delete ui;
+	qDebug() << "Destroying StartW";
+	delete w;
+	if(this->network){
+		delete net;
+	}else{
+		delete Game::getInstance();
+	}
 }
 
 void StartingWindow::checkRadioButtons()
@@ -69,16 +75,20 @@ void StartingWindow::checkNetworkOptions()
 
 void StartingWindow::launchGame()
 {
-    qDebug() << "j'ai lancé la fonction!";
     checkRadioButtons();
     checkNetworkOptions();
+<<<<<<< HEAD
     MainWindow* w = new MainWindow(azerty);
+=======
+	w = new MainWindow();
+>>>>>>> 96d020c447514bb52921663691bc891dabe1cf80
     w->show();
 
 	if(this->network){
 		if(this->IPAddress == "Please enter IP adress here") this->IPAddress = "127.0.0.1";
 		qDebug() << "Connecting to: "<<this->IPAddress;
-		Network* net = new Network(this->IPAddress,w);
+		net = new Network(this->IPAddress,w);
+		net->setGameParameters(income, AIcnt, AIOption);
 	}else{
 		Game* gm = Game::getInstance();
 		gm->setupGame(income,true, AIcnt, AIOption, isHost);

@@ -23,7 +23,17 @@ MainWindow::MainWindow(bool isAzerty, QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+	qDebug() << "Destroying MW";
     delete ui;
+	for(unsigned int i=0;i<this->imageMap.size();i++){
+		for(unsigned int j=0;j<this->imageMap[i].size();j++){
+			delete this->imageMap[i][j];
+		}
+	}
+	for(int i=0;i<11;i++){
+		delete this->osUnitImages[i];
+		delete this->bmUnitImages[i];
+	}
 }
 
 void MainWindow::drawGamePannel(QPainter painter)
@@ -48,8 +58,15 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 
         case Qt::Key_S: game->move(1); break;
         case Qt::Key_D: game->move(3); break;
+<<<<<<< HEAD
         case Qt::Key_F: game->setAttack(); break;
+=======
+		//?? WASD anybody?
+
+		case Qt::Key_A: game->setAttack(); break;
+>>>>>>> 96d020c447514bb52921663691bc891dabe1cf80
 		case Qt::Key_Tab: game->cycleUnits(1); break;
+
         case Qt::Key_T: game->endTurn(); break;
 
 		case Qt::Key_1: game->buyUnit(1); break;

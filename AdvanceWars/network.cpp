@@ -36,6 +36,18 @@ Network::Network(QString hostIP, MainWindow *wn, QObject *parent) : QObject(pare
 	QObject::connect(this->server, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
 }
 
+Network::~Network(){
+	delete this->server;
+	if(this->other) delete this->other;
+	delete Game::getInstance();
+}
+
+void Network::setGameParameters(int inc,int AIc, int AIv){
+	this->income = inc;
+	this->AIcnt = AIc;
+	this->AItype = AIv;
+}
+
 void Network::onNewConnection() {
 	std::cout << "A new client is connecting !" << std::endl;
 	this->other = this->server->nextPendingConnection();
@@ -44,7 +56,7 @@ void Network::onNewConnection() {
 
 	Game* game = Game::getInstance();
     game->receiveNetwork(this);
-	game->setupGame(1000,true,0,1);
+	game->setupGame(this->income,true,this->AIcnt,this->AItype);
 	this->win->receiveGame(game); //enables the gameplay as well
 	this->team = 'o';
 	this->isConfigured = true;
@@ -108,10 +120,10 @@ void Network::onData() {
 
 		Game* game = Game::getInstance();
         game->receiveNetwork(this);
-		if(!json["map"].isArray()){ //TODO array, parameter map num
+		if(!json["map"].isArray()){
 			std::vector<std::vector<int> > intMap = MapBuilder::makeIntMap(":/Map/Images/Maps/Map.txt");
 			game->setIntMap(intMap);
-			game->setPath(":/Map/Images/Maps/Map.txt");
+			game->setPath();
 		}else{
 			std::vector<std::vector<int> > intMap;
 			QJsonArray map = json["map"].toArray();
@@ -123,7 +135,7 @@ void Network::onData() {
 				}
 			}
 			game->setIntMap(intMap);
-			game->setPath(":/Map/Images/Maps/Map.txt");
+			game->setPath();
 
 		}
 
@@ -134,9 +146,9 @@ void Network::onData() {
 		bool iBegin = false;
 		if(json["youplay"] == "firstplayer") iBegin = true;
 		if((iBegin && this->team == 'b') || (!iBegin && this->team == 'o')){
-			game->setupGame(json["income"].toInt(),false,0,1,false); //TODO AI settings
+			game->setupGame(json["income"].toInt(),false,this->AIcnt,this->AItype,false);
 		}else{
-			game->setupGame(json["income"].toInt(),true,0,1,false);
+			game->setupGame(json["income"].toInt(),true,this->AIcnt,this->AItype,false);
 		}
 
 		QJsonArray units = json["units"].toArray();
@@ -164,10 +176,18 @@ void Network::onData() {
 			if(x != newX || y != newY){
 				Game::getInstance()->networkAction("move",arr[0].toInt(),arr[1].toInt(),arr[2].toInt(),arr[3].toInt());
 			}
-			if(keys.size() >1 && keys[1] == "attack"){
-				QJsonArray vic = json[keys[1]].toArray();
-				Game::getInstance()->networkAction("attack",arr[0].toInt(),arr[1].toInt(),vic[0].toInt(),vic[1].toInt());
+		}else if(keys.size() >1 && keys[0] == "attack"){ // apparently always in alphabetical order
+			QJsonArray arr = json[keys[1]].toArray();
+			int x = arr[0].toInt();
+			int y = arr[1].toInt();
+			int newX = arr[2].toInt();
+			int newY = arr[3].toInt();
+			if(x != newX || y != newY){
+				Game::getInstance()->networkAction("move",arr[0].toInt(),arr[1].toInt(),arr[2].toInt(),arr[3].toInt());
 			}
+			QJsonArray vic = json[keys[0]].toArray();
+			std::cout <<"Attacking at: " << vic[0].toInt() <<" "<< vic[1].toInt() <<std::endl;
+			Game::getInstance()->networkAction("attack",arr[2].toInt(),arr[3].toInt(),vic[0].toInt(),vic[1].toInt());
 		}else if(keys[0] == "build"){
 			QJsonArray arr = json[keys[0]].toArray(); // TODO in game.cpp
 			int tm;

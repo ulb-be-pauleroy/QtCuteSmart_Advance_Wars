@@ -33,8 +33,8 @@ class Game{
 	std::vector<Building*> buildings;
     bool orange_on_turn;
 	bool unitFusing;
-    int selected_x;
-    int selected_y;
+	//int selected_x;
+	//int selected_y;
     Unit* selected_unit;
 	Factory* selected_factory;
 	bool attacking;
@@ -45,11 +45,12 @@ class Game{
     MainWindow* wn;
 
 public:
+	~Game();
 
 	static Game* getInstance();
-    void setPath(QString path);
+	void setPath();
 	void setupGame(int income, bool orangeBegins, int AIcnt, int AIOption, const bool isHost=true); //created a polymorphic function, first is called
-    void setupGame(const bool isHost = true);                                  //from starting window, second is called from Network,
+	//void setupGame(const bool isHost = true);                                  //from starting window, second is called from Network,
     void setIntMap(std::vector<std::vector<int> > & map);                      //will need to be adapted
     std::vector<std::vector<int> > &getIntMap();
     void receiveNetwork(Network* net);
@@ -74,8 +75,8 @@ public:
 	void selectUnit(Unit*);
 	void cycleUnits(int dir); //-1 and 1 (backwards/forwards)
     void deleteUnit(Unit* un);
-    int getSelectedX();
-    int getSelectedY();
+	//int getSelectedX();
+	//int getSelectedY();
 	char getTeamOnTurn() const;
 	void endTurn(bool net=false);
     void changeIndex(Building* bl, char initialOwner);

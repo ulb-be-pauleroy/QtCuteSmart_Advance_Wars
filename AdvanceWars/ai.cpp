@@ -173,10 +173,10 @@ void AI::make_sequence(int depth, std::vector<std::vector<std::pair<Unit *, int>
 		int enemyRating;
 		for(unsigned int i=0;i<enemyCases[depth+1].size();i++){
 			int imax = -1;
-			int imaxI;
+			//int imaxI;
 			for(unsigned int j=0;j<(enemyCases[depth+1])[i].size();j++){ //TODO use a data structure for max search
 				if((enemyCases[depth+1])[i][j].second > imax){
-					imaxI = j;
+					//imaxI = j;
 					imax = (enemyCases[depth+1])[i][j].second;
 				}
 			}
@@ -192,10 +192,10 @@ void AI::make_sequence(int depth, std::vector<std::vector<std::pair<Unit *, int>
 		int enemyRating;
 		for(unsigned int i=0;i<myCases[depth].size();i++){
 			int imax = -1;
-			int imaxI;
+			//int imaxI;
 			for(unsigned int j=0;j<(myCases[depth])[i].size();j++){ //TODO use a data structure for max search
 				if((myCases[depth])[i][j].second > imax){
-					imaxI = j;
+					//imaxI = j;
 					imax = (myCases[depth])[i][j].second;
 				}
 			}
@@ -481,6 +481,7 @@ int AI::rateAction(Unit * un, ValidMove * vm)
                         rating += 30; // continuing capture
 					}
 					if(bld->getOwner() != '\0') rating += 20; //capturing enemy building
+					if(this->type == 1) rating *= 100; //greedy AI
 				}
 			}
 			break;
@@ -504,12 +505,14 @@ int AI::ratePurchase(int type, int money, const std::vector<int> & enemyUnits)
 		return 0;
 	}else if(enemyUnits.size() == 0){ //when AI opening game
 		const int ratings[11] = {3,1,5,4,6,5,4,5,6,2,2}; // random numbers
+		if(this->type == 1 && type == 0) return 100; //greedy AI
 		return ratings[type];
 	}else{
 		int rating =0;
 		for(unsigned int i=0;i<enemyUnits.size();i++){
 			rating += this->dmg_chart[type][enemyUnits[i]];
 		}
+		if(this->type == 1 && type == 0) rating *= 10; //greedy AI
 		return rating;
 	}
 }
