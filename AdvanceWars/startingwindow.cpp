@@ -15,7 +15,7 @@ StartingWindow::StartingWindow(QWidget *parent) :
 	this->AIOption = 0;
     QObject::connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(launchGame()));
     this->fillIPComboBox();
-    this->setWindowTitle("Advanced Wars (aka the return of the tank");
+    this->setWindowTitle("Advanced Wars (aka the return of the tank)");
 }
 
 StartingWindow::~StartingWindow()

@@ -221,6 +221,7 @@ void MainWindow::reloadImage(int x, int y)
 
 void MainWindow::setButtons()
 {
+    connect(ui->endTurnButton, SIGNAL(clicked()), this, SLOT(endTurn()));
     QSignalMapper* mapper = new QSignalMapper(this);
     connect(ui->InfantryButton, SIGNAL(clicked()), mapper, SLOT(map()));
     ui->InfantryButton->setIcon(QIcon(":/Units/Images/Units/osinfantry.gif"));
@@ -286,5 +287,10 @@ void MainWindow::displayUnitInfo()
 void MainWindow::UnitButtonPushed(int a)
 {
     this->game->buyUnit(a);
+}
+
+void MainWindow::endTurn()
+{
+    this->game->endTurn();
 }
 

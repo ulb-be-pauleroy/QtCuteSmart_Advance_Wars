@@ -42,6 +42,7 @@ public:
 
 public slots:
     void UnitButtonPushed(int a);
+    void endTurn();
 
 private:
 	Ui::MainWindow *ui;
