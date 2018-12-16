@@ -11,6 +11,7 @@ StartingWindow::StartingWindow(QWidget *parent) :
     ui->setupUi(this);
 	this->AIcnt = 0;
     this->isHost = true;
+    this->azerty = true;
     this->income = 1000;
 	this->AIOption = 0;
     QObject::connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(launchGame()));
@@ -25,6 +26,8 @@ StartingWindow::~StartingWindow()
 
 void StartingWindow::checkRadioButtons()
 {
+    if (! ui->AzertyButton->isChecked()) this->azerty = false;
+
     if(! ui->IncomeOption_1->isChecked()){
         if (ui->IncomeOption_2->isChecked()) this->income = 1500;
         else if (ui->IncomeOption_3->isChecked()) this->income = 2000;
@@ -69,7 +72,7 @@ void StartingWindow::launchGame()
     qDebug() << "j'ai lancé la fonction!";
     checkRadioButtons();
     checkNetworkOptions();
-    MainWindow* w = new MainWindow();
+    MainWindow* w = new MainWindow(azerty);
     w->show();
 
 	if(this->network){

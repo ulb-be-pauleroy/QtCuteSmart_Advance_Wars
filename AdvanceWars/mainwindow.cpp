@@ -4,11 +4,12 @@
 #include <QPainter>
 #include <QTimer>
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(bool isAzerty, QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
+    this->isAzerty = isAzerty;
     this->blk_size = 50;
 	this->game = NULL;
 	this->network = NULL;
@@ -34,12 +35,20 @@ void MainWindow::drawGamePannel(QPainter painter)
 void MainWindow::keyPressEvent(QKeyEvent * event)
 {
 	if(!this->network || (this->network->getTeam() == game->getTeamOnTurn())){
-	switch(event->key()){
+        switch(event->key()){
+
+        if(isAzerty){
         case Qt::Key_Z: game->move(0); break;
-        case Qt::Key_S: game->move(1); break;
         case Qt::Key_Q: game->move(2); break;
+        }
+        else{
+        case Qt::Key_W: game->move(0); break;
+        case Qt::Key_A: game->move(2); break;
+        }
+
+        case Qt::Key_S: game->move(1); break;
         case Qt::Key_D: game->move(3); break;
-		case Qt::Key_A: game->setAttack(); break;
+        case Qt::Key_F: game->setAttack(); break;
 		case Qt::Key_Tab: game->cycleUnits(1); break;
         case Qt::Key_T: game->endTurn(); break;
 
@@ -55,7 +64,7 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 	}
 
     this->update();
-	}
+    }
 }
 
 void MainWindow::mousePressEvent(QMouseEvent* event){

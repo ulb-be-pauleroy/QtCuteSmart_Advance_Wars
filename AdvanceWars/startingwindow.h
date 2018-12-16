@@ -18,6 +18,7 @@ public:
     bool isHost;
     int income;
 	int AIOption;
+    bool azerty;
 	explicit StartingWindow(QWidget *parent =0);
     ~StartingWindow();
 

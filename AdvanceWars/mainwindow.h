@@ -16,7 +16,7 @@ class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
-    QTimer tim;
+    bool isAzerty;
 	Game* game;
 	int blk_size;
 	Network* network;
@@ -26,7 +26,7 @@ class MainWindow : public QMainWindow
 	bool isAnimating;
 
 public:
-	explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(bool isAzerty, QWidget *parent = 0);
 	~MainWindow();
     void drawGamePannel(QPainter painter);
 	void keyPressEvent(QKeyEvent *);
