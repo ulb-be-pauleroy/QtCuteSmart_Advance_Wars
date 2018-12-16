@@ -30,11 +30,11 @@ SOURCES += main.cpp\
     imageloader.cpp \
     mapbuilder.cpp \
     startingwindow.cpp \
-    ai.cpp \
-    aiworker.cpp
+    ai.cpp #\
+    #aiworker.cpp
 
 HEADERS  += mainwindow.h \
-    mapsize.h \
+    #mapsize.h \
     network.h \
     terrain.h \
     unit.h \
@@ -51,8 +51,8 @@ HEADERS  += mainwindow.h \
     imageloader.h \
     mapbuilder.h \
     startingwindow.h \
-    ai.h \
-    aiworker.h
+    ai.h #\
+    #aiworker.h
 
 FORMS    += mainwindow.ui \
     startingwindow.ui

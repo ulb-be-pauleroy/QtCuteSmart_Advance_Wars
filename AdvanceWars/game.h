@@ -11,7 +11,7 @@
 #include "unit.h"
 #include "factory.h"
 #include "building.h"
-#include "mapsize.h" // map size preprocessor value defined here
+//#include "mapsize.h" // map size preprocessor value defined here
 //using namespace std; //this is dangerous
 class Network;
 class AI;

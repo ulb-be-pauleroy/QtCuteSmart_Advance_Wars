@@ -19,14 +19,14 @@ class StartingWindow : public QDialog
     bool isHost;
     int income;
 	int AIOption;
-<<<<<<< HEAD
+//<<<<<<< HEAD
     bool azerty;
-=======
+//=======
 	MainWindow* w;
 	Network* net;
 
 public:
->>>>>>> 96d020c447514bb52921663691bc891dabe1cf80
+//>>>>>>> 96d020c447514bb52921663691bc891dabe1cf80
 	explicit StartingWindow(QWidget *parent =0);
     ~StartingWindow();
 

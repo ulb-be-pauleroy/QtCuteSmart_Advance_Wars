@@ -5,7 +5,7 @@
 #include <QPaintEvent>
 #include "network.h"
 #include "game.h"
-#include "mapsize.h"
+//#include "mapsize.h"
 #include "imageloader.h"
 
 namespace Ui {

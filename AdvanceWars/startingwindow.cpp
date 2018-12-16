@@ -77,11 +77,11 @@ void StartingWindow::launchGame()
 {
     checkRadioButtons();
     checkNetworkOptions();
-<<<<<<< HEAD
+//<<<<<<< HEAD
     MainWindow* w = new MainWindow(azerty);
-=======
-	w = new MainWindow();
->>>>>>> 96d020c447514bb52921663691bc891dabe1cf80
+//=======
+//	w = new MainWindow();
+//>>>>>>> 96d020c447514bb52921663691bc891dabe1cf80
     w->show();
 
 	if(this->network){

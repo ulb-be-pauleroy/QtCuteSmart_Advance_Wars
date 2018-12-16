@@ -7,7 +7,7 @@
 #include "edge.h"
 #include "validmove.h"
 #include "gameobject.h"
-#include "mapsize.h"
+//#include "mapsize.h"
 
 //#include "game.h"
 // doesnt work as it is a cyclic dependency

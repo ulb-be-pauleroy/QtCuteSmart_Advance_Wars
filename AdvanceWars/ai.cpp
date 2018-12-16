@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h> //for rand
 
-#include "aiworker.h"
+//#include "aiworker.h"
 #include "airport.h"
 #include "airunit.h"
 #include "infantry.h"
@@ -84,7 +84,7 @@ void AI::play()
                     }
                 }
                 futureUnits.push_back(make_pair(this->buildUnit(poss[j][0],poss[j][1],un->getUnitType()),rating));
-
+/*
                 QThread* thread = new QThread;
                 AIWorker* worker = new AIWorker(this->type,futureUnits[j],this->myTeam,this->myMoney[0],newUnits); //TODO multithreading
                 worker->moveToThread(thread);
@@ -94,7 +94,7 @@ void AI::play()
                 connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
                 connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
                 connect(worker, SIGNAL(finished()), this, SLOT(threadEnd()));
-                this->th_cnt++;
+				this->th_cnt++;*/
             }
             futureTurn.push_back(futureUnits);
         }

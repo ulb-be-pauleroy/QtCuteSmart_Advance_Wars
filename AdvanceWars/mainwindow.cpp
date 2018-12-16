@@ -16,7 +16,7 @@ MainWindow::MainWindow(bool isAzerty, QWidget *parent) :
 	this->isAnimating = false;
     setButtons();
     ui->UnitCostLayout->hide();
-
+	this->setWindowTitle("Advanced Wars (aka the return of the tank)");
 }
 
 
@@ -44,28 +44,33 @@ void MainWindow::drawGamePannel(QPainter painter)
 
 void MainWindow::keyPressEvent(QKeyEvent * event)
 {
-	if(!this->network || (this->network->getTeam() == game->getTeamOnTurn())){
+	if(game &&(!this->network || (this->network->getTeam() == game->getTeamOnTurn()))){
+		if(isAzerty){
+			switch(event->key()){
+				case Qt::Key_Z: game->move(0); break;
+				case Qt::Key_Q: game->move(2); break;
+				case Qt::Key_S: game->move(1); break;
+				case Qt::Key_D: game->move(3); break;
+			}
+		}else{
+			switch(event->key()){
+				case Qt::Key_W: game->move(0); break;
+				case Qt::Key_A: game->move(2); break;
+				case Qt::Key_S: game->move(1); break;
+				case Qt::Key_D: game->move(3); break;
+			}
+		}
+
         switch(event->key()){
-
-        if(isAzerty){
-        case Qt::Key_Z: game->move(0); break;
-        case Qt::Key_Q: game->move(2); break;
-        }
-        else{
-        case Qt::Key_W: game->move(0); break;
-        case Qt::Key_A: game->move(2); break;
-        }
-
-        case Qt::Key_S: game->move(1); break;
-        case Qt::Key_D: game->move(3); break;
-<<<<<<< HEAD
+//<<<<<<< HEAD
         case Qt::Key_F: game->setAttack(); break;
-=======
+//=======
 		//?? WASD anybody?
 
-		case Qt::Key_A: game->setAttack(); break;
->>>>>>> 96d020c447514bb52921663691bc891dabe1cf80
-		case Qt::Key_Tab: game->cycleUnits(1); break;
+		//case Qt::Key_A: game->setAttack(); break;
+//>>>>>>> 96d020c447514bb52921663691bc891dabe1cf80
+		case Qt::Key_C: game->cycleUnits(1); break;
+			//Tab, as well as Enter and Space are blocked by buttons
 
         case Qt::Key_T: game->endTurn(); break;
 
@@ -85,7 +90,7 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 }
 
 void MainWindow::mousePressEvent(QMouseEvent* event){
-    if (!this->network || this->network->getTeam() == game->getTeamOnTurn()) {
+	if(game && (!this->network || this->network->getTeam() == game->getTeamOnTurn())) {
         if(! isAnimating) {
             int x = event->x();
             int y = event->y();
@@ -101,7 +106,7 @@ void MainWindow::mousePressEvent(QMouseEvent* event){
 
 void MainWindow::wheelEvent(QWheelEvent * event){
 
-	if(!this->network || (this->network->getTeam() == game->getTeamOnTurn())){
+	if(game && (!this->network || (this->network->getTeam() == game->getTeamOnTurn()))){
 	if(event->delta() > 0){
 		this->game->cycleUnits(-1);
 	}else{
